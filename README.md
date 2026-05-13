@@ -30,8 +30,3 @@ I engineered a fairer model by implementing **Attribute Dropping** and **Proxy M
 * `unfair.jpg` - Terminal output of the biased model.
 * `fair.jpg` - Terminal output of the mitigated model.
 
-## 🚀 Impact
-Following the success of my **Insulin Access Awareness Initiative** (which reached **700+ people**), this project aims to educate student developers on "Ethical by Design" software.
-
-## 👨‍💻 About the Author
-**Yash Kewlani** is an IB student (38/42) with a focus on AI, applied research, and innovation. He holds multiple **design patents** for AI-integrated hardware and has been recognized by **NASA** for excellence in robotics.
