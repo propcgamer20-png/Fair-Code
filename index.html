@@ -18,6 +18,42 @@
     --text: #d8d8e0;
     --muted: #52525f;
     --white: #f0f0f4;
+    --nav-bg: rgba(5,5,7,0.92);
+    --terminal-bg: #020204;
+    --terminal-bar-bg: #101015;
+    --terminal-label-color: #383845;
+    --terminal-text: #ccc;
+    --t-head-color: #32323e;
+    --bias-track-bg: #14141c;
+    --compare-bg: #080810;
+    --card-stroke: rgba(255,255,255,0.03);
+    --code-comment: #3a3a48;
+    --scanline-color: rgba(0,0,0,0.06);
+  }
+
+  html[data-theme="light"] {
+    --bg: #f5f5f0;
+    --surface: #ebebе4;
+    --surface: #e8e8e0;
+    --border: #d0d0c8;
+    --border2: #bfbfb8;
+    --accent: #5a9900;
+    --accent2: #cc1f1f;
+    --accent3: #0077aa;
+    --text: #1a1a22;
+    --muted: #6b6b78;
+    --white: #111118;
+    --nav-bg: rgba(245,245,240,0.94);
+    --terminal-bg: #1a1a22;
+    --terminal-bar-bg: #252530;
+    --terminal-label-color: #666680;
+    --terminal-text: #d0d0d8;
+    --t-head-color: #4a4a5a;
+    --bias-track-bg: #d4d4cc;
+    --compare-bg: #eeeee6;
+    --card-stroke: rgba(0,0,0,0.04);
+    --code-comment: #9090a0;
+    --scanline-color: rgba(0,0,0,0.025);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,9 +63,10 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'IBM Plex Mono', monospace;
-    font-weight: 300;
+    font-weight: 400;
     overflow-x: hidden;
     cursor: crosshair;
+    transition: background 0.3s, color 0.3s;
   }
 
   /* SCANLINE OVERLAY */
@@ -41,8 +78,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0,0,0,0.06) 2px,
-      rgba(0,0,0,0.06) 4px
+      var(--scanline-color) 2px,
+      var(--scanline-color) 4px
     );
     pointer-events: none;
     z-index: 9000;
@@ -84,7 +121,7 @@
     padding: 0 48px;
     height: 52px;
     border-bottom: 1px solid var(--border);
-    background: rgba(5,5,7,0.92);
+    background: var(--nav-bg);
     backdrop-filter: blur(12px);
   }
 
@@ -148,6 +185,24 @@
   }
 
   .nav-github:hover { opacity: 0.85; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    cursor: crosshair;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
   /* HERO */
   .hero {
@@ -229,7 +284,7 @@
   .hero-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(64px, 10vw, 148px);
+    font-size: clamp(52px, 8vw, 116px);
     line-height: 0.92;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -255,7 +310,7 @@
     color: var(--muted);
     max-width: 440px;
     line-height: 1.8;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .hero-stats {
@@ -386,7 +441,7 @@
   .about-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(40px, 5vw, 68px);
+    font-size: clamp(32px, 4vw, 52px);
     line-height: 0.94;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -409,7 +464,7 @@
     line-height: 1.9;
     color: var(--muted);
     margin-bottom: 16px;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .about-body strong { color: var(--text); font-weight: 400; }
@@ -473,7 +528,7 @@
   .method-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(36px, 4.5vw, 60px);
+    font-size: clamp(28px, 3.5vw, 48px);
     line-height: 0.94;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -508,7 +563,7 @@
 
   .code-block-body .k { color: var(--accent3); }
   .code-block-body .v { color: var(--accent); }
-  .code-block-body .c { color: #3a3a48; }
+  .code-block-body .c { color: var(--code-comment); }
 
   .method-flow {
     display: flex;
@@ -547,7 +602,7 @@
     font-size: 11px;
     color: var(--muted);
     line-height: 1.7;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* ── PROJECTS / EXPERIMENTS ────────────────────────────────────────────── */
@@ -561,7 +616,7 @@
   .projects-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(40px, 6vw, 76px);
+    font-size: clamp(36px, 5vw, 60px);
     letter-spacing: -0.02em;
     line-height: 0.94;
     color: var(--white);
@@ -602,7 +657,7 @@
     font-weight: 800;
     font-size: 120px;
     color: transparent;
-    -webkit-text-stroke: 1px rgba(255,255,255,0.03);
+    -webkit-text-stroke: 1px var(--card-stroke);
     pointer-events: none;
     user-select: none;
     line-height: 1;
@@ -640,7 +695,7 @@
     max-width: 320px;
     line-height: 1.8;
     margin-top: 10px;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* Stats on the right */
@@ -687,13 +742,13 @@
   }
 
   .terminal {
-    background: #020204;
+    background: var(--terminal-bg);
     border: 1px solid var(--border);
     overflow: hidden;
   }
 
   .terminal-bar {
-    background: #101015;
+    background: var(--terminal-bar-bg);
     padding: 8px 14px;
     display: flex;
     align-items: center;
@@ -708,7 +763,7 @@
 
   .terminal-label {
     font-size: 9px;
-    color: #383845;
+    color: var(--terminal-label-color);
     letter-spacing: 0.08em;
     margin-left: 6px;
     font-weight: 400;
@@ -718,15 +773,15 @@
     padding: 18px 20px;
     font-size: 11px;
     line-height: 1.9;
-    color: #ccc;
-    font-weight: 300;
+    color: var(--terminal-text);
+    font-weight: 400;
   }
 
-  .t-head { color: #32323e; }
+  .t-head { color: var(--t-head-color); }
   .t-bad { color: var(--accent2); }
   .t-good { color: #39ff8f; }
   .t-accent { color: var(--accent); }
-  .t-normal { color: #aaa; }
+  .t-normal { color: var(--terminal-text); }
 
   /* KEY INSIGHT */
   .key-insight {
@@ -748,7 +803,7 @@
     color: var(--muted);
     line-height: 1.9;
     max-width: 640px;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* BIAS BARS */
@@ -774,7 +829,7 @@
 
   .bias-track {
     height: 3px;
-    background: #14141c;
+    background: var(--bias-track-bg);
     position: relative;
     overflow: visible;
   }
@@ -797,7 +852,7 @@
   .impact-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(40px, 6vw, 88px);
+    font-size: clamp(36px, 5vw, 72px);
     line-height: 0.93;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -837,7 +892,7 @@
     font-size: 11px;
     color: var(--muted);
     line-height: 1.7;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .impact-footnote {
@@ -846,14 +901,14 @@
     max-width: 560px;
     line-height: 1.9;
     margin-top: 48px;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   /* ROADMAP */
   .roadmap-title {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(36px, 5vw, 72px);
+    font-size: clamp(28px, 4vw, 56px);
     line-height: 0.93;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -865,7 +920,7 @@
     color: var(--muted);
     max-width: 440px;
     line-height: 1.8;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .roadmap-grid {
@@ -895,7 +950,7 @@
   }
 
   .roadmap-status.done { background: var(--accent); box-shadow: 0 0 10px rgba(200,255,0,0.5); }
-  .roadmap-status.soon { background: transparent; border: 1px solid #2a2a38; }
+  .roadmap-status.soon { background: transparent; border: 1px solid var(--border2); }
 
   .roadmap-name {
     font-size: 12px;
@@ -994,7 +1049,7 @@
   .compare-block {
     border: 1px solid var(--border);
     padding: 24px;
-    background: #080810;
+    background: var(--compare-bg);
   }
 
   .compare-block.bad { border-color: rgba(255,60,60,0.15); }
@@ -1068,6 +1123,7 @@
     <li><a href="#roadmap">Roadmap</a></li>
   </ul>
   <a href="https://github.com/yakew7/Fair-Code" target="_blank" class="nav-github">↗ GitHub</a>
+  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">☀</button>
 </nav>
 
 <!-- HERO -->
@@ -1160,7 +1216,7 @@
   <div class="method-grid reveal">
     <div>
       <h2 class="method-title">THE PIPELINE</h2>
-      <p style="font-size: 12px; color: var(--muted); line-height: 1.9; margin-top: 16px; font-weight: 300;">Every project in this repo follows the same bias detection and mitigation workflow. Reproducible. Transparent. Measurable.</p>
+      <p style="font-size: 12px; color: var(--muted); line-height: 1.9; margin-top: 16px; font-weight: 400;">Every project in this repo follows the same bias detection and mitigation workflow. Reproducible. Transparent. Measurable.</p>
       <div class="code-block">
         <div class="code-block-header">
           <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
@@ -1458,6 +1514,21 @@
 </footer>
 
 <script>
+  // Theme toggle
+  const toggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('fc-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  toggle.textContent = saved === 'light' ? '☾' : '☀';
+
+  toggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('fc-theme', next);
+    toggle.textContent = next === 'light' ? '☾' : '☀';
+  });
+
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
