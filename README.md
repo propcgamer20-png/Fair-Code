@@ -225,7 +225,8 @@ Fair-Code/
 │
 ├── explainers/
 │   ├── proxy-variables.md         # What is a proxy variable? (concept + detection code)
-│   └── sampling-bias.md           # What is sampling bias? (concept + simulation + mitigation)
+│   ├── sampling-bias.md           # What is sampling bias? (concept + simulation + mitigation)
+│   └── shap-values.md             # What are SHAP values? (explainability + bias auditing)
 │
 ├── CONTRIBUTING.md
 └── README.md
@@ -239,6 +240,7 @@ Fair-Code/
 |---|---|
 | [What is a Proxy Variable?](explainers/proxy-variables.md) | Why AI stays biased even after you remove race from the data |
 | [What is Sampling Bias?](explainers/sampling-bias.md) | Why your AI works great in the lab and fails on the people who need it most |
+| [What Are SHAP Values?](explainers/shap-values.md) | How to see exactly what drove an AI decision — and use that to catch bias |
 | Coming soon | What is demographic parity? |
 | Coming soon | Why fairness metrics conflict with each other |
 
