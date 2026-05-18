@@ -1367,6 +1367,85 @@
     .bias-row { grid-template-columns: 90px 1fr 48px; gap: 8px; }
     .terminal-body { padding: 14px 14px; font-size: 10px; }
   }
+  /* NAV DROPDOWNS */
+  .nav-dropdown-wrap {
+    position: relative;
+    height: 100%;
+  }
+
+  .nav-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: crosshair;
+  }
+
+  .nav-caret {
+    font-size: 8px;
+    opacity: 0.5;
+    transition: transform 0.2s, opacity 0.2s;
+    display: inline-block;
+    line-height: 1;
+  }
+
+  .nav-dropdown-wrap:hover .nav-caret {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+
+  .nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    min-width: 210px;
+    background: var(--nav-bg);
+    border: 1px solid var(--border2);
+    border-top: 2px solid var(--accent);
+    list-style: none;
+    padding: 4px 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    backdrop-filter: blur(12px);
+    z-index: 200;
+  }
+
+  .nav-dropdown-wrap:hover .nav-dropdown {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+  }
+
+  .nav-dropdown li {
+    height: auto;
+  }
+
+  .nav-dropdown li a {
+    display: block;
+    height: auto;
+    padding: 10px 18px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.15s, background 0.15s, padding-left 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-dropdown li:last-child a {
+    border-bottom: none;
+  }
+
+  .nav-dropdown li a:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    padding-left: 24px;
+  }
+
 </style>
 </head>
 <body>
@@ -1376,9 +1455,22 @@
   <a href="#" class="nav-logo">FAIR_CODE</a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
-    <li><a href="#projects">Experiments</a></li>
+    <li class="nav-dropdown-wrap">
+      <a href="#projects" class="nav-dropdown-trigger">Experiments <span class="nav-caret">▾</span></a>
+      <ul class="nav-dropdown">
+        <li><a href="#project-compas">01 — COMPAS</a></li>
+        <li><a href="#project-hiring">02 — AI Hiring</a></li>
+        <li><a href="#project-credit">03 — German Credit</a></li>
+      </ul>
+    </li>
     <li><a href="#methodology">Method</a></li>
-    <li><a href="#explainers">Explainers</a></li>
+    <li class="nav-dropdown-wrap">
+      <a href="#explainers" class="nav-dropdown-trigger">Explainers <span class="nav-caret">▾</span></a>
+      <ul class="nav-dropdown">
+        <li><a href="#explainer-proxy">01 — Proxy Variables</a></li>
+        <li><a href="#explainer-sampling">02 — Sampling Bias</a></li>
+      </ul>
+    </li>
     <li><a href="#impact">Impact</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
   </ul>
@@ -1544,6 +1636,7 @@
   </div>
 
   <!-- PROJECT 1: COMPAS -->
+  <div id="project-compas" style="position:relative; top:-80px; visibility:hidden;"></div>
   <div class="project-card reveal">
     <div class="card-bg-num">01</div>
     <div class="project-top">
@@ -1618,6 +1711,7 @@
   </div>
 
   <!-- PROJECT 2: HIRING -->
+  <div id="project-hiring" style="position:relative; top:-80px; visibility:hidden;"></div>
   <div class="project-card red reveal" style="margin-top: 2px;">
     <div class="card-bg-num">02</div>
     <div class="project-top">
@@ -1691,6 +1785,7 @@
     </div>
   </div>
   <!-- PROJECT 3: GERMAN CREDIT -->
+  <div id="project-credit" style="position:relative; top:-80px; visibility:hidden;"></div>
   <div class="project-card reveal" style="margin-top: 2px;">
     <div class="card-bg-num">03</div>
     <div class="project-top">
@@ -1772,6 +1867,7 @@
   </div>
 
   <!-- EXPLAINER: PROXY VARIABLES -->
+  <div id="explainer-proxy" style="position:relative; top:-80px; visibility:hidden;"></div>
   <div class="explainer-card reveal">
     <div class="explainer-header">
       <div class="explainer-meta">
@@ -1946,6 +2042,7 @@
   </div>
 
   <!-- EXPLAINER: SAMPLING BIAS -->
+  <div id="explainer-sampling" style="position:relative; top:-80px; visibility:hidden;"></div>
   <div class="explainer-card reveal" style="margin-top: 2px;">
     <div class="explainer-header">
       <div class="explainer-meta">
