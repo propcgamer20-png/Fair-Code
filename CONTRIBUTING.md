@@ -1,16 +1,22 @@
 # Contributing to Fair Code
 
-Thanks for wanting to add to this. The goal is simple: find a real dataset where an AI system produces measurably biased outcomes, prove it with code, fix it, and prove that too.
+Thanks for wanting to add to this. There are two ways to contribute: **audits** and **explainers**.
 
-Every contribution follows the same structure as the existing audits. No exceptions — consistency is what makes the repo credible.
+An **audit** finds a real dataset where an AI system produces measurably biased outcomes, proves it with code, fixes it, and proves that too. An **explainer** takes a concept in algorithmic fairness and makes it concrete — with a clear definition, real examples, and runnable detection code.
+
+Both follow strict structure requirements. Consistency is what makes the repo credible.
 
 ---
 
 ## Before You Start
 
-Check the [roadmap in the README](README.md#whats-next) and open an Issue before doing any work. If two people are auditing the same dataset at the same time, that's wasted effort. The Issue is just a one-liner:
+Check the [roadmap in the README](README.md#whats-next) and open an Issue before doing any work. If two people are working on the same thing at the same time, that's wasted effort. The Issue is just a one-liner:
 
 > *"Taking on HMDA mortgage lending bias — starting with the federal HMDA dataset."*
+
+or
+
+> *"Writing an explainer on demographic parity."*
 
 ---
 
@@ -152,7 +158,81 @@ If your domain genuinely requires a different metric (equalized odds, predictive
 
 ---
 
-## Submitting
+## Contributing an Explainer
+
+You don't have to audit a dataset to contribute. If you can explain a concept in algorithmic fairness clearly — with real examples and runnable code — an explainer belongs here too.
+
+Explainers live in the `explainers/` folder at the repo root. The existing one is `proxy-variables.md`. Future ones might cover demographic parity, equalized odds, predictive parity, disparate impact, or fairness metric trade-offs.
+
+### File structure
+
+```
+Fair-Code/
+└── explainers/
+    ├── proxy-variables.md          ← existing
+    └── your-concept-name.md        ← your new explainer
+```
+
+One file per concept. Name it after the concept in lowercase with hyphens: `demographic-parity.md`, `equalized-odds.md`, etc.
+
+### What a good explainer contains
+
+Follow the structure of `proxy-variables.md`:
+
+**1. One-sentence definition** — what is the concept, stated as plainly as possible. No jargon in the definition itself.
+
+**2. Why it matters** — the real-world consequence if you ignore it. One short paragraph.
+
+**3. Concrete example** — ideally drawn from one of the audits in this repo (COMPAS, hiring, German Credit), or from a well-documented real-world case. The example should show the concept in action, not just describe it abstractly.
+
+**4. Detection or measurement code** — a runnable Python snippet demonstrating how to actually apply the concept. Use `pandas` and `scikit-learn` where possible to stay consistent with the rest of the repo.
+
+```python
+# Example structure for a detection snippet
+import pandas as pd
+from sklearn.metrics import ...
+
+def measure_concept(df, prediction_col, group_col):
+    """
+    Brief docstring explaining what this returns.
+    """
+    # your code here
+    return result
+```
+
+**5. Limitations or trade-offs** — every fairness metric has limitations or conflicts with other metrics. Acknowledge them honestly. This is what separates a good explainer from a shallow one.
+
+**6. Related concepts** — link to other explainers in the folder and to relevant projects in the repo.
+
+**7. Further reading** — 2–3 links to primary sources (papers, journalism, documentation). No link farms.
+
+### The standard to hit
+
+The proxy variables explainer is the bar. It defines the concept clearly, proves it with real numbers from the COMPAS audit, gives you code to detect it yourself, and explains why it exists structurally. Your explainer should do the same for its concept.
+
+If you can't show the concept with real data from one of the existing audits, use a well-documented external case with a source link. Do not use invented toy examples as the primary illustration.
+
+### Updating the README
+
+Add your explainer to the Explainers table in `README.md`:
+
+```markdown
+| [Your Concept](explainers/your-concept-name.md) | One-line description of what it explains |
+```
+
+### Submitting an explainer
+
+1. Fork the repo
+2. Create a branch: `git checkout -b explainer/your-concept`
+3. Add your `.md` file to `explainers/`
+4. Update the Explainers table in `README.md`
+5. Open a Pull Request titled: `Explainer: Demographic Parity`
+
+In the PR description, briefly state what concept you're explaining and why it's worth adding to the repo.
+
+---
+
+## Submitting an Audit
 
 1. Fork the repo
 2. Create a branch: `git checkout -b audit/your-domain`
@@ -171,12 +251,19 @@ In the PR description, include:
 
 ## What Won't Be Merged
 
+**Audits:**
 - Audits on synthetic or toy datasets
 - Scripts that don't produce reproducible results (missing `random_state=42` or inconsistent split)
 - Fair models that achieve parity by tanking overall accuracy to near-random
 - Audits without identified proxy variables (unless you document why none exist)
 - Screenshots saved as `.jpg` or `.jpeg` — use `.png`
 - Any dataset that isn't publicly accessible without login or payment
+
+**Explainers:**
+- Explainers that only define a concept without demonstrating it with real data or code
+- Explainers that don't acknowledge the limitations or trade-offs of the metric/concept
+- Toy or invented examples as the primary illustration — use real data
+- Explainers on concepts already covered in the folder (check before starting)
 
 ---
 
