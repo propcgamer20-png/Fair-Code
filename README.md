@@ -8,26 +8,27 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?style=flat-square&logo=scikit-learn)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)
+![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-blueviolet?style=flat-square)
 
 ---
 
 ## What This Is
 
-Fair Code is an ongoing research and engineering project that exposes bias in real-world AI systems and demonstrates concrete mitigation strategies. Every project follows the same structure:
+Fair Code is an ongoing research and engineering project that exposes bias in real-world AI systems and demonstrates concrete mitigation strategies. Every audit follows the same pipeline:
 
 **train a biased model → measure the fairness gap → engineer a fair model → measure again**
 
-No theory. Just data, code, and results.
+No theory. No hand-waving. Just data, code, and results.
 
 ---
 
 ## Results at a Glance
 
-| Project | Bias Type | Gap Before | Gap After | Reduction |
-|---|---|---|---|---|
-| [COMPAS](#01--compas--criminal-justice-bias) | Racial | 86.77% | 15.69% | **71%** |
-| [AI Recruitment](#02--ai-recruitment--hiring-bias) | Gender | 4.51% | 0.12% | **97.3%** |
-| [German Credit Lending](#03--german-credit--lending-bias) | Age | 7.16% | 1.89% | **73.6%** |
+| Project | Bias Type | Protected Attribute | Gap Before | Gap After | Reduction |
+|---|---|---|---|---|---|
+| [COMPAS](#01--compas--criminal-justice-bias) | Racial | Race + Custody Status (proxy) | 86.77% | 15.69% | **71%** |
+| [AI Recruitment](#02--ai-recruitment--hiring-bias) | Gender | Gender + Age | 4.51% | 0.12% | **97.3%** |
+| [German Credit](#03--german-credit--lending-bias) | Age | Age + Employment Tenure (proxy) | 7.16% | 1.89% | **73.6%** |
 
 ---
 
@@ -39,11 +40,11 @@ No theory. Just data, code, and results.
 
 **Dataset:** `compas-scores-raw.csv` — ProPublica's public COMPAS dataset (70,000+ records)
 
-COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) is used across 46 US states to predict whether a defendant will reoffend. Judges use its scores to make bail, sentencing, and parole decisions. More than 1 million people are assessed by COMPAS-style tools annually. Zero states require it to be audited for bias.
+COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) is deployed across 46 US states to predict whether a defendant will reoffend. Judges use its scores to make bail, sentencing, and parole decisions. More than 1 million people are assessed by COMPAS-style tools annually. Zero states require it to be audited for bias.
 
-**The Problem (`unfair.py`)**
+#### The Problem — `unfair.py`
 
-Trained with race and custody status as features — inputs COMPAS-style systems actually use in production.
+Trained with race and custody status as features — inputs that COMPAS-style systems actually use in production.
 
 | Group | High-Risk Flag Rate |
 |---|---|
@@ -51,9 +52,9 @@ Trained with race and custody status as features — inputs COMPAS-style systems
 | White Defendants | 0.40% |
 | **Fairness Gap** | **86.77%** |
 
-**The Fix (`fair.py`)**
+#### The Fix — `fair.py`
 
-Dropped race directly, and CustodyStatus as a known proxy variable — a correlated feature that smuggles racial signal back in even when the race column is removed.
+Dropped race directly, and `CustodyStatus` as a known proxy variable — a correlated feature that smuggles racial signal back in even after the race column is removed.
 
 ```python
 # THE FIX: Drop race + proxy variables
@@ -73,7 +74,7 @@ X = pd.get_dummies(df[[
 
 **Result: 71% reduction in the fairness gap.**
 
-**Key Insight:** Removing race alone isn't enough. Proxy variables like custody status carry the same racial signal through the model because of historical over-policing of Black communities. Both the protected attribute and its proxies must be removed.
+**Key Insight:** Removing race alone isn't enough. Proxy variables like custody status carry the same racial signal because of historical over-policing of Black communities. Both the protected attribute and its proxies must be removed.
 
 ---
 
@@ -83,9 +84,9 @@ X = pd.get_dummies(df[[
 
 **Dataset:** `AI_Fair_Recruitment_Dataset.csv` — Recruitment dataset with gender, age, experience, and technical test scores
 
-**The Problem (`unfair.py`)**
+#### The Problem — `unfair.py`
 
-Biased model trained with gender and age alongside merit-based inputs:
+Biased model trained with gender and age alongside merit-based inputs.
 
 | Group | Hire Rate |
 |---|---|
@@ -95,7 +96,7 @@ Biased model trained with gender and age alongside merit-based inputs:
 
 Women were hired ~21% less than men with identical experience and test scores.
 
-**The Fix (`fair.py`)**
+#### The Fix — `fair.py`
 
 Dropped gender and age entirely. Retained only merit-based features: experience years and technical test score.
 
@@ -114,19 +115,21 @@ X = df[['experience_years', 'test_score']]
 
 **Result: 97.3% reduction in the fairness gap.**
 
+**Key Insight:** The model was never explicitly told to discriminate by gender. It inferred a gender penalty from historical hiring patterns in the training data — patterns reflecting human bias, not merit. Restricting inputs to demonstrated ability eliminates the channel through which that bias flows.
+
 ---
 
 ### 03 · German Credit — Lending Bias
 
 > *"A credit scoring model rates young applicants as bad credit risks at 6.39 percentage points higher than older applicants with identical financial profiles. The algorithm doesn't know it's discriminating. It learned age from job tenure."*
 
-**Dataset:** `credit_customers.csv` — German Credit Risk dataset, UCI Statlog (1,000 records). [Kaggle source](https://www.kaggle.com/datasets/ppb00x/credit-risk-customers) — public domain, no login required.
+**Dataset:** `credit_customers.csv` — UCI Statlog German Credit dataset (1,000 records). [Kaggle source](https://www.kaggle.com/datasets/ppb00x/credit-risk-customers) — public domain, no login required.
 
-Age discrimination in lending is documented across financial systems worldwide. Young borrowers face higher rejection rates and worse terms not because of creditworthiness, but because the features used to measure creditworthiness — employment tenure, account history, savings — are structurally correlated with age. A 25-year-old with a stable income and no debt is not a worse credit risk than a 45-year-old with the same profile. But a model trained on historical data will treat them differently.
+Age discrimination in lending is documented across financial systems worldwide. Young borrowers face higher rejection rates not because of creditworthiness, but because the features used to measure it — employment tenure, account history, savings — are structurally correlated with age.
 
-**The Problem (`unfair.py`)**
+#### The Problem — `unfair.py`
 
-Biased model trained with `age` and `employment` (tenure) included as features:
+Biased model trained with `age` and `employment` (tenure) as features.
 
 | Group | Good Credit Rate |
 |---|---|
@@ -134,7 +137,7 @@ Biased model trained with `age` and `employment` (tenure) included as features:
 | Young Applicants (<30) | 76.81% |
 | **Fairness Gap** | **7.16%** |
 
-**Proxy Variable: `employment` (tenure)**
+#### Proxy Variable: `employment` (tenure)
 
 ```python
 import pandas as pd
@@ -150,9 +153,9 @@ print(pd.crosstab(df['employment'], df['is_young'], normalize='columns').round(3
 # >=7yr          0.359  0.073   ← older applicants have long tenure at 4.9x the rate
 ```
 
-Employment tenure is not an independent signal — it is structurally determined by age. A 24-year-old cannot have 10 years of employment history. When the model learns that short tenure predicts default, it is partially learning that being young predicts default. The feature smuggles age back through even after the `age` column is dropped.
+Employment tenure is not an independent signal — it is structurally determined by age. A 24-year-old cannot have 10 years of employment history. When the model learns that short tenure predicts default, it is partially learning that being young predicts default.
 
-**The Fix (`fair.py`)**
+#### The Fix — `fair.py`
 
 Dropped `age` and `employment`. Retained only objective financial signals that a borrower can control regardless of how old they are.
 
@@ -190,7 +193,7 @@ features = [
 
 **Result: 73.6% reduction in the fairness gap.**
 
-**Key Insight:** The bias in credit scoring isn't always intentional — it's structural. Employment tenure looks like a legitimate financial signal, and in isolation it is. But it's also a near-perfect proxy for age. A model that penalizes short tenure is partially penalizing youth, regardless of whether the word "age" appears anywhere in the feature list. Removing both age and its proxy forces the model to evaluate what a borrower has — their account balance, credit history, loan purpose, savings — rather than how long they've been alive.
+**Key Insight:** The bias in credit scoring isn't always intentional — it's structural. Employment tenure looks like a legitimate financial signal, and in isolation it is. But it's also a near-perfect proxy for age. A model that penalizes short tenure is partially penalizing youth, regardless of whether the word "age" appears anywhere in the feature list.
 
 ---
 
@@ -203,26 +206,27 @@ Fair-Code/
 │   ├── unfair.py                  # Biased model (race + custody status included)
 │   ├── fair.py                    # Mitigated model (race + proxy removed)
 │   ├── compas-scores-raw.csv      # ProPublica COMPAS dataset
-│   ├── unfair.jpg                 # Terminal output — biased results
-│   └── fair.jpg                   # Terminal output — mitigated results
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
 │
 ├── Ai Fair recrutment Dataset/
 │   ├── unfair.py                  # Biased model (gender + age included)
 │   ├── fair.py                    # Mitigated model (merit only)
 │   ├── AI_Fair_Recruitment_Dataset.csv
-│   ├── unfair.jpg                 # Terminal output — biased results
-│   └── fair.jpg                   # Terminal output — mitigated results
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
 │
 ├── German Credit Lending/
 │   ├── unfair.py                  # Biased model (age + employment tenure included)
 │   ├── fair.py                    # Mitigated model (financial signals only)
 │   ├── credit_customers.csv       # UCI German Credit dataset
-│   ├── unfair.jpg                 # Terminal output — biased results
-│   └── fair.jpg                   # Terminal output — mitigated results
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
 │
 ├── explainers/
 │   └── proxy-variables.md         # What is a proxy variable? (concept + detection code)
 │
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -273,40 +277,42 @@ These aren't edge cases or hypotheticals. Algorithms like COMPAS are deployed in
 
 ## Getting Started
 
-```
+```bash
 git clone https://github.com/yakew7/Fair-Code.git
 cd Fair-Code
 pip install pandas scikit-learn
 ```
 
 **Run the COMPAS project:**
-```
+```bash
 cd COMPAS
 python unfair.py   # See the bias
 python fair.py     # See the fix
 ```
 
 **Run the recruitment project:**
-```
+```bash
 cd "Ai Fair recrutment Dataset"
-python unfair.py   # See the bias
-python fair.py     # See the fix
+python unfair.py
+python fair.py
 ```
 
 **Run the German Credit project:**
-```
+```bash
 cd "German Credit Lending"
-python unfair.py   # See the bias
-python fair.py     # See the fix
+python unfair.py
+python fair.py
 ```
 
 ---
 
 ## Tech Stack
 
-- **Language:** Python 3
-- **Libraries:** `pandas`, `scikit-learn`
-- **Datasets:** ProPublica COMPAS (public domain), AI Fair Recruitment Dataset (Kaggle), UCI German Credit / Statlog (Kaggle)
+| Component | Details |
+|---|---|
+| Language | Python 3 |
+| Libraries | `pandas`, `scikit-learn` |
+| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle) |
 
 ---
 
@@ -316,6 +322,8 @@ python fair.py     # See the fix
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
 - [ ] Fairness audit web dashboard
+
+Want to contribute an audit? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
