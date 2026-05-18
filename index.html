@@ -1072,6 +1072,238 @@
     color: var(--border2);
   }
 
+  /* ── EXPLAINERS ─────────────────────────────────────────────────────────── */
+  .explainer-card {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .explainer-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    padding: 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .explainer-num {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .explainer-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 3vw, 40px);
+    color: var(--white);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+
+  .explainer-tagline {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-style: italic;
+    max-width: 340px;
+  }
+
+  .explainer-def-label {
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .explainer-def-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.9;
+    font-weight: 400;
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+  }
+
+  .explainer-body {
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .explainer-block-label {
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .explainer-block-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.9;
+    font-weight: 400;
+    max-width: 720px;
+  }
+
+  .inline-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    background: var(--border);
+    color: var(--accent3);
+    padding: 1px 6px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Proxy table */
+  .proxy-table {
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .proxy-row {
+    display: grid;
+    grid-template-columns: 200px 180px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .proxy-row:last-child { border-bottom: none; }
+
+  .proxy-row > span {
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    border-right: 1px solid var(--border);
+  }
+
+  .proxy-row > span:last-child { border-right: none; }
+
+  .proxy-row-head {
+    background: var(--surface);
+  }
+
+  .proxy-row-head > span {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+  }
+
+  .proxy-attr {
+    color: var(--accent2) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.05em;
+  }
+
+  /* Proof steps */
+  .proof-step-num {
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .proof-step-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 0;
+    letter-spacing: 0.04em;
+  }
+
+  /* Summary comparison table */
+  .explainer-callout {
+    margin-top: 20px;
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    padding: 16px 20px;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+
+  /* Reading links */
+  .reading-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .reading-link {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    display: block;
+  }
+
+  .reading-link:hover { color: var(--accent); border-color: var(--border2); background: var(--surface); }
+
+  /* Explainer footer */
+  .explainer-footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .explainer-footer-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .coming-soon-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .coming-pill {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+  }
+
+  /* RESPONSIVE additions */
+  @media (max-width: 900px) {
+    .explainer-header { grid-template-columns: 1fr; gap: 28px; padding: 28px 20px; }
+    .explainer-body { padding: 28px 20px; gap: 36px; }
+    .proxy-row { grid-template-columns: 130px 110px 1fr; }
+    .explainer-footer { padding: 24px 20px; }
+  }
+
+  @media (max-width: 600px) {
+    .proxy-row { grid-template-columns: 1fr; }
+    .proxy-row > span { border-right: none; border-bottom: 1px solid var(--border); }
+    .proxy-row > span:last-child { border-bottom: none; }
+    .proxy-row-head { display: none; }
+  }
+
   /* RESPONSIVE */
   @media (max-width: 900px) {
     nav { padding: 0 16px; }
@@ -1146,6 +1378,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#projects">Experiments</a></li>
     <li><a href="#methodology">Method</a></li>
+    <li><a href="#explainers">Explainers</a></li>
     <li><a href="#impact">Impact</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
   </ul>
@@ -1195,6 +1428,8 @@
     <span class="ticker-item"><span class="dot"></span>RANDOM FOREST CLASSIFIER</span>
     <span class="ticker-item"><span class="dot"></span>DEMOGRAPHIC PARITY METRIC</span>
     <span class="ticker-item"><span class="dot"></span>PROXY VARIABLE REMOVAL</span>
+    <span class="ticker-item red"><span class="dot"></span>GERMAN CREDIT LENDING BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>AGE DISCRIMINATION · 73.6% REDUCTION</span>
     <span class="ticker-item"><span class="dot"></span>OPEN SOURCE · PUBLIC DATA</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
@@ -1204,6 +1439,8 @@
     <span class="ticker-item"><span class="dot"></span>RANDOM FOREST CLASSIFIER</span>
     <span class="ticker-item"><span class="dot"></span>DEMOGRAPHIC PARITY METRIC</span>
     <span class="ticker-item"><span class="dot"></span>PROXY VARIABLE REMOVAL</span>
+    <span class="ticker-item red"><span class="dot"></span>GERMAN CREDIT LENDING BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>AGE DISCRIMINATION · 73.6% REDUCTION</span>
     <span class="ticker-item"><span class="dot"></span>OPEN SOURCE · PUBLIC DATA</span>
   </div>
 </div>
@@ -1453,11 +1690,263 @@
       </div>
     </div>
   </div>
-</section>
+  <!-- PROJECT 3: GERMAN CREDIT -->
+  <div class="project-card reveal" style="margin-top: 2px;">
+    <div class="card-bg-num">03</div>
+    <div class="project-top">
+      <div>
+        <div class="project-num">PROJECT — 03</div>
+        <div class="project-name">GERMAN CREDIT</div>
+        <p class="project-desc">A lending model rates young applicants as bad credit risks at 6+ points higher than older applicants with identical financial profiles. It learned age from job tenure.</p>
+      </div>
+      <div class="project-stats">
+        <div class="stat-label">FAIRNESS GAP BEFORE</div>
+        <div class="stat-big bad">7.16<span class="stat-unit">%</span></div>
+        <div class="stat-label" style="margin-top: 8px;">AFTER MITIGATION</div>
+        <div class="stat-big good">1.89<span class="stat-unit good">%</span></div>
+        <span class="reduction-badge">73.6% reduction</span>
+      </div>
+    </div>
 
-<!-- IMPACT -->
+    <div class="terminals-grid">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">--- BIASED MODEL RESULTS ---</div>
+          <div class="t-normal">Older Applicants (30+) Good Credit: 83.97%</div>
+          <div class="t-bad">Young Applicants (&lt;30) Good Credit: 76.81%</div>
+          <div class="t-bad">Fairness Gap: 7.16%</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">--- MITIGATED (UNBIASED) RESULTS ---</div>
+          <div class="t-good">Older Applicants (30+) Good Credit: 80.15%</div>
+          <div class="t-good">Young Applicants (&lt;30) Good Credit: 78.26%</div>
+          <div class="t-accent">New Fairness Gap: 1.89%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <div class="key-insight-label">Key Insight</div>
+      <p>Employment tenure looks like a legitimate financial signal — and it is. But it's also a near-perfect proxy for age. A 24-year-old cannot have 10 years of employment history. The model penalising short tenure was partially penalising youth. Dropping both <code class="inline-code">age</code> and <code class="inline-code">employment</code> forced it to evaluate what a borrower has — savings, credit history, loan purpose — rather than how long they've been alive.</p>
+    </div>
+
+    <div class="bias-bar-wrap" style="margin-top: 32px;">
+      <div class="bias-row">
+        <span class="bias-label">Older · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 83.97%; opacity: 0.4;"></div></div>
+        <span class="bias-val">83.97%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Young · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 76.81%;"></div></div>
+        <span class="bias-val">76.81%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Older · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 80.15%;"></div></div>
+        <span class="bias-val">80.15%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Young · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 78.26%; opacity: 0.8;"></div></div>
+        <span class="bias-val">78.26%</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="explainers" style="background: var(--surface);">
+  <div class="section-eyebrow"><span class="num">04</span>Explainers</div>
+  <div class="projects-header">
+    <h2 class="projects-title reveal">THE CONCEPTS</h2>
+    <a href="https://github.com/yakew7/Fair-Code/tree/main/explainers" target="_blank" class="gh-badge">↗ View on GitHub</a>
+  </div>
+
+  <!-- EXPLAINER: PROXY VARIABLES -->
+  <div class="explainer-card reveal">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 01</div>
+        <h3 class="explainer-title">WHAT IS A PROXY VARIABLE?</h3>
+        <p class="explainer-tagline">The sneaky reason AI stays biased even after you remove race from the data.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">A proxy variable is a data feature that <em>correlates</em> with a protected attribute — like race, gender, or class — even though it doesn't mention it directly. So removing the protected attribute doesn't remove the bias it encodes.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Most people assume that removing race from an AI model makes it race-neutral. This is wrong. Machine learning models don't care what a feature is <em>called</em>. They care what it <em>predicts</em>. If a feature like <code class="inline-code">custody_status</code> or <code class="inline-code">zip_code</code> is correlated with race in the training data, the model will learn and use that correlation — whether or not the word "race" appears anywhere in the dataset. This is called <strong>proxy discrimination</strong>, and it's one of the hardest problems in algorithmic fairness.</p>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Common Proxy Variables</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Feature</span>
+            <span>Encodes</span>
+            <span>Why</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">zip_code</code></span>
+            <span class="proxy-attr">Race</span>
+            <span>Historical redlining segregated neighbourhoods. Zip codes still reflect this.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">custody_status</code></span>
+            <span class="proxy-attr">Race</span>
+            <span>Over-policing of Black communities leads to disproportionate pretrial detention.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">name</code></span>
+            <span class="proxy-attr">Gender / Ethnicity</span>
+            <span>Names encode gender and ethnicity with high accuracy.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">college_attended</code></span>
+            <span class="proxy-attr">Socioeconomic class</span>
+            <span>Elite colleges remain heavily stratified by class and race.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">prior_arrests</code></span>
+            <span class="proxy-attr">Race</span>
+            <span>Arrest records reflect over-policing, not actual crime rates.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">employment_tenure</code></span>
+            <span class="proxy-attr">Age</span>
+            <span>A 24-year-old structurally cannot have 10 years of work history.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: COMPAS</div>
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Biased model — race + proxies included</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">unfair.py — race + CustodyStatus</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-bad">Black defendants: 87.16%</div>
+                  <div class="t-normal">White defendants: 0.40%</div>
+                  <div class="t-bad">Fairness Gap: 86.77%</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">naive_fix.py — race removed, proxy kept</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-bad">Black defendants: ~85%</div>
+                  <div class="t-normal">White defendants: ~5%</div>
+                  <div class="t-bad">Fairness Gap: ~80% — barely moved</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">Fair model — race AND proxy removed</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal" style="border-color: color-mix(in srgb, var(--accent) 30%, var(--border));">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">fair.py — race + CustodyStatus dropped</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-good">Black defendants: 84.71%</div>
+                  <div class="t-good">White defendants: 69.02%</div>
+                  <div class="t-accent">Fairness Gap: 15.69% — 71% reduction</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">detect_proxy.py</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># chi-squared test of independence</div>
+                  <div class="t-normal">feature: CustodyStatus</div>
+                  <div class="t-normal">protected_attr: race</div>
+                  <div class="t-bad">p_value: 0.0001</div>
+                  <div class="t-accent">is_proxy: True ← remove this</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">How to Detect Proxy Variables</div>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            detect_proxy.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="c">from</span> <span class="v">scipy.stats</span> <span class="c">import</span> <span class="v">chi2_contingency</span><br><br>
+            <span class="k">def</span> <span class="v">check_proxy</span>(df, feature, protected_attr):<br>
+            &nbsp;&nbsp;<span class="c">"""Returns p-value. If &lt; 0.05, likely a proxy."""</span><br>
+            &nbsp;&nbsp;contingency = pd.crosstab(df[feature], df[protected_attr])<br>
+            &nbsp;&nbsp;chi2, p, dof, _ = chi2_contingency(contingency)<br>
+            &nbsp;&nbsp;<span class="k">return</span> { <span class="v">'p_value'</span>: round(p, 4), <span class="v">'is_proxy'</span>: p &lt; 0.05 }<br><br>
+            <span class="c"># Run on every feature before training</span><br>
+            <span class="k">result</span> = check_proxy(df, <span class="v">'CustodyStatus'</span>, <span class="v">'race'</span>)<br>
+            <span class="c"># → { 'p_value': 0.0001, 'is_proxy': True }</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Proxy variables exist because our social world is stratified. Zip codes encode race because of redlining. Custody records encode race because of over-policing. Employment tenure encodes age because time is linear. Data doesn't exist in a vacuum — it reflects the society that generated it. A model trained on that data will learn those reflections, unless you actively audit and intervene.</p>
+        <div class="explainer-callout">Algorithmic auditing is not optional. It is a prerequisite for deployment.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" class="reading-link">↗ ProPublica: Machine Bias (2016)</a>
+          <a href="https://fairmlbook.org/" target="_blank" class="reading-link">↗ Barocas & Hardt: Fairness and Machine Learning</a>
+          <a href="https://science.sciencemag.org/content/366/6464/447" target="_blank" class="reading-link">↗ Obermeyer et al.: Dissecting racial bias in a health algorithm (Science, 2019)</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Coming Soon</div>
+      <div class="coming-soon-pills">
+        <span class="coming-pill">What is Demographic Parity?</span>
+        <span class="coming-pill">Why Fairness Metrics Conflict</span>
+        <span class="coming-pill">Equalized Odds vs Predictive Parity</span>
+      </div>
+    </div>
+  </div>
+</section>
 <section id="impact" style="background: var(--surface);">
-  <div class="section-eyebrow"><span class="num">04</span>Why This Matters</div>
+  <div class="section-eyebrow"><span class="num">05</span>Why This Matters</div>
   <h2 class="impact-title reveal">THESE ARE NOT HYPOTHETICALS</h2>
   <div class="impact-grid reveal">
     <div class="impact-cell">
@@ -1478,7 +1967,7 @@
 
 <!-- ROADMAP -->
 <section id="roadmap">
-  <div class="section-eyebrow"><span class="num">05</span>What's Next</div>
+  <div class="section-eyebrow"><span class="num">06</span>What's Next</div>
   <h2 class="roadmap-title reveal">THE ROADMAP</h2>
   <p class="roadmap-sub reveal">More datasets, more domains, more bias exposed and fixed. Follow the project on Instagram for updates.</p>
 
@@ -1495,6 +1984,20 @@
       <div>
         <div class="roadmap-name">AI Recruitment Bias</div>
         <div class="roadmap-meta">Kaggle dataset · gender + age · 97.3% bias reduction</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">German Credit Lending Bias</div>
+        <div class="roadmap-meta">UCI Statlog · age + tenure proxy · 73.6% bias reduction</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Proxy Variables</div>
+        <div class="roadmap-meta">Concept deep-dive · detection code · real-world proof</div>
       </div>
     </div>
     <div class="roadmap-item">
