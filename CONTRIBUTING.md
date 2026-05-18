@@ -35,9 +35,13 @@ Fair-Code/
 │   ├── your-dataset.csv
 │   ├── unfair.png
 │   └── fair.png
+├── explainers/
+│   ├── proxy-variables.md         ← existing
+│   ├── sampling-bias.md           ← existing
+│   └── your-concept-name.md       ← your new explainer
 ```
 
-No subfolders, no extra files. Keep it flat.
+No subfolders within audit folders, no extra files. Keep it flat.
 
 ---
 
@@ -162,7 +166,7 @@ If your domain genuinely requires a different metric (equalized odds, predictive
 
 You don't have to audit a dataset to contribute. If you can explain a concept in algorithmic fairness clearly — with real examples and runnable code — an explainer belongs here too.
 
-Explainers live in the `explainers/` folder at the repo root. The existing one is `proxy-variables.md`. Future ones might cover demographic parity, equalized odds, predictive parity, disparate impact, or fairness metric trade-offs.
+Explainers live in the `explainers/` folder at the repo root. The existing ones are `proxy-variables.md` and `sampling-bias.md`. Future ones might cover demographic parity, equalized odds, predictive parity, disparate impact, or fairness metric trade-offs.
 
 ### File structure
 
@@ -170,6 +174,7 @@ Explainers live in the `explainers/` folder at the repo root. The existing one i
 Fair-Code/
 └── explainers/
     ├── proxy-variables.md          ← existing
+    ├── sampling-bias.md            ← existing
     └── your-concept-name.md        ← your new explainer
 ```
 
@@ -177,7 +182,7 @@ One file per concept. Name it after the concept in lowercase with hyphens: `demo
 
 ### What a good explainer contains
 
-Follow the structure of `proxy-variables.md`:
+Follow the structure of `proxy-variables.md` and `sampling-bias.md`:
 
 **1. One-sentence definition** — what is the concept, stated as plainly as possible. No jargon in the definition itself.
 
@@ -208,7 +213,7 @@ def measure_concept(df, prediction_col, group_col):
 
 ### The standard to hit
 
-The proxy variables explainer is the bar. It defines the concept clearly, proves it with real numbers from the COMPAS audit, gives you code to detect it yourself, and explains why it exists structurally. Your explainer should do the same for its concept.
+The proxy variables and sampling bias explainers are the bar. They define the concept clearly, prove it with real numbers or runnable simulations, give you code to detect it yourself, and explain why it exists structurally. Your explainer should do the same for its concept.
 
 If you can't show the concept with real data from one of the existing audits, use a well-documented external case with a source link. Do not use invented toy examples as the primary illustration.
 
