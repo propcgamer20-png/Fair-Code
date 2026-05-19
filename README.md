@@ -70,7 +70,8 @@ Fair-Code/
 │   ├── proxy-variables.md         # What is a proxy variable? (concept + detection code)
 │   ├── equalized-odds.md          # What is equalized odds? (concept + detection code)
 │   ├── sampling-bias.md           # What is sampling bias? (concept + simulation + mitigation)
-│   └── shap-values.md             # What are SHAP values? (explainability + bias auditing)
+│   ├── shap-values.md             # What are SHAP values? (explainability + bias auditing)
+│   └── disparate-impact.md        # What is disparate impact? (the 80% rule + legal threshold)
 │
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
