@@ -27,9 +27,57 @@ No theory. No hand-waving. Just data, code, and results.
 | Project | Bias Type | Protected Attribute | Gap Before | Gap After | Reduction |
 |---|---|---|---|---|---|
 | [COMPAS](#01--compas--criminal-justice-bias) | Racial | Race + Custody Status (proxy) | 86.77% | 15.69% | **71%** |
-| [AI Recruitment](#02--ai-recruitment--hiring-bias) | Gender | Gender + Age | 4.51% | 0.12% | **97.3%** |
-| [German Credit](#03--german-credit--lending-bias) | Age | Age + Employment Tenure (proxy) | 7.16% | 1.89% | **73.6%** |
+| [AI Fair Recruitment](#02--ai-fair-recruitment--hiring-bias) | Gender | Gender + Age | 4.51% | 0.12% | **97.3%** |
+| [German Credit Lending](#03--german-credit-lending--lending-bias) | Age | Age + Employment Tenure (proxy) | 7.16% | 1.89% | **73.6%** |
 | [Insurance Denial](#04--insurance-denial--healthcare-bias) | Age + Gender | Age + Gender + BMI + Smoker + Diabetic (proxies) | Age: 7.93% / Gender: 5.44% | Age: 3.18% / Gender: 1.54% | **Age: 60% / Gender: 72%** |
+
+---
+
+## Repository Structure
+
+```
+Fair-Code/
+│
+├── COMPAS/
+│   ├── unfair.py                  # Biased model (race + custody status included)
+│   ├── fair.py                    # Mitigated model (race + proxy removed)
+│   ├── compas-scores-raw.csv      # ProPublica COMPAS dataset
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
+│
+├── AI Fair Recruitment/
+│   ├── unfair.py                  # Biased model (gender + age included)
+│   ├── fair.py                    # Mitigated model (merit only)
+│   ├── AI_Fair_Recruitment_Dataset.csv
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
+│
+├── German Credit Lending/
+│   ├── unfair.py                  # Biased model (age + employment tenure included)
+│   ├── fair.py                    # Mitigated model (financial signals only)
+│   ├── credit_customers.csv       # UCI German Credit dataset
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
+│
+├── Insurance Denial/
+│   ├── unfair.py                  # Biased model (age + gender + BMI + smoker + diabetic)
+│   ├── fair.py                    # Mitigated model (policy signals only)
+│   ├── insurance.csv              # Kaggle Insurance Claim dataset (1,340 records)
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
+│
+├── explainers/
+│   ├── proxy-variables.md         # What is a proxy variable? (concept + detection code)
+│   ├── sampling-bias.md           # What is sampling bias? (concept + simulation + mitigation)
+│   └── shap-values.md             # What are SHAP values? (explainability + bias auditing)
+│
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── index.html                     # Project website
+└── requirements.txt
+```
 
 ---
 
@@ -79,7 +127,7 @@ X = pd.get_dummies(df[[
 
 ---
 
-### 02 · AI Recruitment — Hiring Bias
+### 02 · AI Fair Recruitment — Hiring Bias
 
 > *"Women were hired 20.9% less than equally qualified men. The algorithm wasn't told to discriminate. It learned to."*
 
@@ -120,7 +168,7 @@ X = df[['experience_years', 'test_score']]
 
 ---
 
-### 03 · German Credit — Lending Bias
+### 03 · German Credit Lending — Lending Bias
 
 > *"A credit scoring model rates young applicants as bad credit risks at 6.39 percentage points higher than older applicants with identical financial profiles. The algorithm doesn't know it's discriminating. It learned age from job tenure."*
 
@@ -141,10 +189,6 @@ Biased model trained with `age` and `employment` (tenure) as features.
 #### Proxy Variable: `employment` (tenure)
 
 ```python
-import pandas as pd
-df = pd.read_csv('credit_customers.csv')
-df['is_young'] = (df['age'] < 30).astype(int)
-
 print(pd.crosstab(df['employment'], df['is_young'], normalize='columns').round(3))
 
 # Result:
@@ -154,37 +198,11 @@ print(pd.crosstab(df['employment'], df['is_young'], normalize='columns').round(3
 # >=7yr          0.359  0.073   ← older applicants have long tenure at 4.9x the rate
 ```
 
-Employment tenure is not an independent signal — it is structurally determined by age. A 24-year-old cannot have 10 years of employment history. When the model learns that short tenure predicts default, it is partially learning that being young predicts default.
+Employment tenure is not an independent signal — it is structurally determined by age. A 24-year-old cannot have 10 years of employment history.
 
 #### The Fix — `fair.py`
 
-Dropped `age` and `employment`. Retained only objective financial signals that a borrower can control regardless of how old they are.
-
-```python
-# THE FIX: Financial signals only
-features = [
-    'checking_status',
-    'duration',
-    'credit_history',
-    'purpose',
-    'credit_amount',
-    'savings_status',
-    # employment removed ✓ (proxy: tenure is a direct function of age)
-    'installment_commitment',
-    'personal_status',
-    'other_parties',
-    'residence_since',
-    'property_magnitude',
-    # age removed ✓ (protected attribute)
-    'other_payment_plans',
-    'housing',
-    'existing_credits',
-    'job',
-    'num_dependents',
-    'own_telephone',
-    'foreign_worker',
-]
-```
+Dropped `age` and `employment`. Retained only objective financial signals.
 
 | Group | Good Credit Rate |
 |---|---|
@@ -194,7 +212,7 @@ features = [
 
 **Result: 73.6% reduction in the fairness gap.**
 
-**Key Insight:** The bias in credit scoring isn't always intentional — it's structural. Employment tenure looks like a legitimate financial signal, and in isolation it is. But it's also a near-perfect proxy for age. A model that penalizes short tenure is partially penalizing youth, regardless of whether the word "age" appears anywhere in the feature list.
+**Key Insight:** Employment tenure looks like a legitimate financial signal, and in isolation it is. But it's also a near-perfect proxy for age. A model that penalizes short tenure is partially penalizing youth, regardless of whether the word "age" appears anywhere in the feature list.
 
 ---
 
@@ -203,13 +221,9 @@ features = [
 > *"An insurance AI flags older patients for high-cost claims at 7.93 percentage points higher than younger patients, and flags women at 5.44 percentage points higher than men — using BMI, smoking status, and diabetic status as proxies for race and class."*
 
 **Dataset:** `insurance.csv` — Insurance Claim Analysis: Demographic & Health  
-[Kaggle: thedevastator/insurance-claim-analysis-demographic-and-health](https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health) — 1,340 records. Claim charges binarized at median (above median = high-cost flag).
-
-AI tools screen insurance claims at scale across all major US insurers. The ACA prohibits discrimination by age and sex — but most algorithmic auditing requirements remain voluntary. Zero federal laws require insurance claim AI to be audited for bias.
+[Kaggle: thedevastator/insurance-claim-analysis-demographic-and-health](https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health) — 1,340 records.
 
 #### The Problem — `unfair.py`
-
-Biased model trained with `age`, `gender`, `bmi`, `diabetic`, and `smoker` as features.
 
 | Group | High-Cost Claim Flag Rate |
 |---|---|
@@ -225,21 +239,7 @@ Biased model trained with `age`, `gender`, `bmi`, `diabetic`, and `smoker` as fe
 
 #### The Fix — `fair.py`
 
-Dropped `age`, `gender`, and three proxy variables. Retained only objective policy-level signals.
-
-```python
-# THE FIX: Policy signals only
-X = pd.get_dummies(df[[
-    'bloodpressure',  # objective clinical measurement
-    'children',       # number of dependants — policy-level fact
-    'region',         # geographic region — policy-level factor
-    # age      removed ✓  (protected attribute)
-    # gender   removed ✓  (protected attribute)
-    # bmi      removed ✓  (proxy: encodes race via population BMI distributions)
-    # smoker   removed ✓  (proxy: encodes income/class → race)
-    # diabetic removed ✓  (proxy: diagnosis rates differ 60–100% by race)
-]])
-```
+Dropped `age`, `gender`, `bmi`, `smoker`, and `diabetic`. Retained only objective policy-level signals: `bloodpressure`, `children`, `region`.
 
 | Group | High-Cost Claim Flag Rate |
 |---|---|
@@ -255,57 +255,7 @@ X = pd.get_dummies(df[[
 
 **Result: 60% reduction in age gap. 72% reduction in gender gap.**
 
-#### Proxy Variables
-
-**BMI** — Population-level BMI distributions differ by race and ethnicity. Black and Hispanic Americans are classified as obese at higher rates than white Americans with equivalent metabolic health outcomes. A model that penalises high BMI is partially penalising race, regardless of whether "race" appears in the feature list.
-
-**Smoker status** — Smoking rates are inversely correlated with income and education, which are themselves structurally correlated with race and class. Flagging smokers as high-risk encodes poverty — and therefore race — through an apparently neutral medical variable.
-
-**Diabetic status** — Black and Hispanic Americans are diagnosed with diabetes at 60–100% higher rates than white Americans. Using diabetic status as a feature encodes racial disparities in healthcare access and diagnosis rates, not individual health risk.
-
 **Key Insight:** Insurance AI models don't need to name race to discriminate by race. BMI, smoking, and diabetic status are the `CustodyStatus` of health insurance — clinical-sounding features that carry protected-class signal because of structural inequalities baked into American healthcare.
-
----
-
-```
-Fair-Code/
-│
-├── COMPAS/
-│   ├── unfair.py                  # Biased model (race + custody status included)
-│   ├── fair.py                    # Mitigated model (race + proxy removed)
-│   ├── compas-scores-raw.csv      # ProPublica COMPAS dataset
-│   ├── unfair.png                 # Terminal output — biased results
-│   └── fair.png                   # Terminal output — mitigated results
-│
-├── Ai Fair recrutment Dataset/
-│   ├── unfair.py                  # Biased model (gender + age included)
-│   ├── fair.py                    # Mitigated model (merit only)
-│   ├── AI_Fair_Recruitment_Dataset.csv
-│   ├── unfair.png                 # Terminal output — biased results
-│   └── fair.png                   # Terminal output — mitigated results
-│
-├── German Credit Lending/
-│   ├── unfair.py                  # Biased model (age + employment tenure included)
-│   ├── fair.py                    # Mitigated model (financial signals only)
-│   ├── credit_customers.csv       # UCI German Credit dataset
-│   ├── unfair.png                 # Terminal output — biased results
-│   └── fair.png                   # Terminal output — mitigated results
-│
-├── Insurance Denial/
-│   ├── unfair.py                  # Biased model (age + gender + BMI + smoker + diabetic)
-│   ├── fair.py                    # Mitigated model (policy signals only)
-│   ├── insurance.csv              # Kaggle Insurance Claim dataset (1,340 records)
-│   ├── unfair.png                 # Terminal output — biased results
-│   └── fair.png                   # Terminal output — mitigated results
-│
-├── explainers/
-│   ├── proxy-variables.md         # What is a proxy variable? (concept + detection code)
-│   ├── sampling-bias.md           # What is sampling bias? (concept + simulation + mitigation)
-│   └── shap-values.md             # What are SHAP values? (explainability + bias auditing)
-│
-├── CONTRIBUTING.md
-└── README.md
-```
 
 ---
 
@@ -359,7 +309,7 @@ These aren't edge cases or hypotheticals. Algorithms like COMPAS are deployed in
 ```bash
 git clone https://github.com/yakew7/Fair-Code.git
 cd Fair-Code
-pip install pandas scikit-learn
+pip install -r requirements.txt
 ```
 
 **Run the COMPAS project:**
@@ -371,7 +321,7 @@ python fair.py     # See the fix
 
 **Run the recruitment project:**
 ```bash
-cd "Ai Fair recrutment Dataset"
+cd "AI Fair Recruitment"
 python unfair.py
 python fair.py
 ```
@@ -379,6 +329,13 @@ python fair.py
 **Run the German Credit project:**
 ```bash
 cd "German Credit Lending"
+python unfair.py
+python fair.py
+```
+
+**Run the Insurance Denial project:**
+```bash
+cd "Insurance Denial"
 python unfair.py
 python fair.py
 ```
@@ -391,22 +348,25 @@ python fair.py
 |---|---|
 | Language | Python 3 |
 | Libraries | `pandas`, `scikit-learn` |
-| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle) |
+| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle) |
 
 ---
 
 ## What's Next
 
 - [x] COMPAS Criminal Justice Bias
-- [x] AI Recruitment Bias
+- [x] AI Fair Recruitment Bias
 - [x] German Credit Lending Bias
 - [x] Insurance Denial — Healthcare Bias
+- [x] Explainer: Proxy Variables
+- [x] Explainer: Sampling Bias
+- [x] Explainer: SHAP Values
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
 - [ ] Fairness audit web dashboard
 
-Want to contribute an audit? See [CONTRIBUTING.md](CONTRIBUTING.md).
+Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
@@ -417,4 +377,4 @@ Data. Code. Accountability. One post at a time.
 
 ---
 
-*All datasets used are publicly available. This project is for educational and awareness purposes.*
+*All datasets used in this project are publicly available. Fair Code is for educational and awareness purposes.*
