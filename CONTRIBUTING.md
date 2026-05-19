@@ -177,6 +177,7 @@ Fair-Code/
 └── explainers/
     ├── proxy-variables.md          ← existing
     ├── sampling-bias.md            ← existing
+    ├── shap-values.md             ← existing
     └── your-concept-name.md        ← your new explainer
 ```
 
