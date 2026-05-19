@@ -16,7 +16,7 @@ from sklearn.metrics import accuracy_score
 # race, class, or protected status.
 # ============================================================
 
-df = pd.read_csv('insurance.csv')
+df = pd.read_csv('Insurance Denial/insurance.csv')
 
 # Same binarization threshold as unfair.py — valid comparison.
 median_charge = df['claim'].median()

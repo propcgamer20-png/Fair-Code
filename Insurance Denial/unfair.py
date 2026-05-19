@@ -21,7 +21,7 @@ from sklearn.metrics import accuracy_score
 # racial signal through an apparently clinical variable.
 # ============================================================
 
-df = pd.read_csv('insurance.csv')
+df = pd.read_csv('Insurance Denial/insurance.csv')
 
 # Binarize continuous claim charges at the median.
 # Above median = high-cost claim (flagged for denial/review).
