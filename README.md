@@ -268,6 +268,7 @@ Dropped `age`, `gender`, `bmi`, `smoker`, and `diabetic`. Retained only objectiv
 | [What is Equalized Odds?](explainers/equalized-odds.md) | The fairness metric that catches a model treating two groups differently — even when overall accuracy looks fine |
 | [What is Sampling Bias?](explainers/sampling-bias.md) | Why your AI works great in the lab and fails on the people who need it most |
 | [What Are SHAP Values?](explainers/shap-values.md) | How to see exactly what drove an AI decision — and use that to catch bias |
+| [What is Disparate Impact (The 80% Rule)?](explainers/disparate-impact.md) | The legal threshold under US employment law that flags an AI hiring or lending decision as discriminatory |
 | Coming soon | What is demographic parity? |
 | Coming soon | Why fairness metrics conflict with each other |
 
@@ -364,6 +365,7 @@ python fair.py
 - [x] Explainer: Equalized Odds
 - [x] Explainer: Sampling Bias
 - [x] Explainer: SHAP Values
+- [x] Explainer: Disparate Impact (The 80% Rule)
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
