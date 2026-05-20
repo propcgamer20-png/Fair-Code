@@ -11,7 +11,7 @@ This policy covers the following repositories:
 | Repository | What It Is |
 |---|---|
 | [`yakew7/Fair-Code`](https://github.com/yakew7/Fair-Code) | Algorithmic bias detection & mitigation — audits, explainers, website |
-| [`yakew7/Cardiovascular-disease-prediction`](https://github.com/yakew7/Cardiovascular-disease-prediction) | *(Predits the chance of having Cardiovascular Disease/ Hypertension)* |
+| [`yakew7/Cardiovascular-disease-prediction`](https://github.com/yakew7/Cardiovascular-disease-prediction) | Predits the chance of having Cardiovascular Disease and Hypertension |
 
 If you find a vulnerability in any of the above, follow the process below regardless of which repo it affects.
 
