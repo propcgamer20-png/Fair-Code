@@ -1401,7 +1401,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    cursor: crosshair;
+    cursor: pointer;
   }
 
   .nav-caret {
@@ -1880,6 +1880,7 @@
         <li><a href="#explainer-shap">03 — SHAP Values</a></li>
         <li><a href="#explainer-equalized-odds">04 — Equalized Odds</a></li>
         <li><a href="#explainer-disparate-impact">05 — Disparate Impact</a></li>
+        <li><a href="#explainer-metric-conflicts">06 — Metric Conflicts</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -1912,6 +1913,7 @@
     <a href="#explainer-shap" class="mobile-link mobile-sub">03 — SHAP Values</a>
     <a href="#explainer-equalized-odds" class="mobile-link mobile-sub">04 — Equalized Odds</a>
     <a href="#explainer-disparate-impact" class="mobile-link mobile-sub">05 — Disparate Impact</a>
+    <a href="#explainer-metric-conflicts" class="mobile-link mobile-sub">06 — Metric Conflicts</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2612,10 +2614,11 @@
     <div class="explainer-footer">
       <div class="explainer-footer-label">Also in this series</div>
       <div class="coming-soon-pills">
-        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ Sampling Bias</a>
-        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ SHAP Values</a>
-        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ Equalized Odds</a>
-        <span class="coming-pill">Demographic Parity — coming soon</span>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Sampling Bias</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Metric Conflicts</a>
       </div>
     </div>
   </div>
@@ -2826,10 +2829,11 @@
     <div class="explainer-footer">
       <div class="explainer-footer-label">Also in this series</div>
       <div class="coming-soon-pills">
-        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Proxy Variables</a>
-        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ SHAP Values</a>
-        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ Equalized Odds</a>
-        <span class="coming-pill">Demographic Parity — coming soon</span>
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Metric Conflicts</a>
       </div>
     </div>
   </div>
@@ -3006,10 +3010,11 @@
     <div class="explainer-footer">
       <div class="explainer-footer-label">Also in this series</div>
       <div class="coming-soon-pills">
-        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Proxy Variables</a>
-        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Sampling Bias</a>
-        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ Equalized Odds</a>
-        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↓ Disparate Impact</a>
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Metric Conflicts</a>
       </div>
     </div>
   </div>
@@ -3153,7 +3158,7 @@
         <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
         <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
         <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Disparate Impact</a>
-        <span class="coming-pill">Why Fairness Metrics Conflict — coming soon</span>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Metric Conflicts</a>
       </div>
     </div>
   </div>
@@ -3363,18 +3368,213 @@
     <div class="explainer-footer">
       <div class="explainer-footer-label">Also in this series</div>
       <div class="coming-soon-pills">
-        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Proxy Variables</a>
-        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Sampling Bias</a>
-        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ SHAP Values</a>
-        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:crosshair;">↑ Equalized Odds</a>
-        <span class="coming-pill">Why Fairness Metrics Conflict — coming soon</span>
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Metric Conflicts</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 06: WHY FAIRNESS METRICS CONFLICT -->
+  <div id="explainer-metric-conflicts" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="metrics" data-explainer-text="fairness metric conflict impossibility demographic parity equalized odds predictive parity calibration base rate Chouldechova Kleinberg COMPAS ProPublica Northpointe TPR FPR PPV incompatibility intersectionality audit">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 06</div>
+        <h3 class="explainer-title">WHY FAIRNESS METRICS CONFLICT</h3>
+        <p class="explainer-tagline">You can't be fair to everyone at once — and the math proves it. Any choice of fairness metric is also a choice about who bears the cost of being wrong.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">Fairness metric conflict is the mathematically proven impossibility of satisfying multiple fairness criteria simultaneously when base rates differ across demographic groups — meaning any choice of fairness metric is also a choice about <em>who bears the cost of being wrong</em>.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Most people assume that making an AI "fair" is a single, solvable problem. It isn't. Researchers have formally proven — not just observed, but <em>proven</em> — that several common fairness definitions are mutually incompatible except in degenerate edge cases.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">Courts, regulators, and hiring committees each invoke different fairness definitions — and they are often in direct mathematical conflict. A model optimised to satisfy one metric will <em>necessarily</em> perform worse on another. Choosing a metric is an ethical and political decision, not a technical one. If you deploy a model and declare it "fair" without specifying which metric you used and why, you have not solved the fairness problem. You have hidden it.</p>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">The Three Metrics That Can't All Be True</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Metric</span>
+            <span>What It Requires</span>
+            <span>Used In</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Demographic Parity</code></span>
+            <span class="proxy-attr">P(Ŷ=1 | Group=A) = P(Ŷ=1 | Group=B) — equal positive outcome rates</span>
+            <span>Hiring, lending, admissions audits. Underpins the 80% rule.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Equalized Odds</code></span>
+            <span class="proxy-attr">Equal TPR <em>and</em> equal FPR across groups — equal error rates in both directions</span>
+            <span>Criminal risk assessment, medical screening. ProPublica's COMPAS critique.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Predictive Parity</code></span>
+            <span class="proxy-attr">P(Y=1 | Ŷ=1, Group=A) = P(Y=1 | Ŷ=1, Group=B) — equal accuracy of flags</span>
+            <span>Credit scoring, recidivism prediction. Northpointe's defence of COMPAS.</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">Chouldechova (2017) and Kleinberg et al. (2016) independently proved: when base rates differ between groups, you cannot simultaneously satisfy equalized odds and predictive parity — except when the model is perfect or predicts at random.</div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: The COMPAS Dual-Reading</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">ProPublica and Northpointe were both right about COMPAS — using different metrics. This is the clearest public illustration of the impossibility.</p>
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Run the full fairness audit — compute TPR, FPR, and PPV per group</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">compas_audit.py — BIASED MODEL</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head">--- COMPAS FAIRNESS AUDIT ---</div>
+                  <div class="t-bad">Black defendants:  TPR=0.72  FPR=0.37  PPV=0.64</div>
+                  <div class="t-normal">White defendants:  TPR=0.52  FPR=0.18  PPV=0.59</div>
+                  <div class="t-head" style="margin-top: 8px;"># ProPublica read FPR → unfair</div>
+                  <div class="t-bad">Black FPR 37% vs White 18% ← 2× false accusations</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">northpointe_view.py — SAME DATA</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># Northpointe read PPV → fair</div>
+                  <div class="t-good">Black PPV: 0.64  White PPV: 0.59</div>
+                  <div class="t-accent">~Equal precision → calibration holds</div>
+                  <div class="t-head" style="margin-top: 8px;"># Both claims mathematically accurate.</div>
+                  <div class="t-normal">They were measuring different things.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">The full audit function — compute all three metrics simultaneously</div>
+            <div class="explainer-detection" style="margin-top: 12px;">
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                  full_fairness_audit.py
+                </div>
+                <div class="code-block-body" style="font-size: 11px;">
+                  <span class="k">from</span> <span class="v">sklearn.metrics</span> <span class="k">import</span> <span class="v">confusion_matrix</span><br><br>
+                  <span class="k">def</span> <span class="v">full_fairness_audit</span>(y_true, y_pred, groups):<br>
+                  &nbsp;&nbsp;<span class="c">"""TPR, FPR, and PPV per group — run before deployment."""</span><br>
+                  &nbsp;&nbsp;results = {}<br>
+                  &nbsp;&nbsp;<span class="k">for</span> group <span class="k">in</span> groups.unique():<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;mask = groups == group<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;tn, fp, fn, tp = confusion_matrix(y_true[mask], y_pred[mask]).ravel()<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;results[group] = {<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'TPR'</span>: round(tp / (tp + fn), <span class="v">3</span>) <span class="k">if</span> (tp + fn) &gt; <span class="v">0</span> <span class="k">else</span> <span class="v">None</span>,<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'FPR'</span>: round(fp / (fp + tn), <span class="v">3</span>) <span class="k">if</span> (fp + tn) &gt; <span class="v">0</span> <span class="k">else</span> <span class="v">None</span>,<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'PPV'</span>: round(tp / (tp + fp), <span class="v">3</span>) <span class="k">if</span> (tp + fp) &gt; <span class="v">0</span> <span class="k">else</span> <span class="v">None</span>,<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'Pos Rate'</span>: round((tp + fp) / (tp + fp + tn + fn), <span class="v">3</span>),<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                  &nbsp;&nbsp;<span class="k">return</span> pd.DataFrame(results).T<br><br>
+                  <span class="c"># Run on every model before deployment</span><br>
+                  audit = full_fairness_audit(y_true, y_pred, groups=test_df[<span class="v">'race'</span>])<br>
+                  <span class="c"># If any metric diverges significantly across groups → investigate</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Who Bears the Cost — The Trade-off Table</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Metric</span>
+            <span>What It Prioritises</span>
+            <span>Who Bears the Cost When It Fails</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Demographic Parity</code></span>
+            <span class="proxy-attr">Equal access to positive outcomes</span>
+            <span>Groups with higher true positive rates may be under-predicted</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Equalized Odds</code></span>
+            <span class="proxy-attr">Equal error rates in both directions</span>
+            <span>Predictive accuracy per group may be sacrificed</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Predictive Parity</code></span>
+            <span class="proxy-attr">Equal reliability of positive flags</span>
+            <span>Groups with lower base rates face higher false positive rates</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">Step 1 — Audit Base Rates Before Picking a Metric</div>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            base_rate_audit.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">def</span> <span class="v">base_rate_audit</span>(df, outcome_col, group_col):<br>
+            &nbsp;&nbsp;<span class="c">"""If base rates differ, metric conflicts are guaranteed."""</span><br>
+            &nbsp;&nbsp;rates = df.groupby(group_col)[outcome_col].mean().round(<span class="v">4</span>)<br>
+            &nbsp;&nbsp;ratio = rates.max() / rates.min()<br>
+            &nbsp;&nbsp;<span class="k">if</span> ratio &gt; <span class="v">1.2</span>:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">f"⚠ Base rates differ by {ratio:.2f}x — metric conflicts will arise."</span>)<br>
+            &nbsp;&nbsp;<span class="k">return</span> rates<br><br>
+            <span class="c"># Example on COMPAS</span><br>
+            base_rate_audit(df, outcome_col=<span class="v">'reoffended'</span>, group_col=<span class="v">'race'</span>)<br>
+            <span class="c"># ⚠ Base rates differ by 1.6x — metric conflicts will arise.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">The COMPAS dataset shows Black defendants reoffending at higher rates. But that statistic is built on arrest records — and arrest rates reflect policing patterns, not actual crime rates. A neighbourhood that is over-policed produces more arrests of its residents, inflating their apparent recidivism rates. The model treats this as ground truth and calibrates to it. Predictive parity holds — but against a corrupted baseline.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">This is why choosing a metric is not sufficient. You must also audit the data that defines your ground truth. There is no universally correct metric. The choice depends on the domain, the asymmetry between error types, and a normative judgement about whose interests to protect. Document your choice in the model card. A model without a declared fairness metric has not been audited — it has been deployed.</p>
+        <div class="explainer-callout">Both ProPublica and Northpointe were right. They were measuring different things. Pick your metric deliberately, document the trade-off, and never call a model "fair" without saying fair by whose standard.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://arxiv.org/abs/1703.00056" target="_blank" class="reading-link">↗ Chouldechova: Fair Prediction with Disparate Impact (2017) — formal proof of the incompatibility</a>
+          <a href="https://arxiv.org/abs/1609.05807" target="_blank" class="reading-link">↗ Kleinberg, Mullainathan &amp; Raghavan: Inherent Trade-offs in the Fair Determination of Risk Scores (2016)</a>
+          <a href="https://fairmlbook.org/" target="_blank" class="reading-link">↗ Barocas &amp; Hardt: Fairness and Machine Learning — Chapter 2 &amp; 4</a>
+          <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" class="reading-link">↗ ProPublica: Machine Bias (2016) — the audit that made this conflict visible to the public</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
       </div>
     </div>
   </div>
 
 </section>
-
-<!-- IMPACT -->
 <section id="impact" style="background: var(--surface);">
   <div class="section-eyebrow"><span class="num">05</span>Why This Matters</div>
   <h2 class="impact-title reveal">THESE ARE NOT HYPOTHETICALS</h2>
@@ -3463,6 +3663,13 @@
       <div>
         <div class="roadmap-name">Explainer: Disparate Impact (80% Rule)</div>
         <div class="roadmap-meta">Four-Fifths Rule · EEOC standard · hiring audit proof · Griggs v. Duke Power</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Why Fairness Metrics Conflict</div>
+        <div class="roadmap-meta">Chouldechova impossibility · COMPAS dual-reading · full audit code · base rate analysis</div>
       </div>
     </div>
     <div class="roadmap-item">
