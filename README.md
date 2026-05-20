@@ -4,6 +4,8 @@
 
 **by Yash Kewlani · [@thefaircodeproject](https://instagram.com/thefaircodeproject)**
 
+🌐 **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)** — live interactive website with all audits, explainers, and visualisations
+
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?style=flat-square&logo=scikit-learn)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
@@ -77,7 +79,7 @@ Fair-Code/
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
-├── index.html                     # Project website
+├── index.html                     # Project website (also live at fair-code-five.vercel.app)
 └── requirements.txt
 ```
 
@@ -373,6 +375,23 @@ python fair.py
 - [ ] Fairness audit web dashboard
 
 Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Website
+
+The full project is published as an interactive website at **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)**.
+
+It includes everything in this repo — presented visually:
+
+- **All four bias audits** with before/after terminal outputs, bias bar charts, and key insights
+- **All five explainers** — Proxy Variables, Sampling Bias, SHAP Values, Equalized Odds, and Disparate Impact — with real-world proof, detection code, and further reading
+- **Search and filter** across all audits and explainers
+- **Copy buttons** on every code block and terminal output
+- **Share buttons** per audit — links directly to each experiment
+- **Light/dark mode**
+
+The site is built as a single `index.html` file — no framework, no build step. Source is in the root of this repo.
 
 ---
 
