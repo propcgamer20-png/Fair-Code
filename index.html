@@ -16,7 +16,7 @@
     --accent2: #9b2335;
     --accent3: #4a7c6f;
     --text: #d4cfc0;
-    --muted: #9a98a8;
+    --muted: #b0aec0;
     --white: #ede8dc;
     --nav-bg: rgba(13,15,20,0.94);
     --terminal-bg: #080a0e;
@@ -62,6 +62,18 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+
+  /* ── FOCUS STYLES ──────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  /* Suppress the default outline only when focus-visible is supported */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
 
   body {
     background: var(--bg);
@@ -1891,7 +1903,7 @@
     <a href="https://instagram.com/thefaircodeproject" target="_blank" class="nav-social-link">↗ Insta</a>
     <a href="https://www.linkedin.com/in/yash-kewlani-7ab090357" target="_blank" class="nav-social-link">↗ LinkedIn</a>
   </div>
-  <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">☀</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode">☀</button>
   <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu">
     <span></span><span></span><span></span>
   </button>
@@ -1925,7 +1937,7 @@
 </div>
 
 <!-- HERO -->
-<section class="hero" id="home">
+<section class="hero" id="home" aria-labelledby="hero-heading">
   <div class="corner tl"></div>
   <div class="corner tr"></div>
   <div class="corner bl"></div>
@@ -1935,7 +1947,7 @@
 
   <div class="hero-inner">
     <p class="hero-eyebrow">Algorithmic Bias Research · Open Source</p>
-    <h1 class="hero-title">THE BIAS<br>IS <span class="hl">REAL.</span><br>SO IS<br>THE <span class="hl">FIX.</span></h1>
+    <h1 id="hero-heading" class="hero-title">THE BIAS<br>IS <span class="hl">REAL.</span><br>SO IS<br>THE <span class="hl">FIX.</span></h1>
     <div class="hero-bottom">
       <p class="hero-sub">AI systems decide your freedom, your job, your future. This project proves the bias is measurable — and shows exactly how to remove it.</p>
       <div class="hero-stats">
@@ -1996,11 +2008,11 @@
 </div>
 
 <!-- ABOUT -->
-<section id="about">
+<section id="about" aria-labelledby="about-heading">
   <div class="section-eyebrow"><span class="num">01</span>About the Project</div>
   <div class="about-grid">
     <div>
-      <h2 class="about-title">CODE THAT HOLDS ALGORITHMS ACCOUNTABLE</h2>
+      <h2 id="about-heading" class="about-title">CODE THAT HOLDS ALGORITHMS ACCOUNTABLE</h2>
       <div class="about-quote">
         "AI systems are making decisions about your freedom, your job, and your healthcare. This project proves the bias is real. And it shows exactly how to fix it."
       </div>
@@ -2025,11 +2037,11 @@
 </section>
 
 <!-- METHODOLOGY -->
-<section id="methodology" style="background: var(--surface);">
+<section id="methodology" style="background: var(--surface);" aria-labelledby="methodology-heading">
   <div class="section-eyebrow"><span class="num">02</span>Methodology</div>
   <div class="method-grid reveal">
     <div>
-      <h2 class="method-title">THE PIPELINE</h2>
+      <h2 id="methodology-heading" class="method-title">THE PIPELINE</h2>
       <p style="font-size: 12px; color: var(--muted); line-height: 1.9; margin-top: 16px; font-weight: 400;">Every project in this repo follows the same bias detection and mitigation workflow. Reproducible. Transparent. Measurable.</p>
       <div class="code-block">
         <div class="code-block-header">
@@ -2086,10 +2098,10 @@
 </section>
 
 <!-- PROJECTS / EXPERIMENTS -->
-<section id="projects">
+<section id="projects" aria-labelledby="projects-heading">
   <div class="section-eyebrow"><span class="num">03</span>Projects</div>
   <div class="projects-header">
-    <h2 class="projects-title">THE EXPERIMENTS</h2>
+    <h2 id="projects-heading" class="projects-title">THE EXPERIMENTS</h2>
     <a href="https://github.com/yakew7/Fair-Code" target="_blank" class="gh-badge">↗ View All Code</a>
   </div>
 
@@ -2097,16 +2109,16 @@
   <div class="search-bar-wrap" id="projects-search-wrap">
     <div class="search-bar-inner">
       <span class="search-bar-prefix">$ grep --</span>
-      <input type="text" class="search-bar-input" id="projects-search-input" placeholder="search experiments… e.g. race, hiring, 97%, COMPAS" autocomplete="off" spellcheck="false">
+      <input type="text" class="search-bar-input" id="projects-search-input" placeholder="search experiments… e.g. race, hiring, 97%, COMPAS" autocomplete="off" spellcheck="false" aria-label="Search experiments">
       <button class="search-bar-clear" id="projects-search-clear" aria-label="Clear search">✕</button>
     </div>
     <div class="search-filter-row">
       <span class="search-filter-label">Filter:</span>
-      <button class="search-filter-btn active" data-filter-group="projects" data-filter="all">All</button>
-      <button class="search-filter-btn" data-filter-group="projects" data-filter="criminal-justice">Criminal Justice</button>
-      <button class="search-filter-btn" data-filter-group="projects" data-filter="hiring">Hiring</button>
-      <button class="search-filter-btn" data-filter-group="projects" data-filter="lending">Lending</button>
-      <button class="search-filter-btn" data-filter-group="projects" data-filter="healthcare">Healthcare</button>
+      <button class="search-filter-btn active" data-filter-group="projects" data-filter="all" aria-label="Show all experiments" aria-pressed="true">All</button>
+      <button class="search-filter-btn" data-filter-group="projects" data-filter="criminal-justice" aria-label="Filter by Criminal Justice" aria-pressed="false">Criminal Justice</button>
+      <button class="search-filter-btn" data-filter-group="projects" data-filter="hiring" aria-label="Filter by Hiring" aria-pressed="false">Hiring</button>
+      <button class="search-filter-btn" data-filter-group="projects" data-filter="lending" aria-label="Filter by Lending" aria-pressed="false">Lending</button>
+      <button class="search-filter-btn" data-filter-group="projects" data-filter="healthcare" aria-label="Filter by Healthcare" aria-pressed="false">Healthcare</button>
       <span class="search-count" id="projects-count"><span id="projects-count-num">4</span> of <span id="projects-total-num">4</span></span>
     </div>
   </div>
@@ -2419,10 +2431,10 @@
 </section>
 
 <!-- EXPLAINERS -->
-<section id="explainers" style="background: var(--surface);">
+<section id="explainers" style="background: var(--surface);" aria-labelledby="explainers-heading">
   <div class="section-eyebrow"><span class="num">04</span>Explainers</div>
   <div class="projects-header">
-    <h2 class="projects-title reveal">THE CONCEPTS</h2>
+    <h2 id="explainers-heading" class="projects-title reveal">THE CONCEPTS</h2>
     <a href="https://github.com/yakew7/Fair-Code/tree/main/explainers" target="_blank" class="gh-badge">↗ View on GitHub</a>
   </div>
 
@@ -2430,16 +2442,16 @@
   <div class="search-bar-wrap" id="explainers-search-wrap">
     <div class="search-bar-inner">
       <span class="search-bar-prefix">$ grep --</span>
-      <input type="text" class="search-bar-input" id="explainers-search-input" placeholder="search concepts… e.g. proxy, SHAP, equalized odds, sampling" autocomplete="off" spellcheck="false">
+      <input type="text" class="search-bar-input" id="explainers-search-input" placeholder="search concepts… e.g. proxy, SHAP, equalized odds, sampling" autocomplete="off" spellcheck="false" aria-label="Search explainers">
       <button class="search-bar-clear" id="explainers-search-clear" aria-label="Clear search">✕</button>
     </div>
     <div class="search-filter-row">
       <span class="search-filter-label">Filter:</span>
-      <button class="search-filter-btn active" data-filter-group="explainers" data-filter="all">All</button>
-      <button class="search-filter-btn" data-filter-group="explainers" data-filter="detection">Detection</button>
-      <button class="search-filter-btn" data-filter-group="explainers" data-filter="metrics">Metrics</button>
-      <button class="search-filter-btn" data-filter-group="explainers" data-filter="data">Data Bias</button>
-      <button class="search-filter-btn" data-filter-group="explainers" data-filter="explainability">Explainability</button>
+      <button class="search-filter-btn active" data-filter-group="explainers" data-filter="all" aria-label="Show all explainers" aria-pressed="true">All</button>
+      <button class="search-filter-btn" data-filter-group="explainers" data-filter="detection" aria-label="Filter by Detection" aria-pressed="false">Detection</button>
+      <button class="search-filter-btn" data-filter-group="explainers" data-filter="metrics" aria-label="Filter by Metrics" aria-pressed="false">Metrics</button>
+      <button class="search-filter-btn" data-filter-group="explainers" data-filter="data" aria-label="Filter by Data Bias" aria-pressed="false">Data Bias</button>
+      <button class="search-filter-btn" data-filter-group="explainers" data-filter="explainability" aria-label="Filter by Explainability" aria-pressed="false">Explainability</button>
       <span class="search-count" id="explainers-count"><span id="explainers-count-num">5</span> of <span id="explainers-total-num">5</span></span>
     </div>
   </div>
@@ -3575,9 +3587,9 @@
   </div>
 
 </section>
-<section id="impact" style="background: var(--surface);">
+<section id="impact" style="background: var(--surface);" aria-labelledby="impact-heading">
   <div class="section-eyebrow"><span class="num">05</span>Why This Matters</div>
-  <h2 class="impact-title reveal">THESE ARE NOT HYPOTHETICALS</h2>
+  <h2 id="impact-heading" class="impact-title reveal">THESE ARE NOT HYPOTHETICALS</h2>
   <div class="impact-grid reveal">
     <div class="impact-cell">
       <div class="impact-num">87%</div>
@@ -3596,9 +3608,9 @@
 </section>
 
 <!-- ROADMAP -->
-<section id="roadmap">
+<section id="roadmap" aria-labelledby="roadmap-heading">
   <div class="section-eyebrow"><span class="num">06</span>What's Next</div>
-  <h2 class="roadmap-title reveal">THE ROADMAP</h2>
+  <h2 id="roadmap-heading" class="roadmap-title reveal">THE ROADMAP</h2>
   <p class="roadmap-sub reveal">More datasets, more domains, more bias exposed and fixed. Follow the project on Instagram for updates.</p>
 
   <div class="roadmap-grid reveal">
@@ -3741,6 +3753,7 @@
   const saved = localStorage.getItem('fc-theme') || 'dark';
   html.setAttribute('data-theme', saved);
   toggle.textContent = saved === 'light' ? '☾' : '☀';
+  toggle.setAttribute('aria-label', saved === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
 
   toggle.addEventListener('click', () => {
     const current = html.getAttribute('data-theme');
@@ -3748,6 +3761,7 @@
     html.setAttribute('data-theme', next);
     localStorage.setItem('fc-theme', next);
     toggle.textContent = next === 'light' ? '☾' : '☀';
+    toggle.setAttribute('aria-label', next === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
   });
 
   // Scroll reveal
@@ -3863,8 +3877,9 @@
 
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
+        filterBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         currentFilter = btn.getAttribute('data-filter');
         applyFilters();
       });
@@ -3918,18 +3933,21 @@
   const COPY_SVG = `<svg viewBox="0 0 16 16"><rect x="5" y="5" width="8" height="9" rx="1"/><path d="M3 11V3a1 1 0 0 1 1-1h7"/></svg>`;
   const CHECK_SVG = `<svg viewBox="0 0 16 16"><polyline points="3,8 6.5,12 13,4"/></svg>`;
 
-  function makeCopyBtn(textFn) {
+  function makeCopyBtn(textFn, label) {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
+    btn.setAttribute('aria-label', label || 'Copy code to clipboard');
     btn.innerHTML = `${COPY_SVG}<span>Copy</span>`;
     btn.addEventListener('click', () => {
       const text = textFn();
       navigator.clipboard.writeText(text).then(() => {
         btn.classList.add('copied');
         btn.innerHTML = `${CHECK_SVG}<span>Copied</span>`;
+        btn.setAttribute('aria-label', (label || 'Copy code to clipboard').replace('Copy', 'Copied —'));
         setTimeout(() => {
           btn.classList.remove('copied');
           btn.innerHTML = `${COPY_SVG}<span>Copy</span>`;
+          btn.setAttribute('aria-label', label || 'Copy code to clipboard');
         }, 2000);
       }).catch(() => {
         // Fallback: create a temporary input and use selection
@@ -3968,7 +3986,8 @@
     while (header.firstChild) left.appendChild(header.firstChild);
     header.appendChild(left);
     // Add copy button
-    const btn = makeCopyBtn(() => body ? body.innerText.trim() : '');
+    const filename = left.textContent.trim().split(/\s+/).pop() || 'code';
+    const btn = makeCopyBtn(() => body ? body.innerText.trim() : '', `Copy ${filename} to clipboard`);
     header.appendChild(btn);
   });
 
@@ -3982,7 +4001,9 @@
     while (bar.firstChild) left.appendChild(bar.firstChild);
     bar.appendChild(left);
     // Add copy button
-    const btn = makeCopyBtn(() => body ? body.innerText.trim() : '');
+    const labelEl = left.querySelector('.terminal-label');
+    const termName = labelEl ? labelEl.textContent.trim() : 'terminal output';
+    const btn = makeCopyBtn(() => body ? body.innerText.trim() : '', `Copy ${termName} to clipboard`);
     bar.appendChild(btn);
   });
 
@@ -4028,6 +4049,7 @@
     // Share button
     const shareBtn = document.createElement('button');
     shareBtn.className = 'share-audit-btn';
+    shareBtn.setAttribute('aria-label', `Share ${meta ? meta.title : name} audit`);
     shareBtn.innerHTML = `${SHARE_SVG}<span>Share this audit</span>`;
 
     shareBtn.addEventListener('click', () => {
