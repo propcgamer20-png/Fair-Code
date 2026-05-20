@@ -1,2 +1,22 @@
-pandas
-scikit-learn
+# Fair Code — Python dependencies
+# https://github.com/yakew7/Fair-Code
+#
+# Install: pip install -r requirements.txt
+# Python 3.8+ required
+
+# ── Core data & ML ────────────────────────────────────────────────────────
+pandas>=3.0.2          # DataFrames, CSV loading, crosstabs
+numpy>=2.4.4           # Numerical ops (pandas/sklearn dependency)
+scikit-learn>=1.8.0    # RandomForestClassifier, train/test split, metrics
+
+# ── Statistical testing ───────────────────────────────────────────────────
+scipy>=1.17.1          # chi2_contingency for proxy variable detection
+
+# ── Explainability ────────────────────────────────────────────────────────
+shap>=0.51.0           # SHAP values — feature attribution & bias auditing
+
+# ── Fairness metrics ──────────────────────────────────────────────────────
+fairlearn>=0.13.0      # MetricFrame, equalized odds, demographic parity ratio
+
+# ── Visualisation ─────────────────────────────────────────────────────────
+matplotlib>=3.10.8     # Bias bar charts, fairness trade-off plots
