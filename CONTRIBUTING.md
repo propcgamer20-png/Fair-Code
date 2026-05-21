@@ -49,6 +49,7 @@ Fair-Code/
 ├── LICENSE
 ├── README.md
 ├── SECURITY.md
+├── CITATION.cff
 ├── index.html
 └── requirements.txt
 ```
