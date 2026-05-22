@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fair Code: Algorithmic Bias Detection</title>
-<meta name="description" content="Fair Code exposes and fixes bias in real-world AI systems — criminal justice, hiring, lending, healthcare. Open-source audits with measurable results.">
+<meta name="description" content="Fair Code exposes and fixes bias in real-world AI systems — criminal justice, hiring, lending, healthcare, welfare eligibility. Open-source audits with measurable results.">
 <meta property="og:title" content="Fair Code: Algorithmic Bias Detection">
-<meta property="og:description" content="Bias in AI is real, measurable, and fixable. Open-source audits showing up to 97% bias reduction across criminal justice, hiring, lending, and healthcare AI.">
+<meta property="og:description" content="Bias in AI is real, measurable, and fixable. Open-source audits showing up to 97% bias reduction across criminal justice, hiring, lending, healthcare, and welfare AI.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Fair Code: Algorithmic Bias Detection">
@@ -1972,6 +1972,7 @@
         <li role="none"><a href="#project-hiring" role="menuitem">02 — AI Hiring</a></li>
         <li role="none"><a href="#project-credit" role="menuitem">03 — German Credit</a></li>
         <li role="none"><a href="#project-insurance" role="menuitem">04 — Insurance Denial</a></li>
+        <li role="none"><a href="#project-benefits" role="menuitem">05 — Benefits Denial</a></li>
       </ul>
     </li>
     <li class="nav-dropdown-wrap">
@@ -2009,6 +2010,7 @@
     <a href="#project-hiring" class="mobile-link mobile-sub">02 — AI Hiring</a>
     <a href="#project-credit" class="mobile-link mobile-sub">03 — German Credit</a>
     <a href="#project-insurance" class="mobile-link mobile-sub">04 — Insurance Denial</a>
+    <a href="#project-benefits" class="mobile-link mobile-sub">05 — Benefits Denial</a>
     <span class="mobile-section-label">Explainers</span>
     <a href="#explainer-proxy" class="mobile-link mobile-sub">01 — Proxy Variables</a>
     <a href="#explainer-sampling" class="mobile-link mobile-sub">02 — Sampling Bias</a>
@@ -2074,6 +2076,9 @@
     <span class="ticker-item red"><span class="dot"></span>INSURANCE DENIAL BIAS</span>
     <span class="ticker-item"><span class="dot"></span>BMI + SMOKER + DIABETIC PROXIES</span>
     <span class="ticker-item"><span class="dot"></span>AGE GAP 7.93% → 3.18% · 60% REDUCTION</span>
+    <span class="ticker-item red"><span class="dot"></span>BENEFITS DENIAL BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>RELATIONSHIP + MARITAL STATUS PROXIES</span>
+    <span class="ticker-item"><span class="dot"></span>SEX GAP 18.00% → 8.52% · 53% REDUCTION</span>
     <span class="ticker-item"><span class="dot"></span>EQUALIZED ODDS · TPR + FPR PARITY</span>
     <span class="ticker-item red"><span class="dot"></span>DISPARATE IMPACT · 80% RULE</span>
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
@@ -2091,6 +2096,9 @@
     <span class="ticker-item red"><span class="dot"></span>INSURANCE DENIAL BIAS</span>
     <span class="ticker-item"><span class="dot"></span>BMI + SMOKER + DIABETIC PROXIES</span>
     <span class="ticker-item"><span class="dot"></span>AGE GAP 7.93% → 3.18% · 60% REDUCTION</span>
+    <span class="ticker-item red"><span class="dot"></span>BENEFITS DENIAL BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>RELATIONSHIP + MARITAL STATUS PROXIES</span>
+    <span class="ticker-item"><span class="dot"></span>SEX GAP 18.00% → 8.52% · 53% REDUCTION</span>
     <span class="ticker-item"><span class="dot"></span>EQUALIZED ODDS · TPR + FPR PARITY</span>
     <span class="ticker-item red"><span class="dot"></span>DISPARATE IMPACT · 80% RULE</span>
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
@@ -2110,7 +2118,6 @@
         <span class="tag active">Python</span>
         <span class="tag active">scikit-learn</span>
         <span class="tag active">pandas</span>
-        <span class="tag">Healthcare AI (Coming)</span>
         <span class="tag">Facial Recognition (Coming)</span>
         <span class="tag">Mortgage Lending (Coming)</span>
       </div>
@@ -2521,9 +2528,104 @@
   </div>
 </section>
 
+<!-- BENEFITS DENIAL -->
+<section id="projects" aria-labelledby="projects-heading-benefits" style="padding-top: 0;">
+  <div id="project-benefits" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="project-card reveal" style="margin-top: 2px;" data-project-tags="welfare benefits" data-project-text="benefits denial welfare eligibility bias sex race age national origin relationship marital status hours per week occupation proxies UCI adult census income 53% 46% 88% 18% 8.52% ineligibility means test">
+    <div class="card-bg-num">05</div>
+    <div class="project-top">
+      <div>
+        <div class="project-num">PROJECT — 05</div>
+        <div class="project-name">BENEFITS DENIAL</div>
+        <p class="project-desc">An automated means-test flags male applicants as ineligible at 18 points higher than female applicants — not because of what they earn, but because of who they're married to.</p>
+      </div>
+      <div class="project-stats">
+        <div class="stat-label">SEX FAIRNESS GAP BEFORE</div>
+        <div class="stat-big bad">18.00<span class="stat-unit">%</span></div>
+        <div class="stat-label" style="margin-top: 8px;">AFTER MITIGATION</div>
+        <div class="stat-big good">8.52<span class="stat-unit good">%</span></div>
+        <span class="reduction-badge">53% reduction · Race gap: 46% · Origin gap: 88%</span>
+      </div>
+    </div>
+
+    <div class="terminals-grid">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">Model Accuracy: 85.66%</div>
+          <div class="t-bad">Male applicants    : 25.71% flagged ineligible</div>
+          <div class="t-normal">Female applicants  : 7.71% flagged ineligible</div>
+          <div class="t-bad">Fairness Gap (Sex): 18.00%</div>
+          <div class="t-bad">US-born            : 20.20% flagged ineligible</div>
+          <div class="t-normal">Foreign-born       : 15.81% flagged ineligible</div>
+          <div class="t-bad">Fairness Gap (Origin): 4.40%</div>
+          <div class="t-bad">Under 55           : 19.36% flagged ineligible</div>
+          <div class="t-normal">55+ (elderly)      : 22.08% flagged ineligible</div>
+          <div class="t-bad">Fairness Gap (Age): −2.72%</div>
+          <div class="t-bad">White/Asian-PI     : 21.22% flagged ineligible</div>
+          <div class="t-normal">Other minorities   : 8.47% flagged ineligible</div>
+          <div class="t-bad">Fairness Gap (Race): 12.75%</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">Model Accuracy: 83.05%</div>
+          <div class="t-good">Male applicants          : 14.84% flagged ineligible</div>
+          <div class="t-good">Female applicants        : 6.32% flagged ineligible</div>
+          <div class="t-accent">New Fairness Gap (Sex): 8.52%</div>
+          <div class="t-good">US-born                  : 12.08% flagged ineligible</div>
+          <div class="t-good">Foreign-born             : 11.55% flagged ineligible</div>
+          <div class="t-accent">New Fairness Gap (Origin): 0.52%</div>
+          <div class="t-good">Under 55                 : 11.61% flagged ineligible</div>
+          <div class="t-good">55+ (elderly)            : 14.41% flagged ineligible</div>
+          <div class="t-accent">New Fairness Gap (Age): −2.79%</div>
+          <div class="t-good">White/Asian-PI           : 12.81% flagged ineligible</div>
+          <div class="t-good">Other minorities         : 5.91% flagged ineligible</div>
+          <div class="t-accent">New Fairness Gap (Race): 6.90%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <div class="key-insight-label">Key Insight</div>
+      <p>Automated benefits systems don't need to name sex or race to discriminate by them. <code class="inline-code">relationship</code> (Husband/Wife), <code class="inline-code">marital.status</code>, <code class="inline-code">hours.per.week</code>, and <code class="inline-code">occupation</code> are the <code class="inline-code">CustodyStatus</code> of welfare AI — features that sound purely economic but carry protected-class signal because of how work, caregiving, and labour markets are structurally organised. Dropping all four alongside the direct protected attributes reduced the sex gap by 53%, the race gap by 46%, and the national-origin gap by 88%.</p>
+    </div>
+
+    <div class="bias-bar-wrap" style="margin-top: 32px;">
+      <div class="bias-row">
+        <span class="bias-label">Male · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 25.71%;"></div></div>
+        <span class="bias-val">25.71%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Female · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 7.71%; opacity: 0.6;"></div></div>
+        <span class="bias-val">7.71%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Male · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 14.84%;"></div></div>
+        <span class="bias-val">14.84%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Female · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 6.32%; opacity: 0.8;"></div></div>
+        <span class="bias-val">6.32%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- EXPLAINERS -->
 <section id="explainers" style="background: var(--surface);" aria-labelledby="explainers-heading">
-  <div class="section-eyebrow"><span class="num">04</span>Explainers</div>
+  <div class="section-eyebrow"><span class="num">05</span>Explainers</div>
   <div class="projects-header">
     <h2 id="explainers-heading" class="projects-title reveal">THE CONCEPTS</h2>
     <a href="https://github.com/yakew7/Fair-Code/tree/main/explainers" target="_blank" rel="noopener noreferrer" class="gh-badge">↗ View on GitHub</a>
@@ -3732,6 +3834,13 @@
       <div>
         <div class="roadmap-name">Insurance Denial — Healthcare Bias</div>
         <div class="roadmap-meta">Kaggle · age + gender + BMI/smoker/diabetic proxies · 60% + 72% reduction</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Benefits Denial — Welfare Eligibility Bias</div>
+        <div class="roadmap-meta">UCI Adult Census · sex + race + origin + age + 4 proxies · 53% / 46% / 88% reduction</div>
       </div>
     </div>
     <div class="roadmap-item">
