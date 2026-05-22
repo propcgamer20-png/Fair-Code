@@ -35,6 +35,7 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 | [AI Fair Recruitment](#02--ai-fair-recruitment--hiring-bias) | Gender | Gender + Age | 4.51% | 0.12% | **97.3%** |
 | [German Credit Lending](#03--german-credit-lending--lending-bias) | Age | Age + Employment Tenure (proxy) | 7.16% | 1.89% | **73.6%** |
 | [Insurance Denial](#04--insurance-denial--healthcare-bias) | Age + Gender | Age + Gender + BMI + Smoker + Diabetic (proxies) | Age: 7.93% / Gender: 5.44% | Age: 3.18% / Gender: 1.54% | **Age: 60% / Gender: 72%** |
+| [Benefits Denial](#05--benefits-denial--welfare-eligibility-bias) | Sex + Race + Origin + Age | Sex + Race + Origin + Age + Relationship + Marital Status + Hours + Occupation (proxies) | Sex: 18.00% / Race: 12.75% / Origin: 4.40% | Sex: 8.52% / Race: 6.90% / Origin: 0.52% | **Sex: 53% / Race: 46% / Origin: 88%** |
 | [Benefits Denial](#05--benefits-denial--welfare-eligibility-bias) | Sex + Race + Origin | Sex, Race, Origin, Age + Relationship, Marital Status, Hours/wk, Occupation (proxies) | Sex: 18.00% / Race: 12.75% | Sex: 8.52% / Race: 6.90% | **Sex: 53% / Race: 46%** |
 
 ---
@@ -79,11 +80,19 @@ Fair-Code/
 │   ├── unfair.png                 # Terminal output — biased results
 │   └── fair.png                   # Terminal output — mitigated results
 │
+├── Benefits Denial/
+│   ├── unfair.py                  # Biased model (sex + race + age + origin + proxies included)
+│   ├── fair.py                    # Mitigated model (economic signals only)
+│   ├── adult.csv                  # UCI Adult Census Income dataset (48,842 records)
+│   ├── unfair.png                 # Terminal output — biased results
+│   └── fair.png                   # Terminal output — mitigated results
+│
 ├── notebooks/
 │   ├── 01_compas_bias_audit.ipynb           # Full walkthrough: COMPAS criminal justice bias
 │   ├── 02_hiring_bias_audit.ipynb           # Full walkthrough: AI hiring bias
 │   ├── 03_german_credit_bias_audit.ipynb    # Full walkthrough: German credit lending bias
-│   └── 04_insurance_denial_bias_audit.ipynb # Full walkthrough: Insurance denial bias
+│   ├── 04_insurance_denial_bias_audit.ipynb # Full walkthrough: Insurance denial bias
+│   └── 05_benefits_denial_bias_audit.ipynb  # Full walkthrough: Benefits denial welfare bias
 │   └── 05_benefits_denial_bias_audit.ipynb  # Full walkthrough: Benefits denial welfare bias
 │
 ├── explainers/
@@ -322,6 +331,12 @@ Trained with sex, race, age, and national origin directly, plus four proxy varia
 | Foreign-born | 15.81% |
 | **Fairness Gap (Origin)** | **4.40%** |
 
+| Group | Ineligibility Flag Rate |
+|---|---|
+| Under 55 | 19.36% |
+| 55+ (elderly) | 22.08% |
+| **Fairness Gap (Age)** | **−2.72%** |
+
 #### The Fix — `fair.py`
 
 Dropped all four protected attributes and all four proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
@@ -363,6 +378,12 @@ features = [
 | US-born | 12.08% |
 | Foreign-born | 11.55% |
 | **New Fairness Gap (Origin)** | **0.52%** |
+
+| Group | Ineligibility Flag Rate |
+|---|---|
+| Under 55 | 11.61% |
+| 55+ (elderly) | 14.41% |
+| **New Fairness Gap (Age)** | **−2.79%** |
 
 **Result: 53% reduction in sex gap. 46% reduction in race gap. 88% reduction in national-origin gap.**
 
@@ -481,7 +502,7 @@ Or open any `.ipynb` file directly in VS Code, JupyterLab, or Google Colab.
 | Language | Python 3 |
 | Libraries | `pandas`, `scikit-learn`, `fairlearn`, `matplotlib`, `scipy` |
 | Notebooks | Jupyter (`.ipynb`) — one per audit, in `notebooks/` |
-| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle) |
+| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle), UCI Adult Census Income (Kaggle) |
 
 ---
 
@@ -492,7 +513,7 @@ Or open any `.ipynb` file directly in VS Code, JupyterLab, or Google Colab.
 - [x] German Credit Lending Bias
 - [x] Insurance Denial — Healthcare Bias
 - [x] Benefits Denial — Welfare Eligibility Bias
-- [x] Jupyter notebook walkthroughs for all four audits
+- [x] Jupyter notebook walkthroughs for all five audits
 - [x] Explainer: Proxy Variables
 - [x] Explainer: Equalized Odds
 - [x] Explainer: Sampling Bias
@@ -514,7 +535,7 @@ The full project is published as an interactive website at **[fair-code-five.ver
 
 It includes everything in this repo — presented visually:
 
-- **All four bias audits** with before/after terminal outputs, bias bar charts, and key insights
+- **All five bias audits** with before/after terminal outputs, bias bar charts, and key insights
 - **All five explainers** — Proxy Variables, Sampling Bias, SHAP Values, Equalized Odds, and Disparate Impact — with real-world proof, detection code, and further reading
 - **Search and filter** across all audits and explainers
 - **Copy buttons** on every code block and terminal output
