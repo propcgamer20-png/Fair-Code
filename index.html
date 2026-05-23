@@ -1984,6 +1984,7 @@
         <li role="none"><a href="#explainer-equalized-odds" role="menuitem">04 — Equalized Odds</a></li>
         <li role="none"><a href="#explainer-disparate-impact" role="menuitem">05 — Disparate Impact</a></li>
         <li role="none"><a href="#explainer-metric-conflicts" role="menuitem">06 — Metric Conflicts</a></li>
+        <li role="none"><a href="#explainer-calibration" role="menuitem">07 — Calibration</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2018,6 +2019,7 @@
     <a href="#explainer-equalized-odds" class="mobile-link mobile-sub">04 — Equalized Odds</a>
     <a href="#explainer-disparate-impact" class="mobile-link mobile-sub">05 — Disparate Impact</a>
     <a href="#explainer-metric-conflicts" class="mobile-link mobile-sub">06 — Metric Conflicts</a>
+    <a href="#explainer-calibration" class="mobile-link mobile-sub">07 — Calibration</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -3776,6 +3778,164 @@
         <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
         <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
         <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
+        <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Calibration</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 07: CALIBRATION -->
+  <div id="explainer-calibration" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="metrics" data-explainer-text="calibration differential calibration predicted probability outcome rate reliability diagram calibration curve MACE mean absolute calibration error COMPAS ProPublica Northpointe Chouldechova base rate recidivism risk score demographic group fairness">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 07</div>
+        <h3 class="explainer-title">WHAT IS CALIBRATION?</h3>
+        <p class="explainer-tagline">The reason a model can be "equally accurate" for everyone — and still treat them unequally.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">A model is <em>calibrated</em> for a group if its predicted probabilities actually match real-world outcomes — so when it says "70% risk," roughly 70% of people in that group actually experience the outcome.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Most people evaluate AI models on accuracy. Calibration is a different question: <em>do the scores mean the same thing across demographic groups?</em> If a risk-scoring system assigns a "70% recidivism risk" to Black defendants and a "70% risk" to White defendants, calibration asks: does 70% actually mean 70% for <em>both</em> groups? If the model is miscalibrated for one group — say, 70% translates to 50% actual recidivism for White defendants but 80% for Black defendants — then identical scores are producing fundamentally different real-world stakes depending on who receives them.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">This is called <strong>differential calibration</strong>, and it's one of the central problems exposed by the ProPublica COMPAS investigation. It's also why calibration is often in direct conflict with other fairness metrics like equalized odds — you frequently cannot satisfy both at the same time.</p>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Real-World Proof: COMPAS Calibration Gap</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Race</span>
+            <span>Score Band</span>
+            <span>Actual Recidivism Rate</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">African-American</code></span>
+            <span class="proxy-attr">Low</span>
+            <span>0.33</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">African-American</code></span>
+            <span class="proxy-attr">Medium</span>
+            <span>0.53</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">African-American</code></span>
+            <span class="proxy-attr">High</span>
+            <span>0.67</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Caucasian</code></span>
+            <span class="proxy-attr">Low</span>
+            <span>0.21</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Caucasian</code></span>
+            <span class="proxy-attr">Medium</span>
+            <span>0.45</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Caucasian</code></span>
+            <span class="proxy-attr">High</span>
+            <span>0.63</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">The High band converges (0.67 vs 0.63) — that's the calibration Northpointe pointed to. But the Low band reveals the asymmetry: a "Low risk" score means a 33% actual recidivism rate for a Black defendant vs 21% for a White defendant. The same label, different stakes.</div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">How to Measure Calibration</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">Calibration is measured by comparing predicted probabilities to actual outcome rates within prediction bins. The standard approach is a <strong>calibration curve</strong> (also called a reliability diagram). A perfectly calibrated model produces a diagonal line from (0,0) to (1,1). Divergence between groups is the differential calibration.</p>
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Reproduce the COMPAS calibration gap directly from the dataset</div>
+            <div class="explainer-detection" style="margin-top: 12px;">
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                  calibration_gap.py
+                </div>
+                <div class="code-block-body" style="font-size: 11px;">
+                  <span class="k">import</span> <span class="v">pandas</span> <span class="k">as</span> <span class="v">pd</span><br><br>
+                  df = pd.read_csv(<span class="v">'compas-scores-two-years.csv'</span>)<br>
+                  df = df[df[<span class="v">'score_text'</span>].isin([<span class="v">'Low'</span>, <span class="v">'Medium'</span>, <span class="v">'High'</span>])]<br>
+                  df = df[df[<span class="v">'race'</span>].isin([<span class="v">'African-American'</span>, <span class="v">'Caucasian'</span>])]<br><br>
+                  <span class="c"># Actual recidivism rate per score band per race</span><br>
+                  calibration_table = df.groupby([<span class="v">'race'</span>, <span class="v">'score_text'</span>])[<span class="v">'two_year_recid'</span>].mean().round(<span class="v">3</span>)<br>
+                  print(calibration_table)
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">Measure calibration per group with MACE — Mean Absolute Calibration Error</div>
+            <div class="explainer-detection" style="margin-top: 12px;">
+              <div class="code-block">
+                <div class="code-block-header">
+                  <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                  measure_calibration.py
+                </div>
+                <div class="code-block-body" style="font-size: 11px;">
+                  <span class="k">import</span> <span class="v">numpy</span> <span class="k">as</span> <span class="v">np</span><br>
+                  <span class="k">from</span> <span class="v">sklearn.calibration</span> <span class="k">import</span> <span class="v">calibration_curve</span><br>
+                  <span class="k">from</span> <span class="v">sklearn.ensemble</span> <span class="k">import</span> <span class="v">RandomForestClassifier</span><br>
+                  <span class="k">from</span> <span class="v">sklearn.model_selection</span> <span class="k">import</span> <span class="v">train_test_split</span><br><br>
+                  <span class="k">def</span> <span class="v">calibration_gap</span>(df, feature_cols, target_col, group_col, n_bins=<span class="v">5</span>):<br>
+                  &nbsp;&nbsp;<span class="c">"""Train a model and report MACE per group. Higher = worse calibration."""</span><br>
+                  &nbsp;&nbsp;X = pd.get_dummies(df[feature_cols])<br>
+                  &nbsp;&nbsp;y = df[target_col]<br>
+                  &nbsp;&nbsp;groups = df[group_col]<br>
+                  &nbsp;&nbsp;X_train, X_test, y_train, y_test, g_train, g_test = train_test_split(<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;X, y, groups, test_size=<span class="v">0.2</span>, random_state=<span class="v">42</span>)<br>
+                  &nbsp;&nbsp;model = RandomForestClassifier(random_state=<span class="v">42</span>)<br>
+                  &nbsp;&nbsp;model.fit(X_train, y_train)<br>
+                  &nbsp;&nbsp;probs = model.predict_proba(X_test)[:, <span class="v">1</span>]<br>
+                  &nbsp;&nbsp;<span class="k">for</span> group <span class="k">in</span> g_test.unique():<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;mask = g_test == group<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;frac_pos, mean_pred = calibration_curve(y_test[mask], probs[mask], n_bins=n_bins)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;mace = np.mean(np.abs(frac_pos - mean_pred))<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">f"{group}: MACE = {mace:.4f}"</span>)<br><br>
+                  <span class="c"># Example on COMPAS</span><br>
+                  calibration_gap(df, [<span class="v">'sex'</span>, <span class="v">'age_cat'</span>, <span class="v">'priors_count'</span>, <span class="v">'c_charge_degree'</span>], <span class="v">'two_year_recid'</span>, <span class="v">'race'</span>)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">Limitations and Trade-offs</div>
+        <p class="explainer-block-text">Calibration is not a complete picture of fairness. A model can be calibrated across groups while still generating far more false positives for one group than another — Northpointe's defence of COMPAS is the canonical example. Calibration and equalised false positive/false negative rates are mathematically incompatible when base rates differ between groups. This is the Chouldechova (2017) impossibility result: <strong>you have to choose.</strong></p>
+        <p class="explainer-block-text" style="margin-top: 14px;">Calibration is also sensitive to base rate differences, says nothing about whether the outcome itself is fair (a model calibrated on arrest rates is calibrated on a measure that reflects over-policing, not actual crime), and small group sizes inflate calibration error estimates. Always check sample size per bin before drawing conclusions about a subgroup.</p>
+        <div class="explainer-callout">COMPAS chose calibration. ProPublica measured the error rates. Both were right about what they measured. The choice of metric is a choice about who bears the cost of being wrong.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noopener noreferrer" class="reading-link">↗ ProPublica: Machine Bias (2016) — the investigation that triggered the calibration vs. error rate debate</a>
+          <a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Chouldechova: Fair Prediction with Disparate Impact (2017) — proof of incompatibility between calibration and equal error rates</a>
+          <a href="https://fairmlbook.org/" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Barocas, Hardt &amp; Narayanan: Fairness and Machine Learning (2023) — Chapter 3 covers calibration in depth</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
       </div>
     </div>
   </div>
@@ -3883,6 +4043,13 @@
       <div>
         <div class="roadmap-name">Explainer: Why Fairness Metrics Conflict</div>
         <div class="roadmap-meta">Chouldechova impossibility · COMPAS dual-reading · full audit code · base rate analysis</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Calibration</div>
+        <div class="roadmap-meta">Differential calibration · COMPAS score bands · MACE detection code · Chouldechova trade-off</div>
       </div>
     </div>
     <div class="roadmap-item">
