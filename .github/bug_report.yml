@@ -1,0 +1,78 @@
+name: Bug report
+description: Something in an audit or script isn't working correctly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for flagging this. Be as specific as possible — include the exact script, dataset, and output.
+
+  - type: dropdown
+    id: audit
+    attributes:
+      label: Which audit is affected?
+      options:
+        - COMPAS
+        - AI Fair Recruitment
+        - German Credit Lending
+        - Insurance Denial
+        - Benefits Denial
+        - Notebook (specify below)
+        - Other (specify below)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: script
+    attributes:
+      label: Which file?
+      options:
+        - unfair.py
+        - fair.py
+        - Jupyter notebook
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see? Paste the error message or unexpected output.
+      placeholder: |
+        e.g. Running fair.py throws a KeyError on line 42:
+        KeyError: 'CustodyStatus'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened?
+      placeholder: e.g. The script should print mitigated results with a fairness gap of ~15.69%
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. git clone ...
+        2. pip install -r requirements.txt
+        3. cd COMPAS
+        4. python fair.py
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        OS: macOS 14 / Ubuntu 22.04 / Windows 11
+        Python: 3.11.2
+        scikit-learn: 1.3.0
+        pandas: 2.0.1
+    validations:
+      required: true
