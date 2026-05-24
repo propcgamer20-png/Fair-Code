@@ -47,6 +47,13 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 ```
 Fair-Code/
 │
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md   # PR checklist for audits and explainers
+│   └── ISSUE_TEMPLATE/
+│       ├── bug_report.yml         # Report a bug or broken script
+│       ├── new_audit.yml          # Propose a new bias audit
+│       └── new_explainer.yml      # Propose a new explainer
+│
 ├── COMPAS/
 │   ├── unfair.py                  # Biased model (race + custody status included)
 │   ├── fair.py                    # Mitigated model (race + proxy removed)
