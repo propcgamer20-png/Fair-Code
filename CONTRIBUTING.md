@@ -58,6 +58,7 @@ Fair-Code/
 │   ├── disparate-impact.md          ← existing
 │   ├── fairness-metric-conflicts.md ← existing
 │   ├── calibration.md               ← existing
+│   ├── demographic-parity.md        ← existing
 │   └── your-concept-name.md         ← your new explainer
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -240,8 +241,9 @@ Explainers live in the `explainers/` folder at the repo root. The existing ones 
 - `disparate-impact.md` — the legal 80% rule that flags discriminatory selection in hiring, lending, and insurance
 - `fairness-metric-conflicts.md` — the proven mathematical impossibility of satisfying demographic parity, equalized odds, and predictive parity simultaneously
 - `calibration.md` — why a model can be equally accurate for all groups and still treat them unequally, including differential calibration and the Chouldechova impossibility result
+- `demographic-parity.md` — the foundational fairness metric: equal positive prediction rates across groups, when it applies, and what it misses
 
-Future ones might cover demographic parity or predictive parity.
+Future ones might cover predictive parity.
 
 ### File structure
 
@@ -255,6 +257,7 @@ Fair-Code/
     ├── disparate-impact.md          ← existing
     ├── fairness-metric-conflicts.md ← existing
     ├── calibration.md               ← existing
+    ├── demographic-parity.md        ← existing
     └── your-concept-name.md         ← your new explainer
 ```
 
@@ -355,7 +358,7 @@ In the PR description, include:
 - Explainers that only define a concept without demonstrating it with real data or code
 - Explainers that don't acknowledge the limitations or trade-offs of the metric/concept
 - Toy or invented examples as the primary illustration — use real data
-- Explainers on concepts already covered in the folder (check before starting — proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, fairness metric conflicts, and calibration are done)
+- Explainers on concepts already covered in the folder (check before starting — proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, fairness metric conflicts, calibration, and demographic parity are done)
 
 ---
 
