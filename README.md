@@ -16,6 +16,18 @@
 
 ---
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=yakew7%2FFair-Code&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=yakew7/Fair-Code&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=yakew7/Fair-Code&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=yakew7/Fair-Code&type=date&legend=top-left" />
+ </picture>
+</a>
+
+---
+
 ## What This Is
 
 Fair Code is an ongoing research and engineering project that exposes bias in real-world AI systems and demonstrates concrete mitigation strategies. Every audit follows the same pipeline:
