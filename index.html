@@ -1986,6 +1986,7 @@
         <li role="none"><a href="#explainer-metric-conflicts" role="menuitem">06 — Metric Conflicts</a></li>
         <li role="none"><a href="#explainer-calibration" role="menuitem">07 — Calibration</a></li>
         <li role="none"><a href="#explainer-demographic-parity" role="menuitem">08 — Demographic Parity</a></li>
+        <li role="none"><a href="#explainer-feedback-loop" role="menuitem">09 — Feedback Loop Bias</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2022,6 +2023,7 @@
     <a href="#explainer-metric-conflicts" class="mobile-link mobile-sub">06 — Metric Conflicts</a>
     <a href="#explainer-calibration" class="mobile-link mobile-sub">07 — Calibration</a>
     <a href="#explainer-demographic-parity" class="mobile-link mobile-sub">08 — Demographic Parity</a>
+    <a href="#explainer-feedback-loop" class="mobile-link mobile-sub">09 — Feedback Loop Bias</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2086,6 +2088,8 @@
     <span class="ticker-item"><span class="dot"></span>EQUALIZED ODDS · TPR + FPR PARITY</span>
     <span class="ticker-item red"><span class="dot"></span>DISPARATE IMPACT · 80% RULE</span>
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
+    <span class="ticker-item red"><span class="dot"></span>FEEDBACK LOOP BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2106,6 +2110,8 @@
     <span class="ticker-item"><span class="dot"></span>EQUALIZED ODDS · TPR + FPR PARITY</span>
     <span class="ticker-item red"><span class="dot"></span>DISPARATE IMPACT · 80% RULE</span>
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
+    <span class="ticker-item red"><span class="dot"></span>FEEDBACK LOOP BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
   </div>
 </div>
 
@@ -4178,6 +4184,198 @@
         <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
         <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
         <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
+        <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Feedback Loop Bias</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 09: FEEDBACK LOOP BIAS -->
+  <div id="explainer-feedback-loop" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="data detection" data-explainer-text="feedback loop bias retraining compounding amplification predictive policing performative prediction temporal bias historical proxy loop self-sealing drift monitoring deployment over-policing arrest data PredPol Geolitica Richardson Ensign healthcare resource allocation retraining cycles">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 09</div>
+        <h3 class="explainer-title">WHAT IS FEEDBACK LOOP BIAS?</h3>
+        <p class="explainer-tagline">The reason AI systems don't just reflect the past — they actively manufacture more of it.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">Feedback loop bias occurs when a model's predictions influence the real-world outcomes it will later be trained on — so its existing biases are continuously confirmed and <em>amplified</em> across successive retraining cycles, even without anyone introducing new discrimination.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Proxy variables and sampling bias are problems you can fix at training time: audit your features, remove the proxies, retrain. Feedback loop bias is different — it's a <em>temporal</em> problem. The model doesn't just learn from biased historical data. It generates biased present-day data that becomes the training set for the next version of itself.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">This is sometimes called <strong>performative prediction</strong>: the model's output changes the world, and the changed world feeds back into the model. Left unchecked, this process can take a modestly biased model and turn it into a severely biased one — not because anyone made it worse, but because nothing stopped it from compounding. The mechanism is self-sealing: the model predicts high risk for Group A → Group A receives more scrutiny → more violations are detected in Group A → the next model sees even more Group A violations → it predicts even higher risk for Group A.</p>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Common Feedback Loop Scenarios</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Domain</span>
+            <span>Protected Attribute</span>
+            <span>How the Loop Forms</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Predictive Policing</code></span>
+            <span class="proxy-attr">Race</span>
+            <span>Model flags high-crime zip codes → more patrols deployed → more arrests recorded → next model treats those zip codes as even higher risk</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Credit Scoring</code></span>
+            <span class="proxy-attr">Race / Class</span>
+            <span>Model denies loans to certain groups → those groups can't build credit history → next model sees thin files and rates them high risk</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Hiring AI</code></span>
+            <span class="proxy-attr">Gender / Race</span>
+            <span>Model deprioritises candidates from certain schools → those schools produce fewer hires → next model has no positive signal from them</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Healthcare Allocation</code></span>
+            <span class="proxy-attr">Race</span>
+            <span>Model predicts Group A has lower costs → Group A gets fewer resources → lower recorded utilisation → next model interprets this as lower need</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: Predictive Policing</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">The most documented case is predictive policing. Systems like PredPol (now Geolitica) train on historical arrest data to predict "high risk" areas. Police are deployed based on those predictions. The flaw is structural: arrest data doesn't measure crime — it measures <em>policing</em>. More patrols generate more arrests, not because more crime happens, but because more enforcement is present. When that arrest data trains the next model, those over-policed areas appear even more dangerous.</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">CYCLE 01</div>
+            <div class="proof-step-label">Model trained on historical arrest data — flags Zone A as high risk</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">feedback_loop.py — cycle 1</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># Cycle 1: model trained on historical data</div>
+                  <div class="t-normal">model_v1 = train(historical_arrest_data)</div>
+                  <div class="t-bad">patrol_zones = model_v1.predict_high_risk()</div>
+                  <div class="t-bad"># Zone A flagged → receives 3x patrol intensity</div>
+                  <div class="t-normal">zone_a_arrests = patrol(zone_a, intensity=3x)</div>
+                  <div class="t-bad"># More arrests — not more crime</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">feedback_loop.py — cycle 2</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># Cycle 2: loop closes</div>
+                  <div class="t-bad">new_data = historical_data + zone_a_arrests</div>
+                  <div class="t-bad">model_v2 = train(new_data)</div>
+                  <div class="t-bad"># Zone A signal is now even stronger</div>
+                  <div class="t-bad">patrol_v2 = model_v2.predict_high_risk()</div>
+                  <div class="t-bad"># Zone A flagged at higher confidence still</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">DETECTION</div>
+            <div class="proof-step-label">Measure group prediction rate drift across retraining cycles</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                detect_feedback_drift.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="k">def</span> <span class="v">flag_feedback_drift</span>(results, threshold=<span class="v">0.05</span>):<br>
+                &nbsp;&nbsp;<span class="c">"""</span><br>
+                &nbsp;&nbsp;<span class="c">Flag if the gap between groups grows by more than</span><br>
+                &nbsp;&nbsp;<span class="c">`threshold` across retraining cycles.</span><br>
+                &nbsp;&nbsp;<span class="c">"""</span><br>
+                &nbsp;&nbsp;cycles = list(results.values())<br>
+                &nbsp;&nbsp;gaps = []<br>
+                &nbsp;&nbsp;<span class="k">for</span> cycle <span class="k">in</span> cycles:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;rates = list(cycle.values())<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;gaps.append(max(rates) - min(rates))<br><br>
+                &nbsp;&nbsp;drift = gaps[<span class="v">-1</span>] - gaps[<span class="v">0</span>]<br>
+                &nbsp;&nbsp;<span class="k">return</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'initial_gap'</span>: round(gaps[<span class="v">0</span>], <span class="v">4</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'final_gap'</span>: round(gaps[<span class="v">-1</span>], <span class="v">4</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'drift'</span>: round(drift, <span class="v">4</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'feedback_loop_detected'</span>: drift &gt; threshold<br>
+                &nbsp;&nbsp;}<br><br>
+                <span class="c"># If gap GROWS across cycles → feedback loop is compounding</span><br>
+                <span class="c"># If gap stays stable or shrinks → loop is not amplifying</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap" style="margin-top: 32px;">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Feedback Loop vs Historical Bias</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Property</span>
+            <span>Historical Bias</span>
+            <span>Feedback Loop Bias</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Source</code></span>
+            <span class="proxy-attr">Biased past data</span>
+            <span>Model predictions shaping future data</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Trajectory</code></span>
+            <span class="proxy-attr">Stable — fixed at training time</span>
+            <span>Compounding — worsens each retraining cycle</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Fix</code></span>
+            <span class="proxy-attr">Audit features once before training</span>
+            <span>Ongoing monitoring across retraining cycles</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Self-sealing?</code></span>
+            <span class="proxy-attr">No</span>
+            <span style="color: var(--accent2);">Yes — model confirms its own prior beliefs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Feedback loops are what happens when a biased model is treated as a neutral source of truth. The model's predictions become the next generation's labels. The next generation's labels become the next model's signal. The loop closes, and the bias compounds.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">This is not a hypothetical. Predictive policing systems trained on over-policed communities have been formally documented producing this exact pattern. Healthcare algorithms that used cost as a proxy for need have been documented under-allocating resources to Black patients — and those allocation decisions then reduced the care-seeking behaviour that would have corrected the signal.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">Feedback loops are the reason algorithmic auditing cannot be a one-time exercise at deployment. A model that passes a fairness audit on launch day may fail one a year later — not because anyone changed it, but because it has been changing its own training data the entire time.</p>
+        <div class="explainer-callout">Feedback loop bias turns a modest disparity into a severe one, automatically, over time. Auditing once at launch is not enough. Monitor group prediction rates across every retraining cycle — before the loop seals.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.nyulawreview.org/online-features/dirty-data-bad-predictions-how-civil-rights-violations-impact-police-data-predictive-policing-systems-and-justice/" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Richardson, Schultz &amp; Crawford: Dirty Data, Bad Predictions (2019) — predictive policing systems trained on misconduct-tainted data</a>
+          <a href="https://arxiv.org/abs/1706.09847" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Ensign et al.: Runaway Feedback Loops in Predictive Policing (FAT* 2018) — foundational formal model of feedback amplification</a>
+          <a href="https://science.sciencemag.org/content/366/6464/447" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Obermeyer et al.: Dissecting racial bias in a health algorithm (Science, 2019) — healthcare feedback loop via cost-as-proxy for need</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
+        <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
+        <a href="#explainer-demographic-parity" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Demographic Parity</a>
       </div>
     </div>
   </div>
@@ -4299,6 +4497,13 @@
       <div>
         <div class="roadmap-name">Explainer: Demographic Parity</div>
         <div class="roadmap-meta">EEOC 80% rule · hiring bias proof · multi-group audit code · impossibility trade-offs</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Feedback Loop Bias</div>
+        <div class="roadmap-meta">Predictive policing case · retraining amplification · drift detection code · mitigation strategies</div>
       </div>
     </div>
     <div class="roadmap-item">
