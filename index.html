@@ -1988,6 +1988,7 @@
         <li role="none"><a href="#explainer-demographic-parity" role="menuitem">08 — Demographic Parity</a></li>
         <li role="none"><a href="#explainer-feedback-loop" role="menuitem">09 — Feedback Loop Bias</a></li>
         <li role="none"><a href="#explainer-disparate-treatment" role="menuitem">10 — Disparate Treatment</a></li>
+        <li role="none"><a href="#explainer-label-bias" role="menuitem">11 — Label Bias</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2026,6 +2027,7 @@
     <a href="#explainer-demographic-parity" class="mobile-link mobile-sub">08 — Demographic Parity</a>
     <a href="#explainer-feedback-loop" class="mobile-link mobile-sub">09 — Feedback Loop Bias</a>
     <a href="#explainer-disparate-treatment" class="mobile-link mobile-sub">10 — Disparate Treatment</a>
+    <a href="#explainer-label-bias" class="mobile-link mobile-sub">11 — Label Bias</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2092,6 +2094,8 @@
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
     <span class="ticker-item red"><span class="dot"></span>FEEDBACK LOOP BIAS</span>
     <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
+    <span class="ticker-item red"><span class="dot"></span>LABEL BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2114,6 +2118,8 @@
     <span class="ticker-item"><span class="dot"></span>FOUR-FIFTHS RULE · EEOC STANDARD</span>
     <span class="ticker-item red"><span class="dot"></span>FEEDBACK LOOP BIAS</span>
     <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
+    <span class="ticker-item red"><span class="dot"></span>LABEL BIAS</span>
+    <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
   </div>
 </div>
 
@@ -4663,6 +4669,250 @@
         <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
         <a href="#explainer-demographic-parity" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Demographic Parity</a>
         <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Label Bias</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 11: LABEL BIAS -->
+  <div id="explainer-label-bias" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="detection metrics" data-explainer-text="label bias historical bias biased labels ground truth training data hiring decisions discrimination historical discrimination noisy labels sample weights fairlearn demographic parity equalized odds feedback loop proxy variables propensity score matching Jacobs Wallach Barocas Selbst Obermeyer Friedler calibration label quality target variable corrupt labels">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 11</div>
+        <h3 class="explainer-title">WHAT IS LABEL BIAS?</h3>
+        <p class="explainer-tagline">The training data your model learned from was itself a record of human prejudice. Garbage in, discrimination out — and the model has no idea.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">Label Bias occurs when the ground-truth labels used to train a model reflect past human discrimination rather than actual merit, risk, or outcome — causing the model to learn and perpetuate that discrimination <em>as if it were objective fact</em>.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Every supervised learning model learns to predict a label. The quiet assumption is that the label is correct. In practice, labels in real-world datasets are often human decisions — hiring outcomes, parole approvals, loan denials, performance ratings — recorded by people operating inside systems that were already discriminatory.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">When a model trains on those labels, it doesn't just learn patterns. It learns to reproduce the prejudice baked into every <code class="inline-code">0</code> and <code class="inline-code">1</code>. This is what makes label bias fundamentally different from every other bias type in this series: proxy variables are a problem in the features; label bias is a problem in the <em>target</em>. You cannot detect it by looking at your data pipeline. The pipeline is clean. The labels were just wrong to begin with.</p>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: Hiring Decisions</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">A resume-screening model trained on ten years of company hiring data achieves 89% accuracy, passes the Four-Fifths Rule (DI ratio 0.84), and ships. The problem: for those ten years, managers disproportionately rejected women for senior roles due to documented managerial bias. That pattern is now encoded in the label column. The model learned that a woman with 8 years of experience and a high test score is, historically, <code class="inline-code">hired = 0</code>. It is not discriminating against women directly. It is accurately predicting what biased humans would have decided.</p>
+        <div class="terminals-grid">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+              <span class="terminal-label">label_bias_simulation.py — biased labels in target column</span>
+            </div>
+            <div class="terminal-body">
+              <div class="t-head"># Simulate biased historical hiring labels</div>
+              <div class="t-bad">base_prob = (experience / 20) + (test_score / 200)</div>
+              <div class="t-bad">gender_penalty = -0.12 if gender == 'Female' else 0.0</div>
+              <div class="t-bad">hire_prob = (base_prob + gender_penalty).clip(0, 1)</div>
+              <div class="t-bad">df['hired'] = (np.random.rand(n) &lt; hire_prob)</div>
+              <div class="t-head"># Model trains on this. Learns the gap.</div>
+              <div class="t-bad"># Female hire rate: 18.9%</div>
+              <div class="t-bad"># Male   hire rate: 24.1%</div>
+              <div class="t-bad"># Gap reproduced — no feature engineering needed.</div>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+              <span class="terminal-label">why_it_hides.py — standard metrics look clean</span>
+            </div>
+            <div class="terminal-body">
+              <div class="t-head"># Standard pipeline passes all checks.</div>
+              <div class="t-normal">accuracy = 0.89          # looks fine</div>
+              <div class="t-normal">di_ratio = 0.84          # passes 80% rule</div>
+              <div class="t-head"># But the test labels are also biased.</div>
+              <div class="t-bad"># Accuracy is measured against corrupted truth.</div>
+              <div class="t-bad"># DI ratio is measured against corrupted truth.</div>
+              <div class="t-bad"># Neither catches what's wrong.</div>
+              <div class="t-normal"># You need to audit the labels themselves.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Model Bias vs. Label Bias</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span></span>
+            <span>Model Bias</span>
+            <span>Label Bias</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Source</code></span>
+            <span class="proxy-attr">Features or training process</span>
+            <span>Ground-truth labels (the target column)</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Location</code></span>
+            <span class="proxy-attr">Feature matrix or model weights</span>
+            <span>The <code class="inline-code">y</code> column — before training starts</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Detection</code></span>
+            <span class="proxy-attr">Standard fairness metrics (DI ratio, Equalized Odds)</span>
+            <span style="color: var(--accent2);">Conditional label distribution audits — standard metrics test against the same biased labels</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Fix</code></span>
+            <span class="proxy-attr">Drop proxy variables, retrain, apply constraints</span>
+            <span>Relabel data, collect new labels, apply label-noise correction</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Detectable without external ground truth?</code></span>
+            <span style="color: var(--accent3);">Yes</span>
+            <span style="color: var(--accent2);">Often no — the labels are the only truth you have</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">A model can be perfectly calibrated and still perpetuate label bias. It learned exactly what it was taught — a faithful reproduction of historical discrimination.</div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">How to Detect It in Python</div>
+        <p class="explainer-block-text" style="margin-top: 8px; margin-bottom: 16px;">There is no single metric for label bias. Detection requires a combination of approaches. The most reliable: check whether positive label rates differ across protected groups <em>within the same merit tier</em>. A gap that persists — or grows — at the top of the merit distribution is a strong signal that the labels recorded discrimination, not merit.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            label_bias_audit.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">import</span> <span class="v">pandas</span> <span class="k">as</span> <span class="v">pd</span><br><br>
+            <span class="k">def</span> <span class="v">label_bias_audit</span>(df, label_col, group_col, feature_cols, n_bins=<span class="v">4</span>):<br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;<span class="c">Check whether label rates differ across groups within merit-score quantiles.</span><br>
+            &nbsp;&nbsp;<span class="c">If two groups show meaningfully different label rates in the same score band,</span><br>
+            &nbsp;&nbsp;<span class="c">the labels may reflect historical discrimination rather than merit.</span><br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;df = df.copy()<br>
+            &nbsp;&nbsp;df[<span class="v">'_merit'</span>] = df[feature_cols].mean(axis=<span class="v">1</span>)<br>
+            &nbsp;&nbsp;df[<span class="v">'_bin'</span>] = pd.qcut(df[<span class="v">'_merit'</span>], q=n_bins, labels=<span class="k">False</span>, duplicates=<span class="v">'drop'</span>)<br><br>
+            &nbsp;&nbsp;result = (<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;df.groupby([<span class="v">'_bin'</span>, group_col])[label_col]<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.mean()<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.unstack(group_col)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.round(<span class="v">3</span>)<br>
+            &nbsp;&nbsp;)<br>
+            &nbsp;&nbsp;print(<span class="v">"Label rates by merit band and group:"</span>)<br>
+            &nbsp;&nbsp;print(result)<br>
+            &nbsp;&nbsp;print(<span class="v">"\nGap that persists or grows at higher merit bands → label bias."</span>)<br>
+            &nbsp;&nbsp;<span class="k">return</span> result<br><br>
+            <span class="c"># Run on the AI Fair Recruitment dataset before training</span><br>
+            label_bias_audit(<br>
+            &nbsp;&nbsp;df=df,<br>
+            &nbsp;&nbsp;label_col=<span class="v">'hired'</span>,<br>
+            &nbsp;&nbsp;group_col=<span class="v">'gender'</span>,<br>
+            &nbsp;&nbsp;feature_cols=[<span class="v">'experience_years'</span>, <span class="v">'technical_test_score'</span>]<br>
+            )<br>
+            <span class="c"># gender         Female   Male</span><br>
+            <span class="c"># _bin</span><br>
+            <span class="c"># 0 (low merit)    0.084  0.098  ← small gap, plausible</span><br>
+            <span class="c"># 1                0.151  0.182  ← gap growing</span><br>
+            <span class="c"># 2                0.231  0.290  ← gap persists at high merit</span><br>
+            <span class="c"># 3 (top merit)    0.350  0.431  ← 8pp gap — flags label bias</span>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            noise_robust_training.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">def</span> <span class="v">compute_sample_weights</span>(df, label_col, group_col, feature_cols, protected_val):<br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;<span class="c">Downweight training examples most likely to carry biased labels:</span><br>
+            &nbsp;&nbsp;<span class="c">high-merit, protected-group members who received a negative label.</span><br>
+            &nbsp;&nbsp;<span class="c">These are the records most likely to reflect historical discrimination.</span><br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;df = df.copy()<br>
+            &nbsp;&nbsp;df[<span class="v">'_merit'</span>] = df[feature_cols].mean(axis=<span class="v">1</span>)<br>
+            &nbsp;&nbsp;merit_median = df[<span class="v">'_merit'</span>].median()<br><br>
+            &nbsp;&nbsp;suspected_biased = (<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(df[group_col] == protected_val) &amp;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(df[<span class="v">'_merit'</span>] &gt; merit_median) &amp;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(df[label_col] == <span class="v">0</span>)<br>
+            &nbsp;&nbsp;)<br>
+            &nbsp;&nbsp;weights = pd.Series(<span class="v">1.0</span>, index=df.index)<br>
+            &nbsp;&nbsp;weights[suspected_biased] = <span class="v">0.5</span>&nbsp;&nbsp;<span class="c"># downweight suspected biased negatives</span><br>
+            &nbsp;&nbsp;<span class="k">return</span> weights<br><br>
+            weights = compute_sample_weights(<br>
+            &nbsp;&nbsp;df=df, label_col=<span class="v">'hired'</span>, group_col=<span class="v">'gender'</span>,<br>
+            &nbsp;&nbsp;feature_cols=[<span class="v">'experience_years'</span>, <span class="v">'technical_test_score'</span>],<br>
+            &nbsp;&nbsp;protected_val=<span class="v">'Female'</span><br>
+            )<br>
+            model.fit(X_train, y_train, sample_weight=weights[X_train.index])
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Label bias forces an uncomfortable question: if the training data records what humans decided, and humans decided in discriminatory ways, is a model trained on that data learning job-relevant patterns — or is it learning to replicate discrimination at scale? The answer is usually both. The model learns real signal <em>and</em> discriminatory signal because both are present in the labels. Standard evaluation cannot distinguish them, because it uses the same labels as the ground truth.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">This is why label bias is particularly dangerous in high-stakes domains: criminal justice, hiring, lending, healthcare. These are exactly the domains where historical records exist at scale, where AI adoption is fastest, and where historical discrimination was most systematic — and therefore most thoroughly documented in the label column.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">Label bias is also the seed that feedback loops grow from. When a biased model's predictions are harvested as the next generation of training labels, the distortion in the original label column compounds with every retraining cycle. Fixing it at the source matters more than any downstream constraint.</p>
+        <div class="explainer-callout">Auditing for label bias requires going beyond the model. It requires asking whether the target variable you trained on was ever a legitimate measure of what you claim to predict — or whether it was always a record of what biased humans decided.</div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations and Trade-offs</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">No ground truth</code></span>
+            <span class="proxy-attr">Without external validation data, a gap in label rates is suggestive, not conclusive — it could reflect a legitimate merit signal you haven't measured</span>
+            <span>Use matched comparison studies or audit samples with independent reviewers where possible</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Relabeling risk</code></span>
+            <span class="proxy-attr">Correcting historical labels without rigorous methodology can overcorrect, replacing one bias with another</span>
+            <span>Document, version, and independently audit all label corrections</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Accuracy trade-off</code></span>
+            <span class="proxy-attr">Applying fairness constraints to correct for biased labels reduces accuracy on the (biased) test set — which registers as a regression in standard evaluation</span>
+            <span>This is the right trade-off when labels are biased; re-evaluate against held-out unbiased samples where available</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Compounds with feedback loops</code></span>
+            <span class="proxy-attr">Label bias is the starting condition for feedback loop bias — each retraining cycle amplifies the distortion</span>
+            <span>Fix at the source; see the Feedback Loop Bias explainer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://arxiv.org/abs/1912.05511" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Jacobs &amp; Wallach: Measurement and Fairness (FAccT 2021) — the gap between what ML labels purport to measure and what they encode</a>
+          <a href="https://www.californialawreview.org/print/2-big-datas-disparate-impact" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Barocas &amp; Selbst: Big Data's Disparate Impact (2016) — Section III covers biased training labels as a discrimination mechanism</a>
+          <a href="https://arxiv.org/abs/1802.04422" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Friedler et al.: A Comparative Study of Fairness-Enhancing Interventions (2019) — empirical comparison including label noise correction strategies</a>
+          <a href="https://www.science.org/doi/10.1126/science.aax2342" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Obermeyer et al.: Dissecting Racial Bias in a Healthcare Algorithm (Science, 2019) — landmark audit showing cost-as-label encoding structural access inequality</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
+        <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
+        <a href="#explainer-demographic-parity" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Demographic Parity</a>
+        <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
+        <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
       </div>
     </div>
   </div>
@@ -4798,6 +5048,13 @@
       <div>
         <div class="roadmap-name">Explainer: Disparate Treatment</div>
         <div class="roadmap-meta">Title VII · feature set audit · two-stage treatment → impact check · proxy detection · McDonnell Douglas</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Label Bias</div>
+        <div class="roadmap-meta">Biased ground truth · conditional label audit · noise-robust training · propensity matching · Jacobs &amp; Wallach</div>
       </div>
     </div>
     <div class="roadmap-item">
