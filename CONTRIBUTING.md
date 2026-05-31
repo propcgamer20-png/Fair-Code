@@ -234,6 +234,7 @@ Explainers live in `explainers/`. The existing ones:
 | `calibration.md` | Why a model can be equally accurate for all groups and still treat them unequally |
 | `demographic-parity.md` | Equal positive prediction rates across groups — when it applies and what it misses |
 | `feedback-loop-bias.md` | Why AI systems amplify bias across retraining cycles by treating their own predictions as ground truth |
+| `label-bias.md` | Why a model trained on historical human decisions inherits the prejudice of those decisions — even when the features look clean |
 
 ### What a good explainer contains
 
@@ -320,7 +321,7 @@ Include in the PR description: what concept you're explaining and why it's worth
 - Concept defined but not demonstrated with real data or code
 - No acknowledgment of limitations or trade-offs
 - Toy or invented examples as the primary illustration
-- Concepts already covered: proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, disparate treatment, fairness metric conflicts, calibration, demographic parity, feedback loop bias
+- Concepts already covered: proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, disparate treatment, fairness metric conflicts, calibration, demographic parity, feedback loop bias, label bias
 
 ---
 
