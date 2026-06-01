@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 # 1. Load the dataset
-df = pd.read_csv('Ai Fair recrutment Dataset/AI_Fair_Recruitment_Dataset.csv')
+df = pd.read_csv('AI Fair Recruitment/AI_Fair_Recruitment_Dataset.csv')
 
 # Drop missing metrics safely
 df = df.dropna(subset=['Hiring_Decision', 'Gender', 'Age', 'Experience_Years', 'Technical_Test_Score'])
