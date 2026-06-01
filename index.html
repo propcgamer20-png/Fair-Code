@@ -1989,6 +1989,7 @@
         <li role="none"><a href="#explainer-feedback-loop" role="menuitem">09 — Feedback Loop Bias</a></li>
         <li role="none"><a href="#explainer-disparate-treatment" role="menuitem">10 — Disparate Treatment</a></li>
         <li role="none"><a href="#explainer-label-bias" role="menuitem">11 — Label Bias</a></li>
+        <li role="none"><a href="#explainer-individual-fairness" role="menuitem">12 — Individual Fairness</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2028,6 +2029,7 @@
     <a href="#explainer-feedback-loop" class="mobile-link mobile-sub">09 — Feedback Loop Bias</a>
     <a href="#explainer-disparate-treatment" class="mobile-link mobile-sub">10 — Disparate Treatment</a>
     <a href="#explainer-label-bias" class="mobile-link mobile-sub">11 — Label Bias</a>
+    <a href="#explainer-individual-fairness" class="mobile-link mobile-sub">12 — Individual Fairness</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2096,6 +2098,8 @@
     <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
     <span class="ticker-item red"><span class="dot"></span>LABEL BIAS</span>
     <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
+    <span class="ticker-item red"><span class="dot"></span>INDIVIDUAL FAIRNESS</span>
+    <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2120,6 +2124,8 @@
     <span class="ticker-item"><span class="dot"></span>RETRAINING AMPLIFIES BIAS OVER TIME</span>
     <span class="ticker-item red"><span class="dot"></span>LABEL BIAS</span>
     <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
+    <span class="ticker-item red"><span class="dot"></span>INDIVIDUAL FAIRNESS</span>
+    <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
   </div>
 </div>
 
@@ -4913,12 +4919,316 @@
         <a href="#explainer-demographic-parity" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Demographic Parity</a>
         <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
         <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
+        <a href="#explainer-individual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Individual Fairness</a>
       </div>
     </div>
   </div>
 
-</section>
-<section id="impact" style="background: var(--surface);" aria-labelledby="impact-heading">
+  <!-- EXPLAINER 12: INDIVIDUAL FAIRNESS -->
+  <div id="explainer-individual-fairness" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="metrics detection" data-explainer-text="individual fairness similar people similar treatment Lipschitz condition task similarity metric matched pairs counterfactual consistency score Dwork Zemel Kusner demographic parity group fairness hiring discrimination proxy variables base rate impossibility counterfactual fairness COMPAS AI recruitment audit">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 12</div>
+        <h3 class="explainer-title">WHAT IS INDIVIDUAL FAIRNESS?</h3>
+        <p class="explainer-tagline">Group fairness says the model treats groups equally. Individual fairness asks something harder: does it treat similar people similarly — regardless of which group they belong to?</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">Individual Fairness requires a model to produce similar predictions for individuals who are similar with respect to the task at hand — so that two people who are equally qualified receive equally favourable outcomes, regardless of demographic group membership.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Every other fairness metric in this series — Demographic Parity, Equalized Odds, Disparate Impact — is a <em>group-level</em> measure. It asks whether two demographic populations receive equal treatment in aggregate. A model can pass every group-level fairness check and still discriminate against a specific individual, so long as that discrimination is consistent enough not to shift the group averages.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">Consider two candidates for the same role: identical experience years, identical test score. One is rejected; one is hired. The only meaningful difference is group membership. The Demographic Parity ratio might hover near 0.80 and pass the Four-Fifths Rule. The individual is still harmed. Individual fairness is the standard that catches this — it operates at the level of the person, not the population.</p>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">The Formal Definition</div>
+        <p class="explainer-block-text">Dwork et al. (2012) formalise individual fairness using a task-specific similarity metric <code class="inline-code">d(x, y)</code> over individuals and a distance metric <code class="inline-code">D(f(x), f(y))</code> over model outputs. The requirement is a Lipschitz condition:</p>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            lipschitz_condition.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="c"># The Lipschitz fairness condition (Dwork et al., 2012)</span><br>
+            <span class="c">#</span><br>
+            <span class="c">#   D(f(x), f(y))  ≤  L · d(x, y)</span><br>
+            <span class="c">#</span><br>
+            <span class="c">#   f(x), f(y)  — model predictions for individuals x and y</span><br>
+            <span class="c">#   d(x, y)     — how different x and y are on TASK-RELEVANT features</span><br>
+            <span class="c">#   D(...)      — how different the model outputs are</span><br>
+            <span class="c">#   L           — Lipschitz constant bounding the ratio</span><br><br>
+            <span class="c"># Plain English: if two people are close in the space of features</span><br>
+            <span class="c"># that matter for the task, the model's decisions should also be close.</span><br>
+            <span class="c"># Demographic group membership should NOT expand the decision gap</span><br>
+            <span class="c"># beyond what the task-relevant distance justifies.</span><br><br>
+            <span class="c"># KEY TERM: task-relevant.</span><br>
+            <span class="c"># Individual fairness does not require treating everyone identically.</span><br>
+            <span class="c"># It requires that outcome differences be proportional to merit</span><br>
+            <span class="c"># differences — not inflated by demographic proxies.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: AI Fair Recruitment</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">The AI Fair Recruitment audit is a direct worked example. Two candidates matched on every task-relevant feature receive opposite verdicts. Group-level metrics catch the aggregate pattern (4.51pp gender gap). Individual fairness makes explicit why: these two specific people, identical on every dimension that should matter, got different answers.</p>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Feature</span>
+            <span>Candidate A — Female</span>
+            <span>Candidate B — Male</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Experience Years</code></span>
+            <span class="proxy-attr">8</span>
+            <span>8</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Technical Test Score</code></span>
+            <span class="proxy-attr">84</span>
+            <span>84</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">d(A, B) on merit features</code></span>
+            <span style="color: var(--accent3);">Zero — identical profiles</span>
+            <span style="color: var(--accent3);">Zero — identical profiles</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Biased model prediction</code></span>
+            <span style="color: var(--accent2); font-weight: 500;">0 — Rejected</span>
+            <span style="color: var(--accent); font-weight: 500;">1 — Hired</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;"><code class="inline-code">D(f(A), f(B)) = 1</code> on task-relevant distance <code class="inline-code">d(A, B) = 0</code> — a direct Lipschitz violation. Among matched merit pairs in the test set, the biased model produces different outcomes for ~21.8% — over 1 in 5 identical profiles get opposite decisions.</div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">How to Detect It in Python</div>
+        <p class="explainer-block-text" style="margin-top: 8px; margin-bottom: 16px;">Three complementary approaches — run all three. They catch different failure modes.</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">APPROACH 01</div>
+            <div class="proof-step-label">Matched-pair test — find identical merit profiles with different outcomes across groups</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                matched_pair_audit.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="k">from</span> <span class="v">sklearn.metrics.pairwise</span> <span class="k">import</span> <span class="v">euclidean_distances</span><br>
+                <span class="k">from</span> <span class="v">sklearn.preprocessing</span> <span class="k">import</span> <span class="v">StandardScaler</span><br><br>
+                <span class="k">def</span> <span class="v">individual_fairness_audit</span>(df, prediction_col, group_col, feature_cols, threshold=<span class="v">0.5</span>):<br>
+                &nbsp;&nbsp;<span class="c">"""</span><br>
+                &nbsp;&nbsp;<span class="c">Find cross-group pairs similar on task features (dist &lt;= threshold)</span><br>
+                &nbsp;&nbsp;<span class="c">but receiving different predictions. These are IF violations.</span><br>
+                &nbsp;&nbsp;<span class="c">"""</span><br>
+                &nbsp;&nbsp;df = df.copy().reset_index(drop=<span class="k">True</span>)<br>
+                &nbsp;&nbsp;X = StandardScaler().fit_transform(df[feature_cols])<br>
+                &nbsp;&nbsp;dists = euclidean_distances(X)<br>
+                &nbsp;&nbsp;violations, similar_pairs = <span class="v">0</span>, <span class="v">0</span><br>
+                &nbsp;&nbsp;<span class="k">for</span> i <span class="k">in range</span>(len(df)):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> j <span class="k">in range</span>(i + <span class="v">1</span>, len(df)):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> dists[i, j] &gt; threshold: <span class="k">continue</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> df[group_col].iloc[i] == df[group_col].iloc[j]: <span class="k">continue</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;similar_pairs += <span class="v">1</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> df[prediction_col].iloc[i] != df[prediction_col].iloc[j]:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;violations += <span class="v">1</span><br>
+                &nbsp;&nbsp;rate = violations / similar_pairs <span class="k">if</span> similar_pairs &gt; <span class="v">0</span> <span class="k">else</span> <span class="k">None</span><br>
+                &nbsp;&nbsp;print(<span class="v">f"Similar cross-group pairs: {similar_pairs}"</span>)<br>
+                &nbsp;&nbsp;print(<span class="v">f"Violations: {violations}  ({rate*100:.1f}%)"</span>)<br>
+                &nbsp;&nbsp;<span class="c"># &gt;0% violations = individual fairness problem</span><br>
+                &nbsp;&nbsp;<span class="k">return</span> {<span class="v">"pairs"</span>: similar_pairs, <span class="v">"violations"</span>: violations, <span class="v">"rate"</span>: rate}
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">APPROACH 02</div>
+            <div class="proof-step-label">Lipschitz test — counterfactual group flip: how much does prediction change when only group membership changes?</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                lipschitz_test.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="k">import</span> <span class="v">numpy</span> <span class="k">as</span> <span class="v">np</span><br><br>
+                <span class="k">def</span> <span class="v">lipschitz_test</span>(model, X_test, group_col_encoded):<br>
+                &nbsp;&nbsp;<span class="c">"""Flip the group encoding. Measure how predictions shift.</span><br>
+                &nbsp;&nbsp;<span class="c">High mean delta = group membership is driving the model.</span><br>
+                &nbsp;&nbsp;<span class="c">Near zero = model is robust to group membership changes."""</span><br>
+                &nbsp;&nbsp;X_orig = X_test.copy()<br>
+                &nbsp;&nbsp;X_flip = X_test.copy()<br>
+                &nbsp;&nbsp;X_flip[group_col_encoded] = <span class="v">1</span> - X_flip[group_col_encoded]<br>
+                &nbsp;&nbsp;p_orig = model.predict_proba(X_orig)[:, <span class="v">1</span>]<br>
+                &nbsp;&nbsp;p_flip = model.predict_proba(X_flip)[:, <span class="v">1</span>]<br>
+                &nbsp;&nbsp;delta = np.abs(p_orig - p_flip)<br>
+                &nbsp;&nbsp;print(<span class="v">f"Mean prediction change: {delta.mean():.4f}"</span>)<br>
+                &nbsp;&nbsp;print(<span class="v">f"% changed &gt;0.10:       {(delta&gt;0.1).mean()*100:.1f}%"</span>)<br>
+                &nbsp;&nbsp;<span class="k">return</span> delta
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">APPROACH 03</div>
+            <div class="proof-step-label">Consistency score (Zemel et al.) — for each person, how often does the model agree with their k nearest task-feature neighbours?</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                consistency_score.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="k">from</span> <span class="v">sklearn.neighbors</span> <span class="k">import</span> <span class="v">NearestNeighbors</span><br>
+                <span class="k">from</span> <span class="v">sklearn.preprocessing</span> <span class="k">import</span> <span class="v">StandardScaler</span><br>
+                <span class="k">import</span> <span class="v">numpy</span> <span class="k">as</span> <span class="v">np</span><br><br>
+                <span class="k">def</span> <span class="v">consistency_score</span>(X, y_pred, feature_cols, k=<span class="v">5</span>):<br>
+                &nbsp;&nbsp;<span class="c">"""1.0 = perfect: same prediction for all similar people.</span><br>
+                &nbsp;&nbsp;<span class="c">Near 0 = different predictions for similar people."""</span><br>
+                &nbsp;&nbsp;X_s = StandardScaler().fit_transform(X[feature_cols])<br>
+                &nbsp;&nbsp;_, idx = NearestNeighbors(n_neighbors=k+<span class="v">1</span>).fit(X_s).kneighbors(X_s)<br>
+                &nbsp;&nbsp;scores = [<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;(y_pred[nbrs[<span class="v">1</span>:]] == y_pred[i]).mean()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> i, nbrs <span class="k">in enumerate</span>(idx)<br>
+                &nbsp;&nbsp;]<br>
+                &nbsp;&nbsp;score = np.mean(scores)<br>
+                &nbsp;&nbsp;label = (<span class="v">"Good"</span> <span class="k">if</span> score &gt;= <span class="v">0.80</span> <span class="k">else</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">"Moderate"</span> <span class="k">if</span> score &gt;= <span class="v">0.65</span> <span class="k">else</span> <span class="v">"Poor"</span>)<br>
+                &nbsp;&nbsp;print(<span class="v">f"Consistency score: {score:.4f}  [{label}]"</span>)<br>
+                &nbsp;&nbsp;<span class="k">return</span> score
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Individual Fairness vs. Group Fairness</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span></span>
+            <span>Group Fairness</span>
+            <span>Individual Fairness</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Unit of analysis</code></span>
+            <span class="proxy-attr">Demographic population</span>
+            <span>Specific individual</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Question</code></span>
+            <span class="proxy-attr">Are outcomes equal across groups?</span>
+            <span>Are similar people treated similarly?</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Can pass without the other?</code></span>
+            <span style="color: var(--accent2);">Yes — aggregate parity can mask individual violations</span>
+            <span style="color: var(--accent2);">Yes — consistent decisions can produce demographic gaps</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Legal grounding</code></span>
+            <span class="proxy-attr">Disparate Impact (Title VII, 80% rule)</span>
+            <span>Disparate Treatment, due process</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">What it misses</code></span>
+            <span class="proxy-attr">Harm to specific individuals inside a passing aggregate</span>
+            <span>Whether the similarity metric itself encodes bias</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Repair strategy</code></span>
+            <span style="color: var(--accent3);">Resampling, reweighting, post-processing constraints</span>
+            <span style="color: var(--accent3);">Regularisation, fairness-aware representations</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">The two are complementary, not competing. A complete fairness audit runs both. Group fairness is the aggregate signal. Individual fairness is the standard that explains what caused it.</div>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">The Similarity Metric Problem</div>
+        <p class="explainer-block-text">Individual fairness has one foundational difficulty: the framework requires a task-specific similarity metric <code class="inline-code">d(x, y)</code>, and defining a fair one is not a technical problem — it is a normative one. Who decides that two people are "similar enough" to deserve similar treatment?</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">If the similarity metric embeds a biased standard — treating <code class="inline-code">tenure_current_employer</code> as task-relevant when it structurally disadvantages career-changers and parents returning from leave — the framework will certify those decisions as consistent. Two people who are equally productive are declared dissimilar. Different outcomes are then permitted by definition.</p>
+        <div class="explainer-callout">This is not a flaw to be patched — it is the central normative question individual fairness makes explicit: <em>what does it mean to be equally qualified for this task?</em> That answer requires domain expertise, stakeholder input, and legal grounding. It cannot be solved by optimising a loss function.</div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Group fairness and individual fairness are not rival frameworks. They are different lenses on the same underlying problem: a decision system that uses demographic signal to produce unequal outcomes for people who deserve equal ones. Group metrics tell you that something is wrong at the population level. Individual fairness tells you exactly what that looks like for a specific person — they submitted the same credentials as someone else and received the opposite verdict.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">The combination is also what turns a bias audit into evidence. A Demographic Parity gap tells you there is a problem. Matched-pair violations tell you the mechanism. A defendant flagged high-risk by COMPAS whose criminal history profile is identical to a defendant flagged low-risk is not a statistical artifact — that is a person who can point to a specific instance of unequal treatment.</p>
+        <div class="explainer-callout">The goal is not a model that treats groups equally in the aggregate. The goal is a model that gives the same answer to the same person regardless of which group that person belongs to. Group fairness is the aggregate consequence. Individual fairness is the standard.</div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations and Trade-offs</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Similarity metric requires judgment</code></span>
+            <span class="proxy-attr">A biased similarity metric certifies consistent discrimination as fair</span>
+            <span>Define <code class="inline-code">d(x, y)</code> with domain experts, affected stakeholders, and legal frameworks — not feature engineering alone</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Conflicts with group fairness</code></span>
+            <span class="proxy-attr">When base rates differ, enforcing individual consistency can produce demographic gaps; enforcing group parity can require treating dissimilar individuals as similar</span>
+            <span>Accept the impossibility; document trade-offs explicitly in the model card — see the Metric Conflicts explainer</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Computational cost</code></span>
+            <span class="proxy-attr">Pairwise distance is O(n²) — impractical above ~50k records with exhaustive search</span>
+            <span>Use <code class="inline-code">ball_tree</code> or <code class="inline-code">kd_tree</code> and sample subsets for large datasets</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Consistency ≠ correctness</code></span>
+            <span class="proxy-attr">A model that rejects everyone is perfectly consistent — necessary but not sufficient</span>
+            <span>Pair with accuracy, calibration, and group-level audits; no single metric is complete</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Weaker legal standing</code></span>
+            <span class="proxy-attr">No direct US legal analogue — courts assess via group statistics and specific disparate treatment</span>
+            <span>Use matched-pair violations as supporting evidence in disparate treatment claims, not standalone legal proof</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://arxiv.org/abs/1104.3913" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Dwork et al.: Fairness Through Awareness (ITCS 2012) — the paper that formalised individual fairness and the Lipschitz condition</a>
+          <a href="https://proceedings.mlr.press/v28/zemel13.html" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Zemel et al.: Learning Fair Representations (ICML 2013) — introduces the consistency metric used in the detection code above</a>
+          <a href="https://arxiv.org/abs/1703.06856" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Kusner et al.: Counterfactual Fairness (NeurIPS 2017) — individual-level causal complement to the Dwork framework</a>
+          <a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Chouldechova: Fair Prediction with Disparate Impact (2017) — the impossibility result showing where individual and group fairness conflict</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-sampling" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-disparate-impact" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Impact</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
+        <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
+        <a href="#explainer-demographic-parity" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Demographic Parity</a>
+        <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
+        <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
+      </div>
+    </div>
+  </div>
+
+</section> style="background: var(--surface);" aria-labelledby="impact-heading">
   <div class="section-eyebrow"><span class="num">05</span>Why This Matters</div>
   <h2 id="impact-heading" class="impact-title reveal">THESE ARE NOT HYPOTHETICALS</h2>
   <div class="impact-grid reveal">
