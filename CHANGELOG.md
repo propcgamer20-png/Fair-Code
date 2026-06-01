@@ -18,9 +18,11 @@ All notable changes to Fair Code are documented here.
 ### Fixed
 - HTML section closing tag bug in index.html (impact section broken)
 - Mobile nav max-height increased for full scrollability on small screens
+- Dataset path corrected in AI Fair Recruitment `fair.py` / `unfair.py` scripts (PR by Anjali Tiwari)
 ### Changed
 - Code of Conduct revised for clarity and inclusivity
 - scipy and shap package versions corrected in requirements.txt
+- `CHANGELOG.md` added to project structure
 
 ---
 
