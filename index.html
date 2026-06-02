@@ -1990,6 +1990,7 @@
         <li role="none"><a href="#explainer-disparate-treatment" role="menuitem">10 — Disparate Treatment</a></li>
         <li role="none"><a href="#explainer-label-bias" role="menuitem">11 — Label Bias</a></li>
         <li role="none"><a href="#explainer-individual-fairness" role="menuitem">12 — Individual Fairness</a></li>
+        <li role="none"><a href="#explainer-counterfactual-fairness" role="menuitem">13 — Counterfactual Fairness</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2030,6 +2031,7 @@
     <a href="#explainer-disparate-treatment" class="mobile-link mobile-sub">10 — Disparate Treatment</a>
     <a href="#explainer-label-bias" class="mobile-link mobile-sub">11 — Label Bias</a>
     <a href="#explainer-individual-fairness" class="mobile-link mobile-sub">12 — Individual Fairness</a>
+    <a href="#explainer-counterfactual-fairness" class="mobile-link mobile-sub">13 — Counterfactual Fairness</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -5224,6 +5226,286 @@
         <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
         <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
         <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
+        <a href="#explainer-counterfactual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Counterfactual Fairness</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 13: COUNTERFACTUAL FAIRNESS -->
+  <div id="explainer-counterfactual-fairness" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="causal metrics detection" data-explainer-text="counterfactual fairness causal fairness structural causal model SCM DAG directed acyclic graph do-calculus intervention protected attribute race gender sex downstream proxy resolving variable background variable Kusner NeurIPS 2017 Pearl causality loan redlining neighbourhood credit score COMPAS prior arrests policing counterfactual world causal graph individual fairness group fairness demographic parity proxy variables disparate treatment label bias causal path audit detection">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 13</div>
+        <h3 class="explainer-title">WHAT IS COUNTERFACTUAL FAIRNESS?</h3>
+        <p class="explainer-tagline">Removing a protected attribute from your model isn't enough — if the attribute caused your other features, the bias is already inside them.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">A model is <em>counterfactually fair</em> if its prediction for an individual would be the same in a world where that person belonged to a different demographic group — with everything causally independent of that group held constant.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Every fairness metric up to this point — Demographic Parity, Equalized Odds, Individual Fairness — is <em>observational</em>. It asks whether outcomes are distributed fairly across the data we can see. Counterfactual fairness asks something different: did the demographic attribute itself <em>cause</em> the outcome to change?</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">This distinction is what breaks the "just remove the protected column" assumption. A lending model that drops <code class="inline-code">race</code> but keeps <code class="inline-code">zip_code</code> still discriminates on race — because zip codes were shaped by decades of redlining. <code class="inline-code">zip_code</code> is causally downstream of <code class="inline-code">race</code>. The model is, in a causal sense, still making race-based decisions. Counterfactual fairness makes that explicit and gives you a framework to detect and fix it.</p>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">The Formal Definition</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">Counterfactual fairness is grounded in structural causal models (SCMs). Given a causal graph with protected attribute <code class="inline-code">A</code>, observed features <code class="inline-code">X</code>, background variables <code class="inline-code">U</code>, and prediction <code class="inline-code">Ŷ</code>, a predictor is counterfactually fair if for every individual and every counterfactual group value <code class="inline-code">a'</code>:</p>
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">THE CONDITION</div>
+            <div class="proof-step-label">Same prediction in the real world and in any counterfactual world where only group membership changes</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                counterfactual_condition.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="c"># The counterfactual fairness condition (Kusner et al., NeurIPS 2017)</span><br>
+                <span class="c"># P(Ŷ_{A←a}(U) = y | X=x, A=a)</span><br>
+                <span class="c"># must equal</span><br>
+                <span class="c"># P(Ŷ_{A←a'}(U) = y | X=x, A=a)</span><br><br>
+                <span class="c"># Plain English: the prediction probability is the same</span><br>
+                <span class="c"># whether we set group membership to a (real) or a' (counterfactual).</span><br>
+                <span class="c"># A←a' means "intervene on A, set it to a'" (do-calculus notation).</span><br><br>
+                <span class="c"># Three categories of features in the causal graph:</span><br>
+                features = {<br>
+                &nbsp;&nbsp;<span class="v">'non_descendants'</span>: <span class="v">'Causally independent of A → ALLOWED'</span>,<br>
+                &nbsp;&nbsp;<span class="v">'resolving_variables'</span>: <span class="v">'Downstream of A, but legitimately merit-based → CONTEXT-DEPENDENT'</span>,<br>
+                &nbsp;&nbsp;<span class="v">'proxy_variables'</span>: <span class="v">'Downstream of A, carrying demographic signal → MUST DROP'</span>,<br>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">Real-World Proof: COMPAS and Prior Arrests</div>
+        <p class="explainer-block-text">The COMPAS audit shows a 29.78pp racial gap in high-risk flags. COMPAS uses prior arrest count as a key feature. Ask the counterfactual question: <em>if this Black defendant had been white, with the same underlying behaviour, would their prior arrest count be the same?</em></p>
+        <p class="explainer-block-text" style="margin-top: 12px;">No — because prior arrest count is causally downstream of race, via differential policing. For the same behaviour, Black individuals are arrested at higher rates. The causal chain is:</p>
+        <div class="explainer-callout" style="margin-top: 16px; margin-bottom: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 2;">
+          Race → Policing intensity → Arrest rate → Prior arrests → Risk score
+        </div>
+        <p class="explainer-block-text">Removing <code class="inline-code">race</code> from the feature set does not break this chain. <code class="inline-code">prior_arrests</code> is still in the model, and it still carries the causal signal. This is the structural explanation for why removing race from COMPAS did not eliminate the racial bias — and why counterfactual fairness, not just feature removal, is the correct frame.</p>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">How to Detect It in Python</div>
+        <p class="explainer-block-text" style="margin-top: 8px; margin-bottom: 16px;">Exact counterfactual fairness requires a specified causal graph. The practical audit below approximates it: flip the protected attribute, re-derive causally downstream features from the counterfactual group's distribution, and count how often the prediction changes.</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Build a biased model that uses a causal proxy (neighbourhood → credit score, both downstream of race)</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                counterfactual_audit_biased.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="k">import</span> <span class="v">numpy</span> <span class="k">as</span> <span class="v">np</span><br>
+                <span class="k">import</span> <span class="v">pandas</span> <span class="k">as</span> <span class="v">pd</span><br>
+                <span class="k">from</span> <span class="v">sklearn.ensemble</span> <span class="k">import</span> <span class="v">RandomForestClassifier</span><br>
+                <span class="k">from</span> <span class="v">sklearn.model_selection</span> <span class="k">import</span> <span class="v">train_test_split</span><br><br>
+                np.random.seed(<span class="v">42</span>)<br>
+                n = <span class="v">3000</span><br>
+                race = np.random.choice([<span class="v">'White'</span>, <span class="v">'Black'</span>], n, p=[<span class="v">0.6</span>, <span class="v">0.4</span>])<br><br>
+                <span class="c"># neighbourhood: causally downstream of race (redlining)</span><br>
+                neighbourhood = np.where(race == <span class="v">'Black'</span>,<br>
+                &nbsp;&nbsp;np.random.normal(<span class="v">40</span>, <span class="v">12</span>, n), np.random.normal(<span class="v">65</span>, <span class="v">12</span>, n)).clip(<span class="v">0</span>, <span class="v">100</span>)<br><br>
+                <span class="c"># credit_score: causally downstream of neighbourhood</span><br>
+                credit_score = (neighbourhood * <span class="v">3</span> + np.random.normal(<span class="v">400</span>, <span class="v">50</span>, n)).clip(<span class="v">300</span>, <span class="v">850</span>)<br><br>
+                <span class="c"># income: causally independent of race</span><br>
+                income = np.random.normal(<span class="v">55000</span>, <span class="v">15000</span>, n).clip(<span class="v">20000</span>, <span class="v">150000</span>)<br><br>
+                prob = ((credit_score - <span class="v">300</span>) / <span class="v">550</span> * <span class="v">0.5</span> +<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(income - <span class="v">20000</span>) / <span class="v">130000</span> * <span class="v">0.5</span>)<br>
+                approved = (np.random.rand(n) &lt; prob).astype(<span class="v">int</span>)<br><br>
+                df = pd.DataFrame({<span class="v">'race'</span>: race, <span class="v">'neighbourhood'</span>: neighbourhood,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">'credit_score'</span>: credit_score, <span class="v">'income'</span>: income, <span class="v">'approved'</span>: approved})<br><br>
+                X = df[[<span class="v">'neighbourhood'</span>, <span class="v">'credit_score'</span>, <span class="v">'income'</span>]]<br>
+                y = df[<span class="v">'approved'</span>]<br>
+                X_train, X_test, y_train, y_test = train_test_split(<br>
+                &nbsp;&nbsp;X, y, test_size=<span class="v">0.2</span>, random_state=<span class="v">42</span>)<br>
+                model = RandomForestClassifier(n_estimators=<span class="v">100</span>, random_state=<span class="v">42</span>)<br>
+                model.fit(X_train, y_train)
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">Run the counterfactual audit — flip race, re-derive downstream features, count prediction changes</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                counterfactual_audit_test.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                test_df = df.loc[X_test.index].copy()<br>
+                test_df[<span class="v">'prediction'</span>] = model.predict(X_test)<br><br>
+                <span class="k">def</span> <span class="v">cf_neighbourhood</span>(r):<br>
+                &nbsp;&nbsp;<span class="c"># Re-sample neighbourhood from the counterfactual group</span><br>
+                &nbsp;&nbsp;<span class="k">if</span> r == <span class="v">'Black'</span>: <span class="k">return</span> np.random.normal(<span class="v">65</span>, <span class="v">12</span>)  <span class="c"># counterfactual: White</span><br>
+                &nbsp;&nbsp;<span class="k">else</span>: <span class="k">return</span> np.random.normal(<span class="v">40</span>, <span class="v">12</span>)                  <span class="c"># counterfactual: Black</span><br><br>
+                np.random.seed(<span class="v">0</span>)<br>
+                cf = test_df.copy()<br>
+                cf[<span class="v">'cf_neighbourhood'</span>] = cf[<span class="v">'race'</span>].apply(cf_neighbourhood).clip(<span class="v">0</span>, <span class="v">100</span>)<br>
+                cf[<span class="v">'cf_credit'</span>] = (cf[<span class="v">'cf_neighbourhood'</span>] * <span class="v">3</span> +<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;np.random.normal(<span class="v">400</span>, <span class="v">50</span>, len(cf))).clip(<span class="v">300</span>, <span class="v">850</span>)<br><br>
+                X_cf = cf[[<span class="v">'cf_neighbourhood'</span>, <span class="v">'cf_credit'</span>, <span class="v">'income'</span>]].rename(<br>
+                &nbsp;&nbsp;columns={<span class="v">'cf_neighbourhood'</span>: <span class="v">'neighbourhood'</span>, <span class="v">'cf_credit'</span>: <span class="v">'credit_score'</span>})<br>
+                cf[<span class="v">'cf_prediction'</span>] = model.predict(X_cf)<br><br>
+                violations = cf[cf[<span class="v">'prediction'</span>] != cf[<span class="v">'cf_prediction'</span>]]<br>
+                print(<span class="v">f"Test records: {len(cf)}"</span>)<br>
+                print(<span class="v">f"Counterfactual violations: {len(violations)}"</span>)<br>
+                print(<span class="v">f"Violation rate: {len(violations)/len(cf)*100:.1f}%"</span>)<br>
+                <span class="c"># Violation rate: ~35.7%</span><br>
+                <span class="c"># Over 1-in-3 applicants get a different decision</span><br>
+                <span class="c"># if they had been born into the other racial group.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">THE FIX</div>
+            <div class="proof-step-label">Use only causally independent features — income is not downstream of race in this model</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">biased model — 35.7% violation rate</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># COUNTERFACTUALLY UNFAIR</div>
+                  <div class="t-bad">X = df[['neighbourhood',   # downstream of race</div>
+                  <div class="t-bad">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'credit_score',    # downstream of neighbourhood</div>
+                  <div class="t-normal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'income']]</div>
+                  <div class="t-bad"># Race causes neighbourhood → credit_score</div>
+                  <div class="t-bad"># Flipping race changes predictions for 35.7%</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">fair model — 0.0% violation rate</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># COUNTERFACTUALLY FAIR</div>
+                  <div class="t-good">X = df[['income']]  # causally independent of race</div>
+                  <div class="t-good"># Flipping race does not change income</div>
+                  <div class="t-good"># → predictions are stable across counterfactuals</div>
+                  <div class="t-good">Violation rate: 0.0%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Individual Fairness vs. Counterfactual Fairness</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span></span>
+            <span>Individual Fairness</span>
+            <span>Counterfactual Fairness</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Question</code></span>
+            <span class="proxy-attr">Are similar people treated similarly in the observed data?</span>
+            <span>Would the same person get the same outcome if their group membership changed?</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Framework</code></span>
+            <span class="proxy-attr">Observational — operates on the data as-is</span>
+            <span>Causal — requires a structural causal model (DAG)</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">What it requires</code></span>
+            <span class="proxy-attr">A task-specific similarity metric d(x, y)</span>
+            <span>A causal graph specifying which features are downstream of A</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Easier to compute?</code></span>
+            <span style="color: var(--accent3);">Yes — no causal model needed</span>
+            <span style="color: var(--accent2);">No — requires DAG + counterfactual simulation</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">What it misses</code></span>
+            <span class="proxy-attr">When the similarity metric itself encodes bias</span>
+            <span>When the causal graph is mis-specified</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Complementary?</code></span>
+            <span style="color: var(--accent3);" colspan="2">Yes — IF identifies that a violation occurred; CF explains the causal mechanism why</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">Individual fairness is easier to audit empirically. Counterfactual fairness provides the causal explanation for why individual fairness violations happen. A defendant receiving a different risk score than an identical defendant is an individual fairness violation. The reason — prior arrest count is downstream of race via differential policing — is a counterfactual fairness explanation.</div>
+      </div>
+
+      <div class="proxy-table-wrap" style="margin-top: 32px;">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations and Trade-offs</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Requires a causal graph</code></span>
+            <span class="proxy-attr">The framework is only as fair as the DAG — a mis-specified graph certifies biased decisions as fair</span>
+            <span>Justify and document the graph using domain expertise, affected communities, and legal frameworks</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Resolving variables</code></span>
+            <span class="proxy-attr">Some downstream features are also legitimate merit signals (e.g. grades shaped by school quality) — no automatic rule</span>
+            <span>Classify each downstream variable explicitly as proxy or resolving; document and justify the call</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Conflicts with group metrics</code></span>
+            <span class="proxy-attr">A CF-fair model can produce demographic outcome gaps when causally independent features differ across groups</span>
+            <span>Accept the conflict; document the trade-off explicitly in the model card — see Metric Conflicts explainer</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Approximation variance</code></span>
+            <span class="proxy-attr">Re-sampling downstream features from the CF group distribution introduces randomness</span>
+            <span>Use fitted structural causal models for more principled counterfactuals; run the audit multiple times and report a range</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Counterfactual fairness reframes the question every bias audit should be asking. Not just "did outcomes differ across groups?" but "would this person's outcome have been different if they had been born into a different group?" That is how most people intuitively understand discrimination — and it is a question observational metrics cannot answer.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">The framework does not eliminate the hard normative choices. Specifying a causal graph requires deciding what caused what — and those decisions encode assumptions about history, society, and merit that reasonable people can dispute. What counterfactual fairness does is force those assumptions into the open, where they can be examined, challenged, and justified, rather than buried inside a feature list.</p>
+        <div class="explainer-callout">Removing a protected attribute is not enough. You must also remove every feature that attribute caused. Counterfactual fairness is the framework that tells you which features those are — and requires you to justify the graph that identifies them.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://arxiv.org/abs/1703.06856" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Kusner et al.: Counterfactual Fairness (NeurIPS 2017) — the paper that introduced the framework and the causal SCM formalism</a>
+          <a href="https://doi.org/10.1017/CBO9780511803161" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Pearl: Causality — Models, Reasoning, and Inference (2009) — the foundational text on structural causal models and do-calculus</a>
+          <a href="https://arxiv.org/abs/1802.08139" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Chiappa: Path-Specific Counterfactual Fairness (AAAI 2019) — extends the framework to handle resolving variables and legitimate causal paths</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-equalized-odds" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Equalized Odds</a>
+        <a href="#explainer-metric-conflicts" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Metric Conflicts</a>
+        <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
+        <a href="#explainer-individual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Individual Fairness</a>
       </div>
     </div>
   </div>
@@ -5365,6 +5647,20 @@
       <div>
         <div class="roadmap-name">Explainer: Label Bias</div>
         <div class="roadmap-meta">Biased ground truth · conditional label audit · noise-robust training · propensity matching · Jacobs &amp; Wallach</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Individual Fairness</div>
+        <div class="roadmap-meta">Lipschitz condition · matched-pair audit · consistency score · similarity metric · Dwork et al. 2012</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Counterfactual Fairness</div>
+        <div class="roadmap-meta">Structural causal model · causal DAG · proxy vs resolving variables · COMPAS policing chain · Kusner et al. 2017</div>
       </div>
     </div>
     <div class="roadmap-item">
