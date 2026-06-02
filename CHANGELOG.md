@@ -12,6 +12,14 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.8.0] — 2 Jun 2026
+### Added
+- CI pipeline: `.github/workflows/audits.yml` — runs all audit scripts (`unfair.py` and `fair.py`) automatically on every push and pull request (PR by Anjali Tiwari)
+### Changed
+- Dataset paths standardised across all audit scripts so every script resolves its dataset relative to its own file location, scripts now run correctly from the repo root, from within their own folder, and in CI (PR by Anjali Tiwari)
+
+---
+
 ## [1.7.0] — 1 Jun 2026
 ### Added
 - Explainer: Individual Fairness — added to index.html, README, and concepts covered
