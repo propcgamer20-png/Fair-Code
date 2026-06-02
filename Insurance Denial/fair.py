@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -16,7 +17,7 @@ from sklearn.metrics import accuracy_score
 # race, class, or protected status.
 # ============================================================
 
-df = pd.read_csv('Insurance Denial/insurance.csv')
+df = pd.read_csv(Path(__file__).parent / 'insurance.csv')
 
 # Same binarization threshold as unfair.py — valid comparison.
 median_charge = df['claim'].median()

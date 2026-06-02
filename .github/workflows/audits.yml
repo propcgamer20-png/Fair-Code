@@ -1,0 +1,42 @@
+name: Audits
+
+# Smoke-test every audit so a broken dataset path or script
+# (like the AI Fair Recruitment FileNotFoundError) is caught automatically.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  run-audits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run all audit scripts
+        run: |
+          set -e
+          for audit in \
+            "COMPAS" \
+            "AI Fair Recruitment" \
+            "German Credit Lending" \
+            "Insurance Denial" \
+            "Benefits Denial"; do
+            echo "::group::$audit — unfair.py"
+            python "$audit/unfair.py"
+            echo "::endgroup::"
+            echo "::group::$audit — fair.py"
+            python "$audit/fair.py"
+            echo "::endgroup::"
+          done

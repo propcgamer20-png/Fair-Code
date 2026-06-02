@@ -1,9 +1,10 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 # 1. Load your uploaded file
-df = pd.read_csv('COMPAS/compas-scores-raw.csv')
+df = pd.read_csv(Path(__file__).parent / 'compas-scores-raw.csv')
 
 # 2. Filter for clear comparison (African-American vs Caucasian) 
 # and focus on 'Risk of Recidivism'

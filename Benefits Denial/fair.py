@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -28,7 +29,7 @@ from sklearn.metrics import accuracy_score
 #   capital.loss     signals that directly affect means tests
 # ============================================================
 
-df = pd.read_csv('Benefits Denial/adult.csv')
+df = pd.read_csv(Path(__file__).parent / 'adult.csv')
 
 df['target']    = (df['income'] == '>50K').astype(int)
 df['is_female'] = (df['sex'] == 'Female').astype(int)

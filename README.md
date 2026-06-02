@@ -428,12 +428,14 @@ cd Fair-Code
 pip install -r requirements.txt
 ```
 
-Run any audit:
+Run any audit from the repository root:
 
 ```bash
-cd COMPAS && python unfair.py   # see the bias
-cd COMPAS && python fair.py     # see the fix
+python COMPAS/unfair.py   # see the bias
+python COMPAS/fair.py     # see the fix
 ```
+
+Each script resolves its dataset relative to its own location, so it runs from anywhere — `cd COMPAS && python unfair.py` works too.
 
 The same pattern applies to all five projects — swap `COMPAS` for `"AI Fair Recruitment"`, `"German Credit Lending"`, `"Insurance Denial"`, or `"Benefits Denial"`.
 

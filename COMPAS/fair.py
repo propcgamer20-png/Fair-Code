@@ -1,9 +1,10 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 # 1. Load Data
-df = pd.read_csv('COMPAS/compas-scores-raw.csv')
+df = pd.read_csv(Path(__file__).parent / 'compas-scores-raw.csv')
 df = df[df['Ethnic_Code_Text'].isin(['African-American', 'Caucasian'])]
 df = df[df['DisplayText'] == 'Risk of Recidivism']
 

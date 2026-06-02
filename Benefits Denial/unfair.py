@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -30,7 +31,7 @@ from sklearn.metrics import accuracy_score
 #                   Occupation encodes race via labour market bias.
 # ============================================================
 
-df = pd.read_csv('Benefits Denial/adult.csv')
+df = pd.read_csv(Path(__file__).parent / 'adult.csv')
 
 # Target: 1 = income >50K (above means-test threshold → likely ineligible)
 #         0 = income <=50K (below threshold → eligible for benefits)

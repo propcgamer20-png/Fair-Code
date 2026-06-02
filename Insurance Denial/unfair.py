@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -21,7 +22,7 @@ from sklearn.metrics import accuracy_score
 # racial signal through an apparently clinical variable.
 # ============================================================
 
-df = pd.read_csv('Insurance Denial/insurance.csv')
+df = pd.read_csv(Path(__file__).parent / 'insurance.csv')
 
 # Binarize continuous claim charges at the median.
 # Above median = high-cost claim (flagged for denial/review).

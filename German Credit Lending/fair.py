@@ -1,10 +1,11 @@
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 # Load dataset
-df = pd.read_csv('credit_customers.csv')
+df = pd.read_csv(Path(__file__).parent / 'credit_customers.csv')
 
 df['target'] = (df['class'] == 'good').astype(int)
 df['is_young'] = (df['age'] < 30).astype(int)
