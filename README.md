@@ -64,10 +64,12 @@ Fair-Code/
 │
 ├── .github/
 │   ├── PULL_REQUEST_TEMPLATE.md
-│   └── ISSUE_TEMPLATE/
-│       ├── bug_report.yml
-│       ├── new_audit.yml
-│       └── new_explainer.yml
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   ├── new_audit.yml
+│   │   └── new_explainer.yml
+│   └── workflows/
+│       └── audits.yml                   # CI: runs all audit scripts on every push/PR
 │
 ├── COMPAS/                          # ProPublica COMPAS dataset (70,000+ records)
 ├── AI Fair Recruitment/             # Kaggle recruitment dataset
@@ -470,6 +472,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Insurance Denial — Healthcare Bias
 - [x] Benefits Denial — Welfare Eligibility Bias
 - [x] Jupyter notebook walkthroughs for all five audits
+- [x] CI pipeline — all audit scripts run automatically on every push and PR
 - [x] Explainer: Proxy Variables
 - [x] Explainer: Equalized Odds
 - [x] Explainer: Sampling Bias
