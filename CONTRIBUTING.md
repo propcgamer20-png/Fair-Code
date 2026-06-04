@@ -55,6 +55,7 @@ Fair-Code/
 ├── explainers/
 │   ├── proxy-variables.md               ← existing
 │   ├── ...
+│   ├── neural-networks.md               ← existing
 │   └── your-concept-name.md             ← your new explainer
 │
 └── ...
@@ -239,6 +240,7 @@ Explainers live in `explainers/`. The existing ones:
 | `label-bias.md` | Why a model trained on historical human decisions inherits the prejudice of those decisions — even when the features look clean |
 | `individual-fairness.md` | Why treating groups equally in aggregate is not enough — and what it means to treat similar people similarly |
 | `counterfactual-fairness.md` | Why removing a protected attribute isn't enough — and what it means for a model's decision to be causally free of demographic influence |
+| `neural-networks.md` | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
 
 ### What a good explainer contains
 
@@ -346,7 +348,7 @@ Include in the PR description: what concept you're explaining and why it's worth
 - Concept defined but not demonstrated with real data or code
 - No acknowledgment of limitations or trade-offs
 - Toy or invented examples as the primary illustration
-- Concepts already covered: proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, disparate treatment, fairness metric conflicts, calibration, demographic parity, feedback loop bias, label bias, individual fairness, counterfactual fairness
+- Concepts already covered: proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, disparate treatment, fairness metric conflicts, calibration, demographic parity, feedback loop bias, label bias, individual fairness, counterfactual fairness, neural networks
 
 ---
 
