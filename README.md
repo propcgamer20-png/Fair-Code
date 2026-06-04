@@ -103,7 +103,8 @@ Fair-Code/
 │   ├── feedback-loop-bias.md
 │   ├── label-bias.md
 │   ├── individual-fairness.md
-│   └── counterfactual-fairness.md
+│   ├── counterfactual-fairness.md
+│   └── neural-networks.md
 │
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -386,6 +387,7 @@ features = [
 | [What is Label Bias?](explainers/label-bias.md) | Why a model trained on historical decisions inherits the prejudice of the humans who made them — even when the features look clean |
 | [What is Individual Fairness?](explainers/individual-fairness.md) | Why treating groups equally in aggregate is not enough — and what it means to treat similar people similarly |
 | [What is Counterfactual Fairness?](explainers/counterfactual-fairness.md) | Why removing a protected attribute isn't enough — and what it means for a model's decision to be causally free of demographic influence |
+| [What Happens Inside a Neural Network?](explainers/neural-networks.md) | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
 
 ---
 
@@ -489,6 +491,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: Label Bias
 - [x] Explainer: Individual Fairness
 - [x] Explainer: Counterfactual Fairness
+- [x] Explainer: What Happens Inside a Neural Network
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
