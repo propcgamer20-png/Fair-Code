@@ -1991,6 +1991,7 @@
         <li role="none"><a href="#explainer-label-bias" role="menuitem">11 — Label Bias</a></li>
         <li role="none"><a href="#explainer-individual-fairness" role="menuitem">12 — Individual Fairness</a></li>
         <li role="none"><a href="#explainer-counterfactual-fairness" role="menuitem">13 — Counterfactual Fairness</a></li>
+        <li role="none"><a href="#explainer-neural-networks" role="menuitem">14 — Neural Networks</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2032,6 +2033,7 @@
     <a href="#explainer-label-bias" class="mobile-link mobile-sub">11 — Label Bias</a>
     <a href="#explainer-individual-fairness" class="mobile-link mobile-sub">12 — Individual Fairness</a>
     <a href="#explainer-counterfactual-fairness" class="mobile-link mobile-sub">13 — Counterfactual Fairness</a>
+    <a href="#explainer-neural-networks" class="mobile-link mobile-sub">14 — Neural Networks</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2102,6 +2104,8 @@
     <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
     <span class="ticker-item red"><span class="dot"></span>INDIVIDUAL FAIRNESS</span>
     <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
+    <span class="ticker-item red"><span class="dot"></span>NEURAL NETWORKS</span>
+    <span class="ticker-item"><span class="dot"></span>WEIGHTS ENCODE BIAS FROM TRAINING DATA</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2128,6 +2132,8 @@
     <span class="ticker-item"><span class="dot"></span>HISTORICAL DECISIONS CORRUPT TRAINING LABELS</span>
     <span class="ticker-item red"><span class="dot"></span>INDIVIDUAL FAIRNESS</span>
     <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
+    <span class="ticker-item red"><span class="dot"></span>NEURAL NETWORKS</span>
+    <span class="ticker-item"><span class="dot"></span>WEIGHTS ENCODE BIAS FROM TRAINING DATA</span>
   </div>
 </div>
 
@@ -5506,6 +5512,313 @@
         <a href="#explainer-disparate-treatment" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Disparate Treatment</a>
         <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
         <a href="#explainer-individual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Individual Fairness</a>
+        <a href="#explainer-neural-networks" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Neural Networks</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 14: NEURAL NETWORKS -->
+  <div id="explainer-neural-networks" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="data detection" data-explainer-text="neural network weights layers forward pass backward pass backpropagation loss function activation relu gradient descent learning bias training data feature importance SHAP hiring discrimination gender race proxy variables fairness deep learning machine learning model architecture hidden layers">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 14</div>
+        <h3 class="explainer-title">WHAT HAPPENS INSIDE A NEURAL NETWORK?</h3>
+        <p class="explainer-tagline">The reason a model can redline a neighborhood, deny a loan, or flag a face — without anyone writing a single rule to do it.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">A neural network is a stack of mathematical layers that repeatedly transforms an input into a prediction — learning which patterns to amplify and which to ignore by adjusting millions of internal <em>weights</em> during training on data that reflects the world's existing inequalities.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">Most people treat neural networks as black boxes. You put data in, a decision comes out, and what happens in between is someone else's problem. That attitude is how algorithmic bias gets deployed at scale.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">The network doesn't discriminate by accident. It discriminates because of what it <em>learned</em> — from data that reflected a stratified world — and understanding <em>how</em> it learns is the only way to understand <em>what</em> it learns. You can't audit what you don't understand. Every bias finding in this repository traces back to the same mechanism: a network encoded a real-world inequality into its weights, and nobody checked before deployment.</p>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">The Three-Part Loop Every Network Runs</div>
+        <p class="explainer-block-text">Every neural network — from a two-layer hiring classifier to a billion-parameter language model — runs the same loop:</p>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            training_loop.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="c"># The loop that runs thousands of times on every network</span><br>
+            <span class="k">for</span> epoch <span class="k">in</span> range(n_epochs):<br>
+            &nbsp;&nbsp;<span class="c"># 1. Forward pass — input → prediction</span><br>
+            &nbsp;&nbsp;prediction = model.forward(X_train)<br><br>
+            &nbsp;&nbsp;<span class="c"># 2. Compute loss — how wrong was the prediction?</span><br>
+            &nbsp;&nbsp;loss = cross_entropy(y_train, prediction)<br><br>
+            &nbsp;&nbsp;<span class="c"># 3. Backward pass — adjust weights to reduce loss</span><br>
+            &nbsp;&nbsp;model.backward(loss)  <span class="c"># backpropagation</span><br>
+            &nbsp;&nbsp;model.update_weights(learning_rate=<span class="v">0.01</span>)<br><br>
+            <span class="c"># The network has no fairness objective.</span><br>
+            <span class="c"># It has one goal: minimise loss on the training set.</span><br>
+            <span class="c"># If the training set encodes discrimination,</span><br>
+            <span class="c"># minimising loss means LEARNING that discrimination.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">Part 1: The Forward Pass — How a Neuron Works</div>
+        <p class="explainer-block-text">Each neuron multiplies its inputs by learned <strong>weights</strong>, sums the result, adds a bias, then passes it through an activation function. The weight is everything. A high weight on <code class="inline-code">zip_code</code> means the network learned that zip code is predictive — not because zip codes are fair inputs, but because they correlate with outcomes shaped by decades of redlining.</p>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            neuron.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">import</span> numpy <span class="k">as</span> np<br><br>
+            <span class="k">def</span> <span class="v">neuron</span>(inputs, weights, bias):<br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;<span class="c">One neuron. One decision unit.</span><br>
+            &nbsp;&nbsp;<span class="c">inputs:  feature values [age, zip_code, credit_score, ...]</span><br>
+            &nbsp;&nbsp;<span class="c">weights: learned importance of each feature ← bias lives here</span><br>
+            &nbsp;&nbsp;<span class="c">"""</span><br>
+            &nbsp;&nbsp;z = np.dot(inputs, weights) + bias  <span class="c"># weighted sum</span><br>
+            &nbsp;&nbsp;<span class="k">return</span> relu(z)                       <span class="c"># activation function</span><br><br>
+            <span class="k">def</span> <span class="v">relu</span>(z):<br>
+            &nbsp;&nbsp;<span class="c"># Passes positive signals through. Kills negative ones.</span><br>
+            &nbsp;&nbsp;<span class="k">return</span> max(<span class="v">0</span>, z)<br><br>
+            <span class="c"># Stack neurons in layers and the network learns</span><br>
+            <span class="c"># progressively abstract representations.</span><br>
+            <span class="c"># By the final layer, raw features have been compressed</span><br>
+            <span class="c"># into a prediction — with proxy variables fully intact.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">Part 2: The Loss Function — What the Network Is Optimising For</div>
+        <p class="explainer-block-text">After a forward pass the network compares its prediction to the true label. The loss function measures how wrong it was. The network's only goal is to make this number smaller — on the training data. It has no concept of fairness. It has no idea it's making hiring decisions. If the training data encodes gender discrimination, reducing loss means encoding that discrimination into the weights.</p>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            loss.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">def</span> <span class="v">binary_cross_entropy</span>(y_true, y_pred):<br>
+            &nbsp;&nbsp;<span class="c">"""Standard loss for binary classification. Closer to 0 = better."""</span><br>
+            &nbsp;&nbsp;epsilon = <span class="v">1e-9</span>  <span class="c"># prevent log(0)</span><br>
+            &nbsp;&nbsp;<span class="k">return</span> -(y_true * np.log(y_pred + epsilon) +<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="v">1</span> - y_true) * np.log(<span class="v">1</span> - y_pred + epsilon))<br><br>
+            <span class="c"># Correct prediction (hired, model says 0.87 hired) → loss ≈ 0.14</span><br>
+            <span class="c"># Wrong prediction  (not hired, model says 0.87) → loss ≈ 2.04</span><br><br>
+            <span class="c"># The gradient of this function drives backpropagation.</span><br>
+            <span class="c"># The network doesn't know it's discriminating.</span><br>
+            <span class="c"># It just knows which weights reduce the number.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: AI Fair Recruitment</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">We tested this directly using the <a href="#project-hiring" style="color: var(--accent); text-decoration: none;">AI Fair Recruitment dataset</a>. The network's architecture didn't change between the biased and fair model. The training procedure didn't change. Only the inputs changed — and the bias disappeared. The weights were the problem, and the weights came from the data.</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Biased model — gender + proxy age included</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">unfair.py — gender + age included</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># Features: gender, age, experience, test scores</div>
+                  <div class="t-bad">Male candidates:   61.2% hire rate</div>
+                  <div class="t-normal">Female candidates: 40.3% hire rate</div>
+                  <div class="t-bad">Fairness Gap: 20.9%</div>
+                  <div class="t-head" style="margin-top: 8px;"># No rule said "prefer men".</div>
+                  <div class="t-bad"># The weights encoded it from historical data.</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">shap_audit.py — what did the model learn?</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># SHAP feature importances</div>
+                  <div class="t-bad">gender      +0.41  ← top signal</div>
+                  <div class="t-bad">age         +0.29  ← proxy for gender</div>
+                  <div class="t-normal">experience  +0.18</div>
+                  <div class="t-normal">tech_score  +0.12</div>
+                  <div class="t-head" style="margin-top: 8px;"># Bias was buried in weights,</div>
+                  <div class="t-bad"># not visible in the feature list.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">Fair model — gender AND proxy age removed</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal terminal--accent">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">fair.py — merit features only</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># Features: experience, test scores only</div>
+                  <div class="t-good">Male candidates:   54.1% hire rate</div>
+                  <div class="t-good">Female candidates: 54.0% hire rate</div>
+                  <div class="t-accent">New Fairness Gap: 0.1% — 99.5% reduction</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">fair_shap_audit.py</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># SHAP after removing gender + age</div>
+                  <div class="t-good">experience  +0.54  ← merit signal</div>
+                  <div class="t-good">tech_score  +0.46  ← merit signal</div>
+                  <div class="t-head" style="margin-top: 8px;"># Same architecture. Same algorithm.</div>
+                  <div class="t-good"># Different inputs → different weights → no gap.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">How to Inspect What a Network Learned</div>
+        <p class="explainer-block-text" style="margin-bottom: 16px;">Neural networks aren't fully interpretable — but you can probe them. SHAP (SHapley Additive exPlanations) decomposes any prediction into a contribution from each input feature. If a proxy variable sits at the top of the SHAP rankings, the model is using it regardless of what the feature list claims it's for.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            shap_audit.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">import</span> shap<br>
+            <span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestClassifier<br><br>
+            model = RandomForestClassifier(n_estimators=<span class="v">100</span>, random_state=<span class="v">42</span>)<br>
+            model.fit(X_train, y_train)<br><br>
+            explainer = shap.TreeExplainer(model)<br>
+            shap_values = explainer.shap_values(X_test)<br><br>
+            <span class="c"># For one prediction, SHAP tells you exactly what drove it:</span><br>
+            <span class="c"># age         contributed +0.34 to the high-risk score</span><br>
+            <span class="c"># zip_code    contributed +0.28</span><br>
+            <span class="c"># custody     contributed +0.19</span><br><br>
+            <span class="c"># If a known proxy variable is at the top →</span><br>
+            <span class="c"># the model is using it. Remove it. Retrain. Check again.</span><br><br>
+            <span class="c"># Also check raw feature importances for a coarser signal:</span><br>
+            importances = pd.Series(<br>
+            &nbsp;&nbsp;model.feature_importances_, index=X_train.columns<br>
+            ).sort_values(ascending=<span class="k">False</span>)<br>
+            print(importances)<br>
+            <span class="c"># custody_status   0.31  ← proxy problem if this is high</span><br>
+            <span class="c"># zip_code         0.27</span><br>
+            <span class="c"># marital_status   0.18</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap" style="margin-top: 32px;">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">What Each Part of the Network Does to Bias</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Component</span>
+            <span>What It Does</span>
+            <span>How Bias Enters</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Input layer</code></span>
+            <span class="proxy-attr">Receives raw feature values — zip code, custody status, credit score</span>
+            <span>Protected attributes and proxies enter here. This is where the audit starts.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Weights</code></span>
+            <span class="proxy-attr">Learned importance assigned to each feature signal</span>
+            <span>High weight on a proxy variable means the network treats it as strongly predictive — because it is, in the biased training data.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Loss function</code></span>
+            <span class="proxy-attr">Measures prediction error; backpropagation minimises it</span>
+            <span>Has no fairness objective. Discrimination reduces loss when discrimination is in the labels.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Hidden layers</code></span>
+            <span class="proxy-attr">Learn progressively abstract representations of inputs</span>
+            <span>Proxy correlations survive the abstraction. By the output layer, bias is encoded in non-linear combinations that standard audits may miss.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Output layer</code></span>
+            <span class="proxy-attr">Produces the final prediction — hire/don't hire, high-risk/low-risk</span>
+            <span>The bias has been fully compressed into a number. It looks clean. It isn't.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Neural networks are not neutral calculators. They are compression algorithms for historical patterns. Feed them data from a world shaped by redlining, over-policing, occupational segregation, and lending exclusion — and they will compress those patterns into their weights and reproduce them as predictions.</p>
+        <p class="explainer-block-text" style="margin-top: 14px;">The architecture is not the problem. The weights are the problem. And the weights are determined by the data. This is why the work in this repository starts before the model is trained: audit every feature for correlation with protected attributes, remove the proxies, then train. The network will learn exactly what you teach it — the question is whether you're paying attention to what that is.</p>
+        <div class="explainer-callout">A network trained on historical discrimination learns historical discrimination. The architecture is innocent. The training data is the record of a stratified world. Auditing the inputs is not optional — it is the work.</div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations and Trade-offs</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Non-linearity</code></span>
+            <span class="proxy-attr">Deep networks can encode proxy correlations through non-linear combinations that chi-squared tests won't catch at the feature level</span>
+            <span>Use SHAP values post-training, not just pre-training feature audits — both are necessary</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Interpretability gap</code></span>
+            <span class="proxy-attr">Unlike Random Forests, deep networks have no direct feature importance attribute — inspection requires proxy methods like SHAP, LIME, or attention analysis</span>
+            <span>Treat interpretability as a deployment requirement, not a research interest</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Pre-processing isn't enough alone</code></span>
+            <span class="proxy-attr">Removing known proxies reduces bias but doesn't eliminate it — unknown proxies and label bias can still be encoded</span>
+            <span>Combine pre-processing (feature removal) with post-training audit (SHAP + demographic parity check)</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Transfer learning</code></span>
+            <span class="proxy-attr">Pre-trained models carry the biases of their original training corpus — fine-tuning on a fair dataset may not fully overwrite them</span>
+            <span>Audit pre-trained models as if they were trained from scratch on unknown data</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noopener noreferrer" class="reading-link">↗ 3Blue1Brown: Neural Networks (YouTube, 2017) — the best visual introduction to how networks learn</a>
+          <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Goodfellow, Bengio &amp; Courville: Deep Learning (MIT Press) — the canonical textbook, free online</a>
+          <a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Lundberg &amp; Lee: A Unified Approach to Interpreting Model Predictions (NeurIPS 2017) — the SHAP paper</a>
+          <a href="https://fairmlbook.org/" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Barocas &amp; Hardt: Fairness and Machine Learning — the standard reference for why learned patterns become discrimination</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-shap" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ SHAP Values</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
+        <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
+        <a href="#explainer-counterfactual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Counterfactual Fairness</a>
+        <a href="#explainer-individual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Individual Fairness</a>
       </div>
     </div>
   </div>
@@ -5661,6 +5974,13 @@
       <div>
         <div class="roadmap-name">Explainer: Counterfactual Fairness</div>
         <div class="roadmap-meta">Structural causal model · causal DAG · proxy vs resolving variables · COMPAS policing chain · Kusner et al. 2017</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: What Happens Inside a Neural Network</div>
+        <div class="roadmap-meta">Forward pass · weights · loss function · backpropagation · SHAP inspection · hiring bias proof</div>
       </div>
     </div>
     <div class="roadmap-item">
