@@ -65,6 +65,7 @@ Fair-Code/
 │
 ├── .github/
 │   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── dependabot.yml
 │   ├── ISSUE_TEMPLATE/
 │   │   ├── bug_report.yml
 │   │   ├── new_audit.yml
@@ -72,16 +73,16 @@ Fair-Code/
 │   └── workflows/
 │       └── audits.yml                   # CI: runs all audit scripts on every push/PR
 │
-├── COMPAS/                          # ProPublica COMPAS dataset (70,000+ records)
-├── AI Fair Recruitment/             # Kaggle recruitment dataset
-├── German Credit Lending/           # UCI Statlog German Credit (1,000 records)
-├── Insurance Denial/                # Kaggle Insurance Claims (1,340 records)
-├── Benefits Denial/                 # UCI Adult Census Income (48,842 records)
-│   ├── unfair.py                    # biased model
-│   ├── fair.py                      # mitigated model
-│   ├── *.csv                        # dataset
-│   ├── unfair.png                   # terminal output — biased results
-│   └── fair.png                     # terminal output — mitigated results
+├── COMPAS/                              # each audit folder has the same structure:
+│   ├── unfair.py                        #   biased model
+│   ├── fair.py                          #   mitigated model
+│   ├── *.csv                            #   dataset
+│   ├── unfair.png                       #   terminal output — biased results
+│   └── fair.png                         #   terminal output — mitigated results
+├── AI Fair Recruitment/
+├── German Credit Lending/
+├── Insurance Denial/
+├── Benefits Denial/
 │
 ├── notebooks/
 │   ├── 01_compas_bias_audit.ipynb
@@ -106,13 +107,13 @@ Fair-Code/
 │   ├── counterfactual-fairness.md
 │   └── neural-networks.md
 │
+├── CHANGELOG.md
+├── CITATION.cff
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── SECURITY.md
-├── CITATION.cff
-├── CHANGELOG.md
-├── index.html                       # live at fair-code-five.vercel.app
+├── index.html                           # live at fair-code-five.vercel.app
 └── requirements.txt
 ```
 
