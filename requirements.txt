@@ -5,7 +5,7 @@
 # Python 3.8+ required
 
 # ── Core data & ML ────────────────────────────────────────────────────────
-pandas>=3.0.2          # DataFrames, CSV loading, crosstabs
+pandas>=3.0.3          # DataFrames, CSV loading, crosstabs
 numpy>=2.4.4           # Numerical ops (pandas/sklearn dependency)
 scikit-learn>=1.8.0    # RandomForestClassifier, train/test split, metrics
 
