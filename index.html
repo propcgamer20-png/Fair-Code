@@ -1992,6 +1992,7 @@
         <li role="none"><a href="#explainer-individual-fairness" role="menuitem">12 — Individual Fairness</a></li>
         <li role="none"><a href="#explainer-counterfactual-fairness" role="menuitem">13 — Counterfactual Fairness</a></li>
         <li role="none"><a href="#explainer-neural-networks" role="menuitem">14 — Neural Networks</a></li>
+        <li role="none"><a href="#explainer-ai-hallucinations" role="menuitem">15 — Why AI Hallucinates</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2034,6 +2035,7 @@
     <a href="#explainer-individual-fairness" class="mobile-link mobile-sub">12 — Individual Fairness</a>
     <a href="#explainer-counterfactual-fairness" class="mobile-link mobile-sub">13 — Counterfactual Fairness</a>
     <a href="#explainer-neural-networks" class="mobile-link mobile-sub">14 — Neural Networks</a>
+    <a href="#explainer-ai-hallucinations" class="mobile-link mobile-sub">15 — Why AI Hallucinates</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2106,6 +2108,8 @@
     <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
     <span class="ticker-item red"><span class="dot"></span>NEURAL NETWORKS</span>
     <span class="ticker-item"><span class="dot"></span>WEIGHTS ENCODE BIAS FROM TRAINING DATA</span>
+    <span class="ticker-item red"><span class="dot"></span>AI HALLUCINATION</span>
+    <span class="ticker-item"><span class="dot"></span>HIGH CONFIDENCE · ZERO EVIDENCE · SPARSE REGIONS</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2134,6 +2138,8 @@
     <span class="ticker-item"><span class="dot"></span>SIMILAR PEOPLE MUST BE TREATED SIMILARLY</span>
     <span class="ticker-item red"><span class="dot"></span>NEURAL NETWORKS</span>
     <span class="ticker-item"><span class="dot"></span>WEIGHTS ENCODE BIAS FROM TRAINING DATA</span>
+    <span class="ticker-item red"><span class="dot"></span>AI HALLUCINATION</span>
+    <span class="ticker-item"><span class="dot"></span>HIGH CONFIDENCE · ZERO EVIDENCE · SPARSE REGIONS</span>
   </div>
 </div>
 
@@ -5819,6 +5825,182 @@
         <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
         <a href="#explainer-counterfactual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Counterfactual Fairness</a>
         <a href="#explainer-individual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Individual Fairness</a>
+        <a href="#explainer-ai-hallucinations" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Why AI Hallucinates</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="explainer-ai-hallucinations" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="detection data" data-explainer-text="hallucination AI hallucinate out-of-distribution OOD sparse feature space confidence calibration fabrication confabulation extrinsic intrinsic retrieval augmented generation RAG RLHF sycophancy insurance denial BMI smoker diabetic Mata Avianca ChatGPT fake citations court legal LLM large language model tabular random forest probability calibration scikit-learn Ragas LangGraph LangChain verification scaffolding">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 15</div>
+        <h3 class="explainer-title">WHY AI HALLUCINATES</h3>
+        <p class="explainer-tagline">When training data is sparse, models optimise for plausibility over truth — leading to high-confidence fabrications.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">A model <em>"hallucinates"</em> when it outputs fluent, confident text or predictions that are factually wrong or entirely fabricated, because it is optimising for plausible outputs rather than verified facts.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why It Matters</div>
+        <p class="explainer-block-text">Hallucination is highly domain-dependent and becomes exponentially more dangerous in high-stakes fields. In casual conversation a hallucination is merely an annoyance. In legal tech, healthcare, or finance it can have severe real-world consequences.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">A model does not possess a concept of "truth." It is a statistical pattern matcher estimating probability distributions from its training data. When queried in a region of the feature space where training data is sparse, it does not stop or issue a warning — it extrapolates from dense regions. Because the loss function penalises implausible outputs, the model prioritises generating a <em>plausible-sounding</em> output. In sparse regions, this creates <strong>hallucination</strong>: high-confidence, syntactically perfect predictions completely unsupported by the evidence. This failure mode appears identically in LLMs fabricating legal precedents and in tabular classifiers confidently denying insurance claims.</p>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">Real-World Case: Mata v. Avianca, Inc. (678 F.Supp.3d 443)</div>
+        <p class="explainer-block-text">An attorney used ChatGPT to research legal precedents for a suit against Avianca Airlines. ChatGPT returned a list of highly relevant, detailed cases — complete with docket numbers, dates, and internal quotes. The problem: <strong>none of these cases existed.</strong> ChatGPT had fabricated them entirely.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">Because the model was trained on the language of legal briefs, it knew exactly what a valid court citation <em>should</em> look like. When queried about a specific legal scenario where actual training evidence was thin, it optimised for <em>plausible legal syntax</em> over historical facts. The attorney submitted the brief to a federal judge and was subsequently sanctioned and fined.</p>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Tabular Proof: Insurance Denial Model</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">The same mechanism appears in the <a href="#project-insurance" style="color: var(--accent); text-decoration: none;">Insurance Denial audit</a>. By grouping patients into bins of BMI category, smoking status, and diabetic status, we can compare <strong>Sample Density</strong> against the model's <strong>Predicted Probability of Denial</strong>:</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">KEY FINDING</div>
+            <div class="proof-step-label">Underweight smokers — only 1–4 patients in training data — receive 95–98% denial probability</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">hallucination_audit.py — sparse region detection</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head"># BMI Category | Smoker | Diabetic | Count | Denial Prob</div>
+                  <div class="t-bad">Underweight  | Yes    | No       |   1   | 98.0%  ← hallucination</div>
+                  <div class="t-bad">Underweight  | Yes    | Yes      |   4   | 95.3%  ← hallucination</div>
+                  <div class="t-normal">Underweight  | No     | Yes      |   6   | 28.0%</div>
+                  <div class="t-normal">Normal       | Yes    | No       |  22   | 99.1%</div>
+                  <div class="t-good">Obese        | No     | No       | 301   | 42.5%  ← dense region</div>
+                  <div class="t-head" style="margin-top: 8px;"># 95%+ confidence on 1–4 training samples.</div>
+                  <div class="t-bad"># The model is guessing in the dark.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-detection">
+        <div class="explainer-block-label">Detection Code — Hallucination Risk Audit</div>
+        <p class="explainer-block-text" style="margin-bottom: 16px;">To prevent AI systems from hallucinating high-confidence decisions in sparse regions, audit the feature space for density. If a model is making a high-confidence prediction on a query that falls into an under-represented combination of features, the system should flag it for human review or refuse to predict.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            hallucination_audit.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">import</span> pandas <span class="k">as</span> pd<br>
+            <span class="k">import</span> numpy <span class="k">as</span> np<br><br>
+            <span class="k">def</span> <span class="v">audit_hallucination_risk</span>(df, cat_cols, prob_col,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;density_threshold=<span class="v">10</span>, confidence_threshold=<span class="v">0.9</span>):<br>
+            &nbsp;&nbsp;<span class="c">"""Find feature combos where model is highly confident despite thin evidence."""</span><br>
+            &nbsp;&nbsp;density_map = df.groupby(cat_cols).size().reset_index(name=<span class="v">'density'</span>)<br>
+            &nbsp;&nbsp;stats = df.groupby(cat_cols).agg(mean_prob=(prob_col, <span class="v">'mean'</span>)).reset_index()<br>
+            &nbsp;&nbsp;audit_df = pd.merge(stats, density_map, on=cat_cols)<br><br>
+            &nbsp;&nbsp;audit_df[<span class="v">'hallucination_risk'</span>] = (<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(audit_df[<span class="v">'density'</span>] &lt; density_threshold) &amp;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;((audit_df[<span class="v">'mean_prob'</span>] &gt;= confidence_threshold) |<br>
+            &nbsp;&nbsp;&nbsp;&nbsp; (audit_df[<span class="v">'mean_prob'</span>] &lt;= (<span class="v">1</span> - confidence_threshold)))<br>
+            &nbsp;&nbsp;)<br><br>
+            &nbsp;&nbsp;flagged = audit_df[audit_df[<span class="v">'hallucination_risk'</span>] == <span class="k">True</span>]<br>
+            &nbsp;&nbsp;<span class="k">if not</span> flagged.empty:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">f"⚠ WARNING: {len(flagged)} high-risk combinations:"</span>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> _, row <span class="k">in</span> flagged.iterrows():<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc = <span class="v">", "</span>.join([<span class="v">f"{c}={row[c]}"</span> <span class="k">for</span> c <span class="k">in</span> cat_cols])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">f"  · [{desc}] | Density: {row['density']} | Conf: {row['mean_prob']:.2%}"</span>)<br>
+            &nbsp;&nbsp;<span class="k">else</span>:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">"✓ No high-risk sparse combinations detected."</span>)<br>
+            &nbsp;&nbsp;<span class="k">return</span> audit_df<br><br>
+            <span class="c"># Output for Insurance Denial model:</span><br>
+            <span class="t-bad"># ⚠ WARNING: 1 combination with high hallucination risk:</span><br>
+            <span class="t-bad">#   · [bmi_cat=Underweight, smoker=Yes, diabetic=No] | Density: 1 | Conf: 98.00%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap" style="margin-top: 32px;">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Hallucination Taxonomy — Three Distinct Failure Modes</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Type</span>
+            <span>What Happens</span>
+            <span>Mitigation</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Confabulation</code></span>
+            <span class="proxy-attr">Model invents facts entirely — e.g. ChatGPT creating <em>Varghese v. China Southern Airlines</em></span>
+            <span>Factual database retrieval (RAG) — ground every claim in a verified document</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Extrinsic</code></span>
+            <span class="proxy-attr">Output is plausible but cannot be verified from the input context — unmentioned background "facts" added</span>
+            <span>Strict context grounding — flag any claim that cannot be mapped to a retrieved source passage</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Intrinsic</code></span>
+            <span class="proxy-attr">Model directly contradicts the provided source — e.g. reading a negative test result as positive</span>
+            <span>Adversarial verification — a second model pass challenges and re-checks the primary output</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Hallucination is not a bug confined to LLMs. Every statistical model — including the Random Forest classifiers in this repository — can hallucinate: outputting high-confidence predictions in sparse regions of the feature space where it has almost zero evidence. The mechanism is identical whether the model is fabricating a court citation or denying an insurance claim with 98% confidence based on a single training example.</p>
+        <div class="explainer-callout">A model that cannot say "I don't know" will say something plausible instead. In sparse regions, plausible and correct are not the same thing. Auditing for density is not optional — it is part of the work.</div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations and Trade-offs</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">RAG is not a cure</code></span>
+            <span class="proxy-attr">Retrieval-augmented generation drastically reduces hallucination rates but doesn't eliminate them — models can still misinterpret retrieved documents or synthesise conflicting sources incorrectly</span>
+            <span>Combine RAG with adversarial verification and source-grounding checks</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">RLHF over-conservatism</code></span>
+            <span class="proxy-attr">Fine-tuning models to refuse uncertain prompts introduces cautiousness creep and corrupts confidence scoring — destroying probabilistic nuance</span>
+            <span>Calibrate refusal thresholds against domain-specific accuracy benchmarks, not global averages</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Conflated taxonomy</code></span>
+            <span class="proxy-attr">Using "hallucination" as a catch-all groups distinct failure modes — confabulation, extrinsic, intrinsic — whose mitigations differ</span>
+            <span>Diagnose the specific failure type before choosing a mitigation strategy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Mata v. Avianca, No. 1:22-cv-01461 (S.D.N.Y. 2023) — Judge Castel's complete sanctions opinion on the ChatGPT-fabricated citations</a>
+          <a href="https://arxiv.org/abs/2202.03629" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Ji et al. (2023): Survey of Hallucination in Natural Language Processing — definitive academic survey classifying types, causes, and detection methods</a>
+          <a href="https://arxiv.org/abs/2309.01219" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Zhang et al. (2023): Siren's Song in the AI Ocean — survey of hallucination in LLMs including RAG limitations and RLHF trade-offs</a>
+          <a href="https://scikit-learn.org/stable/modules/calibration.html" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Scikit-learn: Probability Calibration — why raw classifier output scores are rarely true probabilities</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-calibration" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Calibration</a>
+        <a href="#explainer-sampling-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Sampling Bias</a>
+        <a href="#explainer-neural-networks" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Neural Networks</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
       </div>
     </div>
   </div>
@@ -5981,6 +6163,13 @@
       <div>
         <div class="roadmap-name">Explainer: What Happens Inside a Neural Network</div>
         <div class="roadmap-meta">Forward pass · weights · loss function · backpropagation · SHAP inspection · hiring bias proof</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Why AI Hallucinates</div>
+        <div class="roadmap-meta">OOD confidence · sparse feature regions · Mata v. Avianca · insurance denial proof · RAG limitations</div>
       </div>
     </div>
     <div class="roadmap-item">
