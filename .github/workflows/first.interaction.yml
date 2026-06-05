@@ -1,0 +1,31 @@
+name: First Interaction
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            Hey @${{ github.actor }}, thanks for raising this. I really appreciate it.
+
+            Fair Code exists because bias in AI has real consequences for real people, so every issue matters here, whether it's a bug, a dataset question, or something that just didn't feel right. We'll take a look and get back to you.
+
+            In the meantime, feel free to explore the [live audits](https://fair-code-five.vercel.app) or check the [contributing guide](CONTRIBUTING.md) if you want to dig deeper.
+          pr-message: |
+            Hey @${{ github.actor }}, your first PR on Fair Code, that's awesome, thank you.
+
+            This project is about making AI more accountable, and contributions like yours are what keep that work going. We'll review your changes shortly.
+
+            If you haven't already, give the [contributing guide](CONTRIBUTING.md) a quick read: it covers how audits are structured and what we look for in a review.
