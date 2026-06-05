@@ -207,7 +207,7 @@ To prevent hallucination, models are often fine-tuned (e.g., via Reinforcement L
 
 ## Further Reading
 
-* [Mata v. Avianca, No. 1:22-cv-01461 (S.D.N.Y. 2023)](https://www.nysd.uscourts.gov/sites/default/files/2023-06/Mata%20v%20Avianca%20Sanctions%20Opinion.pdf) — U.S. District Judge P. Kevin Castel's complete sanctions opinion detailing the ChatGPT-fabricated cases.
+* [Mata v. Avianca, No. 1:22-cv-01461 (S.D.N.Y. 2023)](https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/) — U.S. District Court docket containing Judge P. Kevin Castel's complete sanctions opinion detailing the ChatGPT-fabricated cases.
 * [Ji et al. (2023): Survey of Hallucination in Natural Language Processing](https://arxiv.org/abs/2202.03629) — The definitive academic survey classifying the types, causes, and detection methods for generative hallucinations.
 * [Rawte et al. (2023): A Survey of Hallucination in Large Foundation Models](https://arxiv.org/abs/2309.05922)
 * [McKenna et al. (2023): Sources of Hallucination by Large Language Models on Inference Tasks](https://aclanthology.org/2023.emnlp-main.245/)
