@@ -7,7 +7,7 @@
 # ── Core data & ML ────────────────────────────────────────────────────────
 numpy>=2.4.6           # Numerical ops (pandas/sklearn dependency)
 pandas>=3.0.3          # DataFrames, CSV loading, crosstabs
-scikit-learn>=1.8.0    # RandomForestClassifier, train/test split, metrics
+scikit-learn>=1.9.0    # RandomForestClassifier, train/test split, metrics
 
 # ── Statistical testing ───────────────────────────────────────────────────
 scipy>=1.15.3          # chi2_contingency for proxy variable detection
