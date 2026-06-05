@@ -389,6 +389,7 @@ features = [
 | [What is Individual Fairness?](explainers/individual-fairness.md) | Why treating groups equally in aggregate is not enough — and what it means to treat similar people similarly |
 | [What is Counterfactual Fairness?](explainers/counterfactual-fairness.md) | Why removing a protected attribute isn't enough — and what it means for a model's decision to be causally free of demographic influence |
 | [What Happens Inside a Neural Network?](explainers/neural-networks.md) | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
+| [Why AI Hallucinates?](explainers/ai-hallucinations.md) | Confident predictions in sparse areas of the feature space — from tabular denial scores to ChatGPT's fake court citations |
 
 ---
 
@@ -493,6 +494,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: Individual Fairness
 - [x] Explainer: Counterfactual Fairness
 - [x] Explainer: What Happens Inside a Neural Network
+- [x] Explainer: Why AI Hallucinates
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
