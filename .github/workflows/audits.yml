@@ -11,6 +11,15 @@ on:
 jobs:
   run-audits:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        audit:
+          - "COMPAS"
+          - "AI Fair Recruitment"
+          - "German Credit Lending"
+          - "Insurance Denial"
+          - "Benefits Denial"
     steps:
       - uses: actions/checkout@v4
 
@@ -24,19 +33,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run all audit scripts
+      - name: Run ${{ matrix.audit }} audit scripts
         run: |
           set -e
-          for audit in \
-            "COMPAS" \
-            "AI Fair Recruitment" \
-            "German Credit Lending" \
-            "Insurance Denial" \
-            "Benefits Denial"; do
-            echo "::group::$audit — unfair.py"
-            python "$audit/unfair.py"
-            echo "::endgroup::"
-            echo "::group::$audit — fair.py"
-            python "$audit/fair.py"
-            echo "::endgroup::"
-          done
+          echo "::group::${{ matrix.audit }} — unfair.py"
+          python "${{ matrix.audit }}/unfair.py"
+          echo "::endgroup::"
+          echo "::group::${{ matrix.audit }} — fair.py"
+          python "${{ matrix.audit }}/fair.py"
+          echo "::endgroup::"
