@@ -1,13 +1,13 @@
-## What does this PR do?
+## Summary
 
-<!-- One sentence. e.g. "Adds HMDA mortgage lending bias audit" or "Adds demographic parity explainer" -->
+<!-- One sentence: e.g. "Adds HMDA mortgage lending bias audit" or "Adds demographic parity explainer" -->
 
 ## Type
 
 - [ ] Audit
 - [ ] Explainer
 - [ ] Bug fix
-- [ ] Other (describe below)
+- [ ] Other
 
 ---
 
@@ -15,23 +15,27 @@
 
 <!-- Skip this section if you're submitting an explainer or bug fix -->
 
-- [ ] Folder is named after the domain, not the dataset (e.g. `HMDA Mortgage Lending/`, not `hmda_2022/`)
-- [ ] `unfair.py` trains with protected attribute(s) included and prints results in the exact required format
-- [ ] `fair.py` drops protected attribute(s) and all identified proxy variables, and prints results in the exact required format
+- [ ] I opened or linked a corresponding issue first
+- [ ] The folder is named after the domain, not the dataset
+- [ ] `unfair.py` includes protected attributes and prints the required output format
+- [ ] `fair.py` removes protected attributes and identified proxy variables
 - [ ] Both scripts use `random_state=42` and an 80/20 train/test split
-- [ ] Proxy variables are identified via chi-squared or Pearson correlation — not just assumed
-- [ ] Both `unfair.png` and `fair.png` terminal screenshots are included as `.png` (not `.jpg`)
-- [ ] Dataset is publicly accessible without login or payment
-- [ ] Dataset file is included (if under ~50MB), or a `DATA.md` with download instructions is included (if larger)
-- [ ] README results table is updated with before/after numbers and reduction percentage
-- [ ] README audit section is added with: opening quote, dataset context, The Problem, code snippet, The Fix, and Key Insight paragraph
-- [ ] Jupyter notebook added to `notebooks/` with sequential number prefix *(optional but appreciated)*
+- [ ] Proxy variables were actually tested, not just guessed
+- [ ] `unfair.png` and `fair.png` are included as PNG screenshots
+- [ ] The dataset is public and accessible without login or payment
+- [ ] The dataset file is included, or `DATA.md` is included if the file is too large
+- [ ] `README.md` includes the new results row and audit section
+- [ ] A notebook was added if the audit benefits from one
 
 **Before fairness gap:** <!-- e.g. 86.77% -->
+
 **After fairness gap:** <!-- e.g. 15.69% -->
+
 **Reduction:** <!-- e.g. 71% -->
+
 **Protected attribute(s):** <!-- e.g. Race -->
-**Proxy variables dropped:** <!-- e.g. CustodyStatus — correlates with race due to over-policing patterns -->
+
+**Proxy variables dropped:** <!-- e.g. CustodyStatus -->
 
 ---
 
@@ -39,19 +43,19 @@
 
 <!-- Skip this section if you're submitting an audit or bug fix -->
 
-- [ ] File is in `explainers/` and named in lowercase with hyphens (e.g. `demographic-parity.md`)
-- [ ] Includes a one-sentence definition with no jargon
-- [ ] Illustrated with real data from an existing audit or a documented external case — not a toy example
-- [ ] Includes a runnable Python detection or measurement snippet using pandas/scikit-learn
-- [ ] Acknowledges the limitations and trade-offs of the concept
-- [ ] Links to related explainers and repo projects
-- [ ] Includes 2–3 primary source links (no link farms)
-- [ ] README explainers table is updated
+- [ ] The file is in `explainers/` and uses lowercase hyphenated naming
+- [ ] It includes a plain-language definition
+- [ ] It uses a real example from this repo or a documented real-world case
+- [ ] It includes runnable Python detection or measurement code
+- [ ] It acknowledges limitations or trade-offs
+- [ ] It links to related explainers or repo projects
+- [ ] It includes 2-3 primary sources
+- [ ] The Explainers table in `README.md` was updated
 
 ---
 
 ## Linked issue
 
-<!-- Every PR should have a corresponding issue. e.g. "Closes #12" -->
+<!-- Every PR should have a corresponding issue. Example: "Closes #12" -->
 
 Closes #
