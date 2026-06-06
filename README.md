@@ -1,10 +1,12 @@
+<div align="center">
+
 # Fair Code — Algorithmic Bias Detection & Mitigation
 
-> *AI systems are making decisions about your freedom, your job, and your healthcare. This project proves the bias is real — and shows exactly how to fix it.*
+*AI systems are making decisions about your freedom, your job, and your healthcare. This project shows the bias is real — and how to fix it.*
 
-**by Yash Kewlani · [@thefaircodeproject](https://instagram.com/thefaircodeproject)**
+**by [Yash Kewlani](https://github.com/yakew7) · [@thefaircodeproject](https://instagram.com/thefaircodeproject)**
 
-🌐 **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)** — live interactive website with all audits, explainers, and visualisations
+[🌐 Live website](https://fair-code-five.vercel.app) · [📓 Notebooks](#projects) · [🧠 Explainers](#explainers) · [🤝 Contribute](CONTRIBUTING.md)
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?style=flat-square&logo=scikit-learn)
@@ -14,6 +16,8 @@
 ![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-blueviolet?style=flat-square)
 ![Deployed](https://img.shields.io/badge/Deployed-Vercel-black?style=flat-square&logo=vercel)
 ![CI](https://github.com/yakew7/Fair-Code/actions/workflows/audits.yml/badge.svg)
+
+</div>
 
 ---
 
@@ -29,9 +33,28 @@
 
 ---
 
+## Contents
+
+- [What This Is](#what-this-is)
+- [Results at a Glance](#results-at-a-glance)
+- [Repository Structure](#repository-structure)
+- [Projects](#projects)
+- [Explainers](#explainers)
+- [Methodology](#methodology)
+- [Why This Matters](#why-this-matters)
+- [Getting Started](#getting-started)
+- [Tech Stack](#tech-stack)
+- [What's Next](#whats-next)
+- [Website](#website)
+- [Connect](#connect)
+
+---
+
 ## What This Is
 
-Fair Code is an ongoing research and engineering project that exposes bias in real-world AI systems and demonstrates concrete mitigation strategies. Every audit follows the same pipeline:
+Fair Code is an ongoing research and engineering project that exposes bias in real-world AI systems and demonstrates concrete mitigation strategies.
+
+Every audit follows the same pipeline:
 
 ```
 train a biased model → measure the fairness gap → engineer a fair model → measure again
