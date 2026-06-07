@@ -4,6 +4,26 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.2.0] — 7 Jun 2026
+### Added
+- Explainer: Reinforcement Learning — `reinforcement-learning.md` created by evanjain-dot (PR #48, commit a785ea95), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commit e3928af7)
+  - Full explainer covering the three-part RL loop (state → action → reward → policy), reward function design as a political act, reward hacking, and the credit assignment problem
+  - Real-world proof using COMPAS as an RL-adjacent system: biased policy produces 86.77% Black/White fairness gap; removing race + `CustodyStatus` proxy reduces gap to 15.69% (71% reduction)
+  - Results table: biased policy vs. race-only removal vs. race + proxy removal
+  - Second case: YouTube recommendation engine using watch time as reward signal — documents asymmetric demographic consequences and outrage optimisation
+  - `fairness_gap()` detection code with chi-squared proxy check for state representation audit
+  - Limitations table: reward misspecification, credit assignment failure, proxy exploitation, political nature of reward asymmetry
+  - Further reading: Dressel & Farid (Science Advances, 2018), Sutton & Barto (MIT Press, 2018), Krakovna et al. DeepMind specification gaming catalogue (2020)
+  - Nav dropdown (desktop + mobile), ticker, and AI Hallucinates footer pills updated on website
+### Changed
+- `README.md`: `reinforcement-learning.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `reinforcement-learning.md` added to existing explainers table, folder structure tree, and blocked concepts list
+- `.github/workflows/update-changelog.yml` deleted — Dependabot auto-changelog workflow removed (commit d4f1c0bb, PR #47)
+- `README.md`: `update-changelog.yml` description removed (commit 63edce9a)
+- PR template refined for improved contributor guidance (commit e611e442)
+
+---
+
 ## [1.1.0] — 5–6 Jun 2026
 ### Added
 - Explainer: Why AI Hallucinates — `ai-hallucinations.md` created by Shreyash0712 (PR #43), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commits 928ae7ae, 68c4de61, 46cd32e8)
