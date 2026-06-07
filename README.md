@@ -96,6 +96,7 @@ Fair-Code/
 │   └── workflows/
 │       ├── audits.yml                   # CI: runs all audit scripts on every push/PR
 │       ├── first.interaction.yml        # Greets first-time issue/PR contributors
+│       └── update-changelog.yml         # Auto-updates CHANGELOG.md daily
 │
 ├── COMPAS/                              # each audit folder has the same structure:
 │   ├── unfair.py                        #   biased model
@@ -130,7 +131,8 @@ Fair-Code/
 │   ├── individual-fairness.md
 │   ├── counterfactual-fairness.md
 │   ├── neural-networks.md
-│   └── ai-hallucinations.md
+│   ├── ai-hallucinations.md
+│   └── reinforcement-learning.md
 │
 ├── CHANGELOG.md
 ├── CITATION.cff
@@ -415,6 +417,7 @@ features = [
 | [What is Counterfactual Fairness?](explainers/counterfactual-fairness.md) | Why removing a protected attribute isn't enough — and what it means for a model's decision to be causally free of demographic influence |
 | [What Happens Inside a Neural Network?](explainers/neural-networks.md) | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
 | [Why AI Hallucinates?](explainers/ai-hallucinations.md) | Confident predictions in sparse areas of the feature space — from tabular denial scores to ChatGPT's fake court citations |
+| [What Is Reinforcement Learning?](explainers/reinforcement-learning.md) | How RL agents learn policies from reward signals — and why reward misspecification, proxy exploitation, and credit assignment failure make them dangerous in high-stakes decisions |
 
 ---
 
@@ -520,6 +523,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: Counterfactual Fairness
 - [x] Explainer: What Happens Inside a Neural Network
 - [x] Explainer: Why AI Hallucinates
+- [x] Explainer: What Is Reinforcement Learning
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit

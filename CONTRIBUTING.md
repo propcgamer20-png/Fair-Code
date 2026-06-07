@@ -257,6 +257,7 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `counterfactual-fairness.md` | Decisions that stay stable under demographic changes |
 | `neural-networks.md` | How networks learn bias from data |
 | `ai-hallucinations.md` | Why confident predictions can still be wrong |
+| `reinforcement-learning.md` | How RL agents learn from reward signals — and why that makes bias hard to see and harder to fix |
 
 ### A good explainer should include
 
