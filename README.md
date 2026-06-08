@@ -78,6 +78,9 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 | 05 | [Welfare](#05--benefits-denial--welfare-eligibility-bias) | Sex, Race, Origin, Age | Relationship, Marital Status, Hours, Occupation | Sex: 18.00% → 8.52% | **53%** |
 | ↳  | | | | Race: 12.75% → 6.90% | **46%** |
 | ↳  | | | | Origin: 4.40% → 0.52% | **88%** |
+| 06 | [Healthcare Readmission](#06--healthcare-readmission--clinical-bias) | Race, Gender, Age | Payer Code, Discharge Disposition, Medical Specialty, Prior Inpatient | Gender: 0.07% → 0.04% | **43%** |
+| ↳  | | | | Race: 0.08% → 0.06% | **25%** |
+| ↳  | | | | Age: 0.28% → 0.09% | **68%** |
 
 ---
 
@@ -108,13 +111,15 @@ Fair-Code/
 ├── German Credit Lending/
 ├── Insurance Denial/
 ├── Benefits Denial/
+├── Healthcare Readmission/
 │
 ├── notebooks/
 │   ├── 01_compas_bias_audit.ipynb
 │   ├── 02_hiring_bias_audit.ipynb
 │   ├── 03_german_credit_bias_audit.ipynb
 │   ├── 04_insurance_denial_bias_audit.ipynb
-│   └── 05_benefits_denial_bias_audit.ipynb
+│   ├── 05_benefits_denial_bias_audit.ipynb
+│   └── 06_healthcare_readmission_bias_audit.ipynb
 │
 ├── explainers/
 │   ├── proxy-variables.md
@@ -398,6 +403,98 @@ features = [
 
 ---
 
+### 06 · Healthcare Readmission — Clinical Bias
+
+> *"A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity."*
+
+**Dataset:** `diabetic_data.csv` — Diabetes 130-US Hospitals 1999–2008 (101,766 records) · [Kaggle source](https://www.kaggle.com/datasets/brandao/diabetes)
+
+Hospital readmission prediction tools are used to allocate follow-up care, discharge planning resources, and post-acute interventions. This audit replicates that logic: the model predicts 30-day readmission and flags patients as high clinical risk. Tools like these are deployed in real hospital systems — and the features they use encode insurance and race, not physiology.
+
+#### The Problem — `unfair.py`
+
+Trained with race, gender, and age directly, plus four proxy variables that carry the same signal through administrative-sounding features.
+
+| Group | High-Risk Flag Rate |
+|-------|:-------------------:|
+| Male patients | 0.22% |
+| Female patients | 0.24% |
+| **Fairness Gap (Gender)** | **0.07%** |
+
+| Group | High-Risk Flag Rate |
+|-------|:-------------------:|
+| Caucasian/Asian | 0.25% |
+| Other minorities | 0.17% |
+| **Fairness Gap (Race)** | **0.08%** |
+
+| Group | High-Risk Flag Rate |
+|-------|:-------------------:|
+| Under 70 | 0.36% |
+| 70+ (elderly) | 0.08% |
+| **Fairness Gap (Age)** | **0.28%** |
+
+#### Proxy Variables
+
+```python
+# payer_code → Medicaid rate by race
+# Hispanic: 9.0%, AfricanAmerican: 5.5%, Caucasian: 2.7%
+print(df.groupby('race')['is_medicaid'].mean().round(3))
+
+# discharge_disposition_id → SNF access by race
+# Caucasian: 17.3% vs AfricanAmerican: 10.7%
+print(df.groupby('race')['discharged_to_snf'].mean().round(3))
+
+# number_inpatient → prior hospitalisations by race
+# AfricanAmerican: 0.70 vs Asian: 0.48
+print(df.groupby('race')['number_inpatient'].mean().round(3))
+```
+
+#### The Fix — `fair.py`
+
+Dropped race, gender, age, payer code, discharge disposition, medical specialty, and prior inpatient count. Retained only clinical signals from this admission.
+
+```python
+# THE FIX: Clinical signals from this admission only
+features = [
+    'admission_type_id',    # emergency vs elective
+    'admission_source_id',  # ER vs referral vs transfer
+    'time_in_hospital',     # length of stay
+    'num_lab_procedures',   # diagnostic intensity
+    'num_procedures',       # procedures this visit
+    'num_medications',      # medication burden
+    'number_outpatient',    # outpatient visits
+    'number_emergency',     # emergency visits
+    'number_diagnoses',     # comorbidity count
+    'max_glu_serum',        # glucose reading
+    'A1Cresult',            # HbA1c — diabetes control
+    'insulin',              # treatment this visit
+    'change',               # medication change flag
+    'diabetesMed',          # on diabetes medication
+    'diag_1', 'diag_2', 'diag_3',  # ICD codes
+    # race                  removed ✓ (protected attribute)
+    # gender                removed ✓ (protected attribute)
+    # age                   removed ✓ (protected attribute)
+    # payer_code            removed ✓ (proxy: encodes income + race)
+    # discharge_disposition_id removed ✓ (proxy: encodes insurance/wealth)
+    # medical_specialty     removed ✓ (proxy: encodes insurance access)
+    # number_inpatient      removed ✓ (proxy: encodes preventive care gap)
+]
+```
+
+| Gap | Before | After | Reduction |
+|-----|:------:|:-----:|:---------:|
+| Gender | 0.07% | 0.04% | **43%** |
+| Race | 0.08% | 0.06% | **25%** |
+| Age | 0.28% | 0.09% | **68%** |
+
+**Result: 43% reduction in gender gap. 25% reduction in race gap. 68% reduction in age gap.**
+
+> **Key insight:** Healthcare readmission models don't need race or gender to discriminate by them. Payer code, discharge destination, and prior inpatient visits are the `occupation` and `relationship` of clinical AI — variables that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap — the gap creates the risk.
+
+📓 **[Full notebook walkthrough →](notebooks/06_healthcare_readmission_bias_audit.ipynb)**
+
+---
+
 ## Explainers
 
 | Explainer | What it covers |
@@ -475,7 +572,7 @@ python COMPAS/fair.py     # see the fix
 
 Each script resolves its dataset relative to its own location, so it runs from anywhere — `cd COMPAS && python unfair.py` works too.
 
-The same pattern applies to all five projects — swap `COMPAS` for `"AI Fair Recruitment"`, `"German Credit Lending"`, `"Insurance Denial"`, or `"Benefits Denial"`.
+The same pattern applies to all six projects — swap `COMPAS` for `"AI Fair Recruitment"`, `"German Credit Lending"`, `"Insurance Denial"`, `"Benefits Denial"`, or `"Healthcare Readmission"`.
 
 Run the notebooks:
 
@@ -495,7 +592,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 | Language | Python 3 |
 | Libraries | `pandas`, `scikit-learn`, `fairlearn`, `shap`, `matplotlib`, `scipy` |
 | Notebooks | Jupyter (`.ipynb`) — one per audit, in `notebooks/` |
-| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle), UCI Adult Census Income (Kaggle) |
+| Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle), UCI Adult Census Income (Kaggle), Diabetes 130-US Hospitals (Kaggle) |
 
 ---
 
@@ -506,6 +603,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] German Credit Lending Bias
 - [x] Insurance Denial — Healthcare Bias
 - [x] Benefits Denial — Welfare Eligibility Bias
+- [x] Healthcare Readmission — Clinical Bias
 - [x] Jupyter notebook walkthroughs for all five audits
 - [x] CI pipeline — all audit scripts run automatically on every push and PR
 - [x] Explainer: Proxy Variables

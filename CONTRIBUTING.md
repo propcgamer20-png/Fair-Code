@@ -154,6 +154,7 @@ A proxy variable is a feature that carries the same signal as the protected attr
 | Insurance Denial | Race, class | `bmi`, `smoker`, `diabetic` | Structural disparities show up in health-related features |
 | Benefits Denial | Sex | `relationship`, `marital.status`, `hours.per.week` | Family roles and caregiving patterns encode sex |
 | Benefits Denial | Race | `occupation` | Occupational segregation can reconstruct race |
+| Healthcare Readmission | Race, income | `payer_code`, `discharge_disposition_id`, `number_inpatient` | Insurance type encodes race; discharge destination and prior hospitalisation count encode access gaps, not clinical severity |
 
 How to check likely proxies:
 
