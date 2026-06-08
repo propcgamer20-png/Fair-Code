@@ -99,7 +99,6 @@ Fair-Code/
 │   └── workflows/
 │       ├── audits.yml                   # CI: runs all audit scripts on every push/PR
 │       ├── first.interaction.yml        # Greets first-time issue/PR contributors
-│       └── update-changelog.yml         # Auto-updates CHANGELOG.md daily
 │
 ├── COMPAS/                              # each audit folder has the same structure:
 │   ├── unfair.py                        #   biased model

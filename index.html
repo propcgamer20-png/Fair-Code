@@ -1973,6 +1973,7 @@
         <li role="none"><a href="#project-credit" role="menuitem">03 — German Credit</a></li>
         <li role="none"><a href="#project-insurance" role="menuitem">04 — Insurance Denial</a></li>
         <li role="none"><a href="#project-benefits" role="menuitem">05 — Benefits Denial</a></li>
+        <li role="none"><a href="#project-readmission" role="menuitem">06 — Healthcare Readmission</a></li>
       </ul>
     </li>
     <li class="nav-dropdown-wrap">
@@ -2021,6 +2022,7 @@
     <a href="#project-credit" class="mobile-link mobile-sub">03 — German Credit</a>
     <a href="#project-insurance" class="mobile-link mobile-sub">04 — Insurance Denial</a>
     <a href="#project-benefits" class="mobile-link mobile-sub">05 — Benefits Denial</a>
+    <a href="#project-readmission" class="mobile-link mobile-sub">06 — Healthcare Readmission</a>
     <span class="mobile-section-label">Explainers</span>
     <a href="#explainer-proxy" class="mobile-link mobile-sub">01 — Proxy Variables</a>
     <a href="#explainer-sampling" class="mobile-link mobile-sub">02 — Sampling Bias</a>
@@ -2665,6 +2667,93 @@
     </div>
   </div>
 </section>
+
+  <!-- PROJECT 6: HEALTHCARE READMISSION -->
+  <div id="project-readmission" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="project-card reveal" style="margin-top: 2px;" data-project-tags="healthcare" data-project-text="healthcare readmission clinical bias race gender age payer code discharge disposition medical specialty prior inpatient diabetes 130 hospitals readmission 30 days 25% 68% 0.02% 0.04% 0.08% 0.06% 0.28% 0.09% proxy variable clinical AI insurance SNF skilled nursing facility">
+    <div class="card-bg-num">06</div>
+    <div class="project-top">
+      <div>
+        <div class="project-num">PROJECT — 06</div>
+        <div class="project-name">HEALTHCARE READMISSION</div>
+        <p class="project-desc">A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity.</p>
+      </div>
+      <div class="project-stats">
+        <div class="stat-label">AGE FAIRNESS GAP BEFORE</div>
+        <div class="stat-big bad">0.28<span class="stat-unit">%</span></div>
+        <div class="stat-label" style="margin-top: 8px;">AFTER MITIGATION</div>
+        <div class="stat-big good">0.09<span class="stat-unit good">%</span></div>
+        <span class="reduction-badge">Age: 68% reduction · Race: 25% reduction</span>
+      </div>
+    </div>
+
+    <div class="terminals-grid">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">Model Accuracy: 88.79%</div>
+          <div class="t-bad">Male patients      : 0.22% flagged high-risk</div>
+          <div class="t-normal">Female patients    : 0.24% flagged high-risk</div>
+          <div class="t-bad">Fairness Gap (Gender): 0.02%</div>
+          <div class="t-bad">Caucasian/Asian    : 0.25% flagged high-risk</div>
+          <div class="t-normal">Other minorities   : 0.17% flagged high-risk</div>
+          <div class="t-bad">Fairness Gap (Race): 0.08%</div>
+          <div class="t-bad">Under 70           : 0.36% flagged high-risk</div>
+          <div class="t-normal">70+ (elderly)      : 0.08% flagged high-risk</div>
+          <div class="t-bad">Fairness Gap (Age): 0.28%</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-head">Model Accuracy: 88.74%</div>
+          <div class="t-normal">Male patients      : 0.11% flagged high-risk</div>
+          <div class="t-normal">Female patients    : 0.06% flagged high-risk</div>
+          <div class="t-accent">New Fairness Gap (Gender): 0.04% ↑</div>
+          <div class="t-good">Caucasian/Asian    : 0.10% flagged high-risk</div>
+          <div class="t-good">Other minorities   : 0.04% flagged high-risk</div>
+          <div class="t-accent">New Fairness Gap (Race): 0.06%</div>
+          <div class="t-good">Under 70           : 0.13% flagged high-risk</div>
+          <div class="t-good">70+ (elderly)      : 0.03% flagged high-risk</div>
+          <div class="t-accent">New Fairness Gap (Age): 0.09%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <div class="key-insight-label">Key Insight</div>
+      <p>Healthcare readmission models don't need race or gender to discriminate by them. <code class="inline-code">payer_code</code>, <code class="inline-code">discharge_disposition_id</code>, <code class="inline-code">medical_specialty</code>, and <code class="inline-code">number_inpatient</code> are the <code class="inline-code">CustodyStatus</code> of clinical AI — features that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The age gap reduced 68% and the race gap 25%. The gender gap increased slightly (0.02% → 0.04%) — proxy removal shifted the model in a way that widened it by 0.02pp. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap — the gap creates the risk.</p>
+    </div>
+
+    <div class="bias-bar-wrap" style="margin-top: 32px;">
+      <div class="bias-row">
+        <span class="bias-label">Under 70 · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 36%;"></div></div>
+        <span class="bias-val">0.36%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">70+ · BIASED</span>
+        <div class="bias-track"><div class="bias-fill bad" style="width: 8%; opacity: 0.6;"></div></div>
+        <span class="bias-val">0.08%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">Under 70 · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 13%;"></div></div>
+        <span class="bias-val">0.13%</span>
+      </div>
+      <div class="bias-row">
+        <span class="bias-label">70+ · FAIR</span>
+        <div class="bias-track"><div class="bias-fill good" style="width: 3%; opacity: 0.8;"></div></div>
+        <span class="bias-val">0.03%</span>
+      </div>
+    </div>
+  </div>
 
 <!-- EXPLAINERS -->
 <section id="explainers" style="background: var(--surface);" aria-labelledby="explainers-heading">
@@ -6820,6 +6909,10 @@
     'project-benefits': {
       title: 'Benefits Denial Welfare Bias Audit',
       desc: 'Male applicants flagged ineligible 18pts higher than women. 53% sex gap reduction, 46% race, 88% national-origin.',
+    },
+    'project-readmission': {
+      title: 'Healthcare Readmission Clinical Bias Audit',
+      desc: 'Readmission model uses payer code and discharge destination as proxies for race. Age gap reduced 68%, race gap 25%.',
     },
   };
 
