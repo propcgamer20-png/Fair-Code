@@ -20,6 +20,7 @@ jobs:
           - "German Credit Lending"
           - "Insurance Denial"
           - "Benefits Denial"
+          - "Healthcare Readmission"
     steps:
       - uses: actions/checkout@v6
 
