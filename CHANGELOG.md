@@ -4,7 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
-## [1.2.0] — 7 Jun 2026
+## [1.0.4] — 8 Jun 2026
+### Added
+- Audit 06: Healthcare Readmission — Clinical Bias (Diabetes 130-US Hospitals 1999–2008, 101,766 records)
+  - `fair.py` and `unfair.py` added to `Healthcare Readmission/` (commits ba226003, cec4a098)
+  - Jupyter notebook: `06_healthcare_readmission_bias_audit.ipynb` (commit 9a8abd07)
+  - Protected attributes audited: race, gender, age
+  - Proxy variables identified and removed: `payer_code` (Medicaid rate encodes race: Hispanic 9.0%, AfricanAmerican 5.5%, Caucasian 2.7%), `discharge_disposition_id` (SNF access encodes insurance and geography: Caucasian 17.3% vs AfricanAmerican 10.7%), `medical_specialty` (encodes insurance type and geography), `number_inpatient` (prior hospitalisation count encodes preventive care access gap: AfricanAmerican 0.70 vs Asian 0.48)
+  - Results: race gap 0.08% → 0.06% (25% reduction), age gap 0.28% → 0.09% (68% reduction), gender gap 0.02% → 0.04% (increased — proxy variables carried no meaningful gender signal; documented honestly)
+  - Healthcare Readmission audit added to CI workflow (commit 60b4aa7f)
+  - `index.html` updated: project card added with terminal outputs, bias bars, and key insight; desktop and mobile nav updated with `06 — Healthcare Readmission` link (commit d93fd1cf)
+### Changed
+- `README.md` and `CONTRIBUTING.md` updated: audit 06 added to results table, repository structure tree, projects section, and What's Next checklist (commits eced8281, 3d6f4ead)
+- `.gitignore` updated to prevent `.DS_Store` from being committed (commit a175c40c)
+
+---
+
+## [1.0.3] — 7 Jun 2026
 ### Added
 - Explainer: Reinforcement Learning — `reinforcement-learning.md` created by evanjain-dot (PR #48, commit a785ea95), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commit e3928af7)
   - Full explainer covering the three-part RL loop (state → action → reward → policy), reward function design as a political act, reward hacking, and the credit assignment problem
@@ -24,7 +40,7 @@ All notable changes to Fair Code are documented here.
 
 ---
 
-## [1.1.0] — 5–6 Jun 2026
+## [1.0.2] — 5–6 Jun 2026
 ### Added
 - Explainer: Why AI Hallucinates — `ai-hallucinations.md` created by Shreyash0712 (PR #43), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commits 928ae7ae, 68c4de61, 46cd32e8)
   - Full explainer covering hallucination as out-of-distribution confidence failure, real-world proof using the Insurance Denial audit (sparse BMI/smoking/diabetic sub-populations), tabular density vs. confidence table, `audit_hallucination_risk()` detection code, four mitigation patterns (retrieval-first, source grounding, adversarial verification, confidence calibration), and limitations (confabulation vs. extrinsic vs. intrinsic hallucination taxonomy, RAG limitations, RLHF over-conservatism)
