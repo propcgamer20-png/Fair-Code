@@ -136,7 +136,8 @@ Fair-Code/
 │   ├── counterfactual-fairness.md
 │   ├── neural-networks.md
 │   ├── ai-hallucinations.md
-│   └── reinforcement-learning.md
+│   ├── reinforcement-learning.md
+│   └── proxy-entanglement.md
 │
 ├── CHANGELOG.md
 ├── CITATION.cff
@@ -514,6 +515,7 @@ features = [
 | [What Happens Inside a Neural Network?](explainers/neural-networks.md) | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
 | [Why AI Hallucinates?](explainers/ai-hallucinations.md) | Confident predictions in sparse areas of the feature space — from tabular denial scores to ChatGPT's fake court citations |
 | [What Is Reinforcement Learning?](explainers/reinforcement-learning.md) | How RL agents learn policies from reward signals — and why reward misspecification, proxy exploitation, and credit assignment failure make them dangerous in high-stakes decisions |
+| [What Is Proxy Entanglement?](explainers/proxy-entanglement.md) | Why removing proxies one at a time fails when multiple features encode the same protected signal through correlated, redundant channels |
 
 ---
 
@@ -621,6 +623,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: What Happens Inside a Neural Network
 - [x] Explainer: Why AI Hallucinates
 - [x] Explainer: What Is Reinforcement Learning
+- [x] Explainer: Proxy Entanglement
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
