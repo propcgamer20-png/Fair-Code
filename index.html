@@ -1995,6 +1995,7 @@
         <li role="none"><a href="#explainer-neural-networks" role="menuitem">14 — Neural Networks</a></li>
         <li role="none"><a href="#explainer-ai-hallucinations" role="menuitem">15 — Why AI Hallucinates</a></li>
         <li role="none"><a href="#explainer-reinforcement-learning" role="menuitem">16 — Reinforcement Learning</a></li>
+        <li role="none"><a href="#explainer-proxy-entanglement" role="menuitem">17 — Proxy Entanglement</a></li>
       </ul>
     </li>
     <li><a href="#impact">Impact</a></li>
@@ -2040,6 +2041,7 @@
     <a href="#explainer-neural-networks" class="mobile-link mobile-sub">14 — Neural Networks</a>
     <a href="#explainer-ai-hallucinations" class="mobile-link mobile-sub">15 — Why AI Hallucinates</a>
     <a href="#explainer-reinforcement-learning" class="mobile-link mobile-sub">16 — Reinforcement Learning</a>
+    <a href="#explainer-proxy-entanglement" class="mobile-link mobile-sub">17 — Proxy Entanglement</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
     <div class="mobile-social-row">
@@ -2116,6 +2118,8 @@
     <span class="ticker-item"><span class="dot"></span>HIGH CONFIDENCE · ZERO EVIDENCE · SPARSE REGIONS</span>
     <span class="ticker-item red"><span class="dot"></span>REINFORCEMENT LEARNING</span>
     <span class="ticker-item"><span class="dot"></span>REWARD FUNCTION IS POLITICAL · NOT TECHNICAL</span>
+    <span class="ticker-item red"><span class="dot"></span>PROXY ENTANGLEMENT</span>
+    <span class="ticker-item"><span class="dot"></span>REDUNDANT CHANNELS · REMOVE THE CLUSTER · NOT ONE PROXY</span>
     <!-- dupe for infinite scroll -->
     <span class="ticker-item red"><span class="dot"></span>COMPAS CRIMINAL JUSTICE</span>
     <span class="ticker-item"><span class="dot"></span>AI HIRING DISCRIMINATION</span>
@@ -2148,6 +2152,8 @@
     <span class="ticker-item"><span class="dot"></span>HIGH CONFIDENCE · ZERO EVIDENCE · SPARSE REGIONS</span>
     <span class="ticker-item red"><span class="dot"></span>REINFORCEMENT LEARNING</span>
     <span class="ticker-item"><span class="dot"></span>REWARD FUNCTION IS POLITICAL · NOT TECHNICAL</span>
+    <span class="ticker-item red"><span class="dot"></span>PROXY ENTANGLEMENT</span>
+    <span class="ticker-item"><span class="dot"></span>REDUNDANT CHANNELS · REMOVE THE CLUSTER · NOT ONE PROXY</span>
   </div>
 </div>
 
@@ -6098,6 +6104,7 @@
         <a href="#explainer-neural-networks" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Neural Networks</a>
         <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
         <a href="#explainer-reinforcement-learning" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Reinforcement Learning</a>
+        <a href="#explainer-proxy-entanglement" class="coming-pill" style="text-decoration:none; cursor:pointer;">↓ Proxy Entanglement</a>
       </div>
     </div>
   </div>
@@ -6356,6 +6363,223 @@
         <a href="#explainer-ai-hallucinations" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Why AI Hallucinates</a>
       </div>
     </div>
+    </div>
+  </div>
+
+  <!-- EXPLAINER 17: PROXY ENTANGLEMENT -->
+  <div id="explainer-proxy-entanglement" style="position:relative; top:-80px; visibility:hidden;"></div>
+  <div class="explainer-card reveal" style="margin-top: 2px;" data-explainer-tags="data detection mitigation" data-explainer-text="proxy entanglement cluster correlated features redundant channels protected attribute structural inequality healthcare readmission payer code discharge disposition inpatient insurance access race income bias removal fairness gap causal root">
+    <div class="explainer-header">
+      <div class="explainer-meta">
+        <div class="explainer-num">EXPLAINER — 17</div>
+        <h3 class="explainer-title">WHAT IS PROXY ENTANGLEMENT?</h3>
+        <p class="explainer-tagline">When removing proxies one at a time still leaves the bias intact — because multiple features encode the same protected signal through independent, redundant channels.</p>
+      </div>
+      <div class="explainer-definition">
+        <div class="explainer-def-label">One-Sentence Definition</div>
+        <p class="explainer-def-text">Proxy entanglement occurs when two or more features are each correlated with a protected attribute <em>and</em> also correlated with each other, forming a reinforcing cluster that reconstructs the protected signal even after any single variable is removed in isolation.</p>
+      </div>
+    </div>
+
+    <div class="explainer-body">
+      <div class="explainer-block">
+        <div class="explainer-block-label">Why This Matters</div>
+        <p class="explainer-block-text">The standard mitigation playbook says: identify proxy variables, then remove them. That works when proxies are independent — when each one carries a distinct slice of the protected signal and dropping it cuts that slice out cleanly. Proxy entanglement breaks that assumption.</p>
+        <p class="explainer-block-text" style="margin-top: 12px;">When proxies are entangled — when <code class="inline-code">feature A</code>, <code class="inline-code">feature B</code>, and <code class="inline-code">feature C</code> all carry the same protected signal <em>and</em> all correlate with each other — removing any single one still leaves the full signal alive in the others. Worse, a model that loses one entangled proxy can partially reconstruct it from the remaining ones, because they already encode much of the same information. High-stakes systems that stop at one-variable-at-a-time removal will report a reduction in the fairness gap while leaving most of the bias mechanism intact.</p>
+      </div>
+
+      <div class="explainer-block">
+        <div class="explainer-block-label">The Entanglement Structure</div>
+        <p class="explainer-block-text">Entangled proxies don't each carry an independent slice of the protected signal. They carry <em>overlapping</em> slices, shaped by the same upstream structural inequality. The key diagnostic is not just whether each proxy correlates with the protected attribute — it is whether the proxies also correlate with <em>each other</em>.</p>
+        <div class="code-block" style="margin-top: 16px;">
+          <div class="code-block-header">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            detect_entanglement.py
+          </div>
+          <div class="code-block-body" style="font-size: 11px;">
+            <span class="k">from</span> <span class="v">scipy.stats</span> <span class="k">import</span> <span class="v">chi2_contingency</span><br><br>
+            <span class="k">def</span> <span class="v">detect_proxy_entanglement</span>(df, protected_col, candidate_proxies, p_threshold=<span class="v">0.05</span>):<br>
+            &nbsp;&nbsp;<span class="c"># Step 1: each proxy vs the protected attribute</span><br>
+            &nbsp;&nbsp;confirmed = []<br>
+            &nbsp;&nbsp;<span class="k">for</span> col <span class="k">in</span> candidate_proxies:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;ct = pd.crosstab(df[col], df[protected_col])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;_, p, _, _ = chi2_contingency(ct)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> p &lt; p_threshold:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;confirmed.append(col)<br><br>
+            &nbsp;&nbsp;<span class="c"># Step 2: cross-correlations between confirmed proxies</span><br>
+            &nbsp;&nbsp;entangled = set()<br>
+            &nbsp;&nbsp;<span class="k">for</span> i, a <span class="k">in</span> enumerate(confirmed):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> b <span class="k">in</span> confirmed[i+<span class="v">1</span>:]:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ct = pd.crosstab(df[a], df[b])<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_, p, _, _ = chi2_contingency(ct)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> p &lt; p_threshold:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entangled.add(a); entangled.add(b)<br><br>
+            &nbsp;&nbsp;<span class="k">if</span> entangled:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="v">"⛔ ENTANGLED CLUSTER — remove ALL together:"</span>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">for</span> col <span class="k">in</span> entangled: print(<span class="v">f"  · {col}"</span>)<br>
+            &nbsp;&nbsp;<span class="k">return</span> confirmed, entangled
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">Two passes. First, test each feature against the protected attribute. Then test confirmed proxies against each other. A cluster that fails both tests must be removed as a block — not piecemeal.</div>
+      </div>
+
+      <div class="explainer-proof">
+        <div class="explainer-block-label" style="margin-bottom: 24px;">Real-World Proof: Healthcare Readmission — Audit 06</div>
+        <p class="explainer-block-text" style="margin-bottom: 20px;">The clearest illustration of proxy entanglement in this repository is Audit 06. The model predicts 30-day hospital readmission for 101,766 diabetic patients across 130 US hospitals. Three proxy variables — <code class="inline-code">payer_code</code>, <code class="inline-code">discharge_disposition_id</code>, and <code class="inline-code">number_inpatient</code> — form an entangled cluster, each encoding race and income through a different administrative column, all tracing back to the same structural cause: unequal access to care.</p>
+
+        <div class="proof-steps">
+          <div class="proof-step">
+            <div class="proof-step-num">STEP 01</div>
+            <div class="proof-step-label">Each proxy correlates with race — through a different channel</div>
+            <div class="code-block" style="margin-top: 12px;">
+              <div class="code-block-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                proxy_analysis.py
+              </div>
+              <div class="code-block-body" style="font-size: 11px;">
+                <span class="c"># Proxy 1: payer_code → insurance type → encodes income + race</span><br>
+                print(df.groupby(<span class="v">'race'</span>)[<span class="v">'is_medicaid'</span>].mean().round(<span class="v">3</span>))<br>
+                <span class="c"># Hispanic: 9.0%  AfricanAmerican: 5.5%  Caucasian: 2.7%</span><br><br>
+                <span class="c"># Proxy 2: discharge_disposition_id → SNF access → encodes insurance + geography</span><br>
+                print(df.groupby(<span class="v">'race'</span>)[<span class="v">'discharged_to_snf'</span>].mean().round(<span class="v">3</span>))<br>
+                <span class="c"># Caucasian: 17.3%  vs  AfricanAmerican: 10.7%</span><br><br>
+                <span class="c"># Proxy 3: number_inpatient → prior hospitalisations → encodes preventive care gap</span><br>
+                print(df.groupby(<span class="v">'race'</span>)[<span class="v">'number_inpatient'</span>].mean().round(<span class="v">3</span>))<br>
+                <span class="c"># AfricanAmerican: 0.70  vs  Asian: 0.48</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 02</div>
+            <div class="proof-step-label">The proxies are also correlated with each other — they share a causal root</div>
+            <p class="explainer-block-text" style="margin: 12px 0 8px;">Patients who lack adequate insurance (<code class="inline-code">payer_code</code>) are also less likely to be discharged to a skilled nursing facility (<code class="inline-code">discharge_disposition_id</code>) and more likely to have fragmented prior inpatient histories (<code class="inline-code">number_inpatient</code>) — not because of clinical severity, but because the same structural access barriers affect all three at once. Removing only one of these while leaving the other two in place is not mitigation. It is relabelling.</p>
+          </div>
+
+          <div class="proof-step" style="margin-top: 24px;">
+            <div class="proof-step-num">STEP 03</div>
+            <div class="proof-step-label">The fix: remove the entire cluster</div>
+            <div class="terminals-grid" style="margin-top: 12px;">
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">unfair.py — ENTANGLED PROXIES INCLUDED</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head">--- BIASED MODEL RESULTS ---</div>
+                  <div class="t-bad">Race fairness gap: 0.08%</div>
+                  <div class="t-bad">Age fairness gap: 0.28%</div>
+                  <div class="t-head" style="margin-top: 6px;"># payer_code + discharge_disposition_id</div>
+                  <div class="t-head"># + number_inpatient all in feature set</div>
+                </div>
+              </div>
+              <div class="terminal">
+                <div class="terminal-bar">
+                  <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                  <span class="terminal-label">fair.py — CLUSTER REMOVED</span>
+                </div>
+                <div class="terminal-body">
+                  <div class="t-head">--- MITIGATED RESULTS ---</div>
+                  <div class="t-good">Race fairness gap: 0.06% — 25% reduction</div>
+                  <div class="t-accent">Age fairness gap: 0.09% — 68% reduction</div>
+                  <div class="t-head" style="margin-top: 6px;"># entire entangled cluster dropped</div>
+                  <div class="t-head"># clinical signals from this admission only</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proxy-table-wrap">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">The Entangled Cluster — Audit 06</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Proxy Feature</span>
+            <span>What It Encodes</span>
+            <span>Causal Root</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">payer_code</code></span>
+            <span class="proxy-attr">Insurance type — Medicaid rate varies 2.7% → 9.0% by race</span>
+            <span>Structural inequality in US healthcare coverage</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">discharge_disposition_id</code></span>
+            <span class="proxy-attr">SNF access — Caucasian 17.3% vs AfricanAmerican 10.7%</span>
+            <span>Insurance coverage determines post-acute placement</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">medical_specialty</code></span>
+            <span class="proxy-attr">Specialist access — encodes insurance and geography</span>
+            <span>Specialist care access tracks insurance + zip code</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">number_inpatient</code></span>
+            <span class="proxy-attr">Prior hospitalisations — AfricanAmerican 0.70 vs Asian 0.48</span>
+            <span>Fragmented care access, not higher clinical severity</span>
+          </div>
+        </div>
+        <div class="explainer-callout" style="margin-top: 16px;">The patient does not bring the disparity to the gap — the gap creates the risk. These are not independent proxies. They are four administrative measurements of the same structural inequality, and they must be removed together.</div>
+      </div>
+
+      <div class="proxy-table-wrap" style="margin-top: 32px;">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Limitations</div>
+        <div class="proxy-table">
+          <div class="proxy-row proxy-row-head">
+            <span>Limitation</span>
+            <span>The Problem</span>
+            <span>What to Do</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Causal root ambiguity</code></span>
+            <span class="proxy-attr">Detection tells you a cluster is entangled — not why. Two auditors may disagree on the upstream cause.</span>
+            <span>Document the structural narrative. The key insight section is required.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Accuracy trade-off</code></span>
+            <span class="proxy-attr">Entangled proxies carry legitimate predictive signal in a fair world. Removing them costs accuracy.</span>
+            <span>The trade-off is explicit and intentional. Document it in the model card.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Base-rate sensitivity</code></span>
+            <span class="proxy-attr">In large datasets (100K+ records), chi-squared flags trivial correlations as significant.</span>
+            <span>Combine p-value with a minimum Cramér's V effect size (e.g. V > 0.10) before calling entanglement.</span>
+          </div>
+          <div class="proxy-row">
+            <span><code class="inline-code">Not multicollinearity</code></span>
+            <span class="proxy-attr">Proxy entanglement is a fairness problem. Multicollinearity is a model-stability problem. They're related but not the same.</span>
+            <span>Address both separately. VIF for stability; chi-squared cluster analysis for fairness.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer-takeaway">
+        <div class="explainer-block-label">The Bigger Picture</div>
+        <p class="explainer-block-text">Proxy entanglement is the default condition in datasets built on structural inequalities — not the exception. Insurance access, discharge destination, and prior hospitalisation don't each carry an independent slice of a patient's race and income. They carry overlapping slices, all shaped by the same upstream cause. Single-variable removal is the right starting point, but it is not the finish line.</p>
+        <div class="explainer-callout">The bias is not in any single feature. It's in the structural inequality that generated all of them simultaneously. Remove the cluster. Not the symptom.</div>
+      </div>
+
+      <div class="explainer-reading">
+        <div class="explainer-block-label" style="margin-bottom: 16px;">Further Reading</div>
+        <div class="reading-links">
+          <a href="https://www.science.org/doi/10.1126/science.aax2342" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Obermeyer et al. (2019): Dissecting Racial Bias in an Algorithm Used to Manage the Health of Populations — Science</a>
+          <a href="https://arxiv.org/abs/1907.06430" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Chiappa &amp; Isaac (2019): A Causal Bayesian Networks Viewpoint on Fairness</a>
+          <a href="https://arxiv.org/abs/1706.02744" target="_blank" rel="noopener noreferrer" class="reading-link">↗ Kilbertus et al. (2017): Avoiding Discrimination Through Causal Reasoning</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-footer">
+      <div class="explainer-footer-label">Also in this series</div>
+      <div class="coming-soon-pills">
+        <a href="#explainer-proxy" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Proxy Variables</a>
+        <a href="#explainer-feedback-loop" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Feedback Loop Bias</a>
+        <a href="#explainer-counterfactual-fairness" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Counterfactual Fairness</a>
+        <a href="#explainer-label-bias" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Label Bias</a>
+        <a href="#explainer-reinforcement-learning" class="coming-pill" style="text-decoration:none; cursor:pointer;">↑ Reinforcement Learning</a>
+      </div>
+    </div>
   </div>
 
 <section id="impact" style="background: var(--surface);" aria-labelledby="impact-heading">
@@ -6523,6 +6747,20 @@
       <div>
         <div class="roadmap-name">Explainer: Why AI Hallucinates</div>
         <div class="roadmap-meta">OOD confidence · sparse feature regions · Mata v. Avianca · insurance denial proof · RAG limitations</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Reinforcement Learning</div>
+        <div class="roadmap-meta">Reward function design · COMPAS as RL-adjacent system · proxy exploitation · credit assignment failure</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-status done"></div>
+      <div>
+        <div class="roadmap-name">Explainer: Proxy Entanglement</div>
+        <div class="roadmap-meta">Correlated proxy clusters · Healthcare Readmission proof · cluster removal · causal root analysis</div>
       </div>
     </div>
     <div class="roadmap-item">
