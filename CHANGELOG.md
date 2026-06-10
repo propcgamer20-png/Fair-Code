@@ -4,6 +4,24 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.1] — 10 Jun 2026
+### Added
+- Explainer: What Is Machine Learning Bias? — `ml-bias.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering the four entry points through which bias enters a model: training data bias (sampling misrepresentation), label bias (historical human decisions inherited by the target variable), proxy variables (protected signal surviving attribute removal via correlated features), and feedback loop bias (bias compounding across retraining cycles)
+  - Two-axis classification: disparate treatment (protected attribute used directly) vs. disparate impact (structural outcome disparity without direct use), with cross-links to both dedicated explainers
+  - Real-world proof anchored to Audit 01 (COMPAS): all four entry points demonstrated in a single production system — over-policing in training distribution, re-arrest as a biased label, `CustodyStatus` as a proxy for race, and feedback loop risk from score-influenced detention → reoffending → retraining
+  - Detection code: `demographic_parity_report()` for measuring group-level positive prediction rate gaps with automatic threshold flags (>20% likely Four-Fifths Rule breach, >5% proxy analysis recommended); `check_proxy()` chi-squared test for candidate proxy screening
+  - Fairness metric comparison table: demographic parity vs. equalized odds vs. predictive parity — with cross-link to [Why Fairness Metrics Conflict](fairness-metric-conflicts.md)
+  - Limitations: bias reduction vs. elimination, demographic label requirement for auditing, metric appropriateness by domain
+  - Cross-links to all eight related explainers and four related audits (COMPAS, AI Fair Recruitment, German Credit Lending, Benefits Denial)
+  - Further reading: Barocas, Hardt & Narayanan *Fairness and Machine Learning* (fairmlbook.org), ProPublica *Machine Bias* (2016), Obermeyer et al. *Science* (2019)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `ml-bias.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `ml-bias.md` added to existing explainers table
+
+---
+
 ## [1.0.5] — 9 Jun 2026
 ### Added
 - Explainer: Proxy Entanglement — `proxy-entanglement.md` created (PR #49, commits 475de938, 64a90772), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commits c018d8e8, 476a2771, 46d534fa)
