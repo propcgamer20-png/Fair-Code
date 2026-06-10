@@ -118,4 +118,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Explore how correlated proxy bundles can keep bias alive even after individual features are removed.',
     tags: ['detection', 'data', 'explainability'],
   },
+  {
+    slug: 'ml-bias',
+    title: 'What Is Machine Learning Bias?',
+    subtitle: 'Four entry points. One pipeline. Measurable everywhere.',
+    summary: 'Understand how bias enters AI systems through training data, labels, proxy variables, and feedback loops — with detection code and real examples from every audit in this repo.',
+    tags: ['detection', 'data', 'explainability'],
+  },
 ];
