@@ -112,6 +112,18 @@
   color: var(--text);
 }
 
+.explainer-page {
+  --explainer-code-bg: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  --explainer-code-text: var(--text);
+  --explainer-code-border: var(--border);
+}
+
+html[data-theme="light"] .explainer-page {
+  --explainer-code-bg: color-mix(in srgb, var(--bg) 82%, var(--surface));
+  --explainer-code-text: var(--text);
+  --explainer-code-border: var(--border2);
+}
+
 .explainer-shell {
   max-width: 980px;
   margin: 0 auto;
@@ -249,12 +261,13 @@
 
 .explainer-content pre {
   overflow: auto;
-  background: #0c0f15;
-  border: 1px solid var(--border);
+  background: var(--explainer-code-bg);
+  border: 1px solid var(--explainer-code-border);
   padding: 18px;
   border-radius: 2px;
   font-size: 12px;
   line-height: 1.7;
+  color: var(--explainer-code-text);
 }
 
 .explainer-content code {
