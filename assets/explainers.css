@@ -127,6 +127,12 @@
   flex-wrap: wrap;
 }
 
+.explainer-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .explainer-back {
   display: inline-flex;
   align-items: center;
@@ -149,6 +155,19 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-size: 9px;
+}
+
+.explainer-theme-toggle {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .explainer-hero {

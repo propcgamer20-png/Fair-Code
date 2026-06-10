@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    const saved = localStorage.getItem('fc-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
 <link rel="stylesheet" href="assets/explainers.css">
 <style>
   :root {
@@ -41,7 +47,10 @@
   <main class="explainer-shell" data-explainer-shell>
     <div class="explainer-topbar">
       <a class="explainer-back" href="index.html#explainers">← Back to explainers</a>
-      <a class="explainer-source" data-explainer-source href="https://github.com/yakew7/Fair-Code" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+      <div class="explainer-topbar-actions">
+        <a class="explainer-source" data-explainer-source href="https://github.com/yakew7/Fair-Code" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="explainer-theme-toggle" id="explainerThemeToggle" aria-label="Toggle theme">☀</button>
+      </div>
     </div>
 
     <section class="explainer-hero">
@@ -57,5 +66,27 @@
 
   <script src="assets/explainers-data.js"></script>
   <script src="assets/explainers-ui.js"></script>
+  <script>
+    (function () {
+      const toggle = document.getElementById('explainerThemeToggle');
+      const html = document.documentElement;
+
+      function syncTheme() {
+        const current = html.getAttribute('data-theme') || 'dark';
+        toggle.textContent = current === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', current === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+      }
+
+      syncTheme();
+
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        syncTheme();
+      });
+    })();
+  </script>
 </body>
 </html>
