@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fair Code Explainer</title>
+<meta name="description" content="Open explainer from Fair Code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/explainers.css">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #131620;
+    --border: #1e2130;
+    --border2: #262a3a;
+    --accent: #c9a84c;
+    --text: #d4cfc0;
+    --muted: #b0aec0;
+    --white: #ede8dc;
+  }
+
+  html[data-theme="light"] {
+    --bg: #f2ede4;
+    --surface: #ece6da;
+    --border: #c8bfaa;
+    --border2: #b5aa94;
+    --accent: #1a3a6b;
+    --text: #1c1810;
+    --muted: #5a5040;
+    --white: #0e0c08;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text); }
+  a { color: inherit; }
+</style>
+</head>
+<body class="explainer-page">
+  <main class="explainer-shell" data-explainer-shell>
+    <div class="explainer-topbar">
+      <a class="explainer-back" href="index.html#explainers">← Back to explainers</a>
+      <a class="explainer-source" data-explainer-source href="https://github.com/yakew7/Fair-Code" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+    </div>
+
+    <section class="explainer-hero">
+      <div class="explainer-kicker">Explainer</div>
+      <h1 class="explainer-headline" data-explainer-title>Loading…</h1>
+      <p class="explainer-lede" data-explainer-subtitle></p>
+      <p class="explainer-lede" data-explainer-summary></p>
+    </section>
+
+    <p class="explainer-status" data-explainer-status>Loading explainer...</p>
+    <article class="explainer-content" data-explainer-content></article>
+  </main>
+
+  <script src="assets/explainers-data.js"></script>
+  <script src="assets/explainers-ui.js"></script>
+</body>
+</html>

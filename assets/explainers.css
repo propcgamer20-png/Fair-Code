@@ -1,0 +1,293 @@
+/* Explainer cards */
+.explainer-section-note {
+  max-width: 860px;
+  margin: 18px 0 26px;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 13px;
+}
+
+.explainer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.explainer-card {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent), var(--bg));
+  min-height: 100%;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 0 0 transparent;
+  content-visibility: auto;
+  contain-intrinsic-size: 260px;
+}
+
+.explainer-card:hover,
+.explainer-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+.explainer-card .explainer-num {
+  margin-bottom: 10px;
+}
+
+.explainer-card .explainer-title {
+  font-size: clamp(18px, 2vw, 28px);
+  margin-bottom: 10px;
+}
+
+.explainer-card .explainer-tagline {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: none;
+  font-style: normal;
+}
+
+.explainer-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  min-height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.explainer-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.explainer-arrow {
+  color: var(--accent);
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.explainer-summary {
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 13px;
+}
+
+.explainer-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.explainer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border2);
+  padding: 5px 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 8px;
+}
+
+.explainer-link-copy {
+  color: var(--accent);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Detail page */
+.explainer-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.explainer-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 20px 72px;
+}
+
+.explainer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.explainer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 9px;
+}
+
+.explainer-back:hover,
+.explainer-source:hover {
+  color: var(--accent);
+}
+
+.explainer-source {
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 9px;
+}
+
+.explainer-hero {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 28px;
+  margin-bottom: 22px;
+}
+
+.explainer-kicker {
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.explainer-headline {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.explainer-lede {
+  max-width: 760px;
+  color: var(--muted);
+  line-height: 1.9;
+  font-size: 14px;
+}
+
+.explainer-status {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 16px 0 22px;
+}
+
+.explainer-content {
+  display: grid;
+  gap: 22px;
+}
+
+.explainer-content h2,
+.explainer-content h3,
+.explainer-content h4,
+.explainer-content h5,
+.explainer-content h6 {
+  font-family: 'Syne', sans-serif;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.explainer-content h2 { font-size: clamp(22px, 3vw, 34px); margin-top: 10px; }
+.explainer-content h3 { font-size: clamp(18px, 2vw, 24px); margin-top: 8px; }
+.explainer-content p,
+.explainer-content li {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--text);
+}
+
+.explainer-content p { margin: 0; }
+.explainer-content ul {
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.explainer-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--muted);
+}
+
+.explainer-content pre {
+  overflow: auto;
+  background: #0c0f15;
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.explainer-content code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.95em;
+  background: var(--border);
+  color: var(--accent);
+  padding: 1px 5px;
+}
+
+.explainer-content pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--text);
+}
+
+.explainer-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+.explainer-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.explainer-table th,
+.explainer-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.explainer-table th {
+  color: var(--accent);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+}
+
+@media (max-width: 1100px) {
+  .explainer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .explainer-shell { padding-inline: 14px; }
+  .explainer-grid { grid-template-columns: 1fr; }
+  .explainer-hero { padding: 22px; }
+  .explainer-card-link { padding: 20px; }
+}
