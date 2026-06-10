@@ -640,8 +640,6 @@ Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 The full project is at **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)** — everything in this repo presented visually, with before/after terminal outputs, bias bar charts, search and filter across all audits and explainers, copy buttons on every code block, share links per audit, and light/dark mode.
 
-Built as a single `index.html` — no framework, no build step.
-
 ---
 
 ## Connect
