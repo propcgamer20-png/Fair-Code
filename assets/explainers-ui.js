@@ -1,6 +1,15 @@
 (function () {
   const repoUrl = 'https://github.com/yakew7/Fair-Code';
   const explainers = window.FAIR_CODE_EXPLAINERS || [];
+  const projectAnchors = {
+    'COMPAS': 'project-compas',
+    'AI Fair Recruitment': 'project-hiring',
+    'Ai Fair Recrutment Dataset': 'project-hiring',
+    'German Credit Lending': 'project-credit',
+    'Insurance Denial': 'project-insurance',
+    'Benefits Denial': 'project-benefits',
+    'Healthcare Readmission': 'project-readmission',
+  };
 
   function escapeHtml(value) {
     return String(value)
@@ -20,15 +29,48 @@
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
         const trimmed = url.trim();
         const isExternal = /^(?:[a-z]+:)/i.test(trimmed);
-        const resolved = /^(?:[a-z]+:|#|\/)/i.test(trimmed)
-          ? trimmed
-          : trimmed.startsWith('../')
-            ? trimmed.replace(/^\.\.\//, '')
-            : (/\.md(?:#.*)?$/i.test(trimmed) || explainers.some(entry => trimmed === `${entry.slug}.md` || trimmed.startsWith(`${entry.slug}.md#`)))
-              ? `explainers/${trimmed}`
-              : trimmed;
+        const resolved = resolveLinkTarget(trimmed);
         return `<a href="${escapeHtml(resolved)}"${isExternal ? ' target="_blank" rel="noreferrer noopener"' : ''}>${label}</a>`;
       });
+  }
+
+  function resolveLinkTarget(url) {
+    if (/^(?:[a-z]+:|#|\/)/i.test(url)) {
+      return url;
+    }
+
+    const hashIndex = url.indexOf('#');
+    const queryIndex = url.indexOf('?');
+    const pathEnd = [hashIndex, queryIndex].filter(index => index !== -1).sort((a, b) => a - b)[0] ?? url.length;
+    const rawPath = url.slice(0, pathEnd);
+    const suffix = url.slice(pathEnd);
+    const normalizedPath = decodeURIComponent(rawPath.replace(/^\.\.\//, '').replace(/^\.\//, ''));
+    const cleanPath = normalizedPath.replace(/\/+$/, '');
+    const basename = cleanPath.split('/').pop() || cleanPath;
+    const baseWithoutExt = basename.replace(/\.md$/i, '');
+
+    if (/\.md$/i.test(basename) && explainers.some(entry => entry.slug === baseWithoutExt)) {
+      return `explainer.html?slug=${encodeURIComponent(baseWithoutExt)}${suffix}`;
+    }
+
+    if (projectAnchors[cleanPath] || projectAnchors[basename]) {
+      const anchor = projectAnchors[cleanPath] || projectAnchors[basename];
+      return `index.html#${anchor}${suffix}`;
+    }
+
+    if (/\.md$/i.test(basename)) {
+      return `explainer.html?slug=${encodeURIComponent(baseWithoutExt)}${suffix}`;
+    }
+
+    return url.startsWith('../') ? cleanPath : url;
+  }
+
+  function slugifyHeading(text) {
+    return String(text)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
   function parseTable(lines, startIndex) {
@@ -65,6 +107,7 @@
     let codeLines = [];
     let codeLang = '';
     let inCode = false;
+    const headingCounts = new Map();
 
     function flushParagraph() {
       if (paragraph.length) {
@@ -149,7 +192,12 @@
         flushList();
         flushQuote();
         const level = headingMatch[1].length;
-        blocks.push(`<h${level}>${inlineMarkdown(headingMatch[2])}</h${level}>`);
+        const headingText = headingMatch[2];
+        const baseId = slugifyHeading(headingText);
+        const nextCount = (headingCounts.get(baseId) || 0) + 1;
+        headingCounts.set(baseId, nextCount);
+        const headingId = nextCount === 1 ? baseId : `${baseId}-${nextCount}`;
+        blocks.push(`<h${level} id="${escapeHtml(headingId)}">${inlineMarkdown(headingText)}</h${level}>`);
         continue;
       }
 
