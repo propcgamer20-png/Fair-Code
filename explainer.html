@@ -7,40 +7,57 @@
 <meta name="description" content="Open explainer from Fair Code.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script>
   (function () {
-    const saved = localStorage.getItem('fc-theme') || 'dark';
+    const saved = localStorage.getItem('fc-theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
   })();
 </script>
 <link rel="stylesheet" href="assets/explainers.css">
 <style>
   :root {
-    --bg: #0d0f14;
-    --surface: #131620;
-    --border: #1e2130;
-    --border2: #262a3a;
-    --accent: #c9a84c;
-    --text: #d4cfc0;
-    --muted: #b0aec0;
-    --white: #ede8dc;
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
   }
 
-  html[data-theme="light"] {
-    --bg: #f2ede4;
-    --surface: #ece6da;
-    --border: #c8bfaa;
-    --border2: #b5aa94;
-    --accent: #1a3a6b;
-    --text: #1c1810;
-    --muted: #5a5040;
-    --white: #0e0c08;
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
   }
 
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text); }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
   a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 </style>
 </head>
 <body class="explainer-page">
