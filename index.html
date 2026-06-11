@@ -82,7 +82,7 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html, body { max-width: 100%; overflow-x: hidden; }
+  html, body { max-width: 100%; overflow-x: clip; }
 
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
@@ -104,7 +104,7 @@
     font-size: 16px;
     font-weight: 400;
     line-height: 1.6;
-    overflow-x: hidden;
+    overflow-x: clip;
     transition: background 0.3s, color 0.3s;
     -webkit-font-smoothing: antialiased;
   }
