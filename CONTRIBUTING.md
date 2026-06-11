@@ -261,6 +261,7 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `reinforcement-learning.md` | How RL agents learn from reward signals — and why that makes bias hard to see and harder to fix |
 | `proxy-entanglement.md` | Why removing proxies one at a time fails when multiple features encode the same protected signal through correlated, redundant channels |
 | `ml-bias.md` | The four entry points — training data, labels, proxies, and feedback loops — that let bias enter a model, with detection code and real examples |
+| `data-leakage.md` | Why a model that scores 99% on every internal test can still fail at deployment — target leakage, train-test contamination, and detection code |
 
 ### A good explainer should include
 

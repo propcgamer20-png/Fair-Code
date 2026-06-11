@@ -4,6 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.2] — 11 Jun 2026
+### Added
+- Explainer: What Is Data Leakage? — `data-leakage.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering the two primary forms: target leakage (features that encode downstream effects of the outcome being predicted) and train-test contamination (preprocessing, feature selection, or aggregation run before the train/test split)
+  - Four-row domain table: credit default, healthcare readmission, criminal justice, and insurance denial — each with the specific leaking feature and the causal reason it is leakage
+  - Real-world proof anchored to Audit 01 (COMPAS): `CustodyStatus` as a leaking proxy — encodes prior system contact, which encodes historical over-policing; removing it alongside `race` reduces the Black/White fairness gap from 86.77% to 15.69% (71% reduction)
+  - Detection code: `detect_target_leakage()` — point-biserial correlation for continuous features and Cramér's V for categorical ones, with configurable threshold flag; `check_preprocessing_leakage()` — fits a StandardScaler on train-only, then measures train/test mean deviation to surface splits that were contaminated before fitting
+  - Five numbered limitations: correlation vs. causation, aggregate feature leakage, time-series temporal splitting requirement, SMOTE application order, and the insufficiency of high test scores as proof of clean data
+  - Cross-links to proxy-variables, label-bias, sampling-bias, ml-bias, and ai-hallucinations explainers; related project links to COMPAS, Healthcare Readmission, and Benefits Denial audit folders
+  - Further reading: Kaufman et al. *ACM TKDD* (2012), Kapoor & Narayanan *Patterns* (2023), Nisbet et al. *Handbook of Statistical Analysis* (2018)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `data-leakage.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `data-leakage.md` added to existing explainers table
+
+---
+
 ## [1.1.1] — 10 Jun 2026
 ### Added
 - Explainer: What Is Machine Learning Bias? — `ml-bias.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`

@@ -125,4 +125,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Understand how bias enters AI systems through training data, labels, proxy variables, and feedback loops — with detection code and real examples from every audit in this repo.',
     tags: ['detection', 'data', 'explainability'],
   },
+  {
+    slug: 'data-leakage',
+    title: 'What Is Data Leakage?',
+    subtitle: 'When the model has already seen the answer sheet.',
+    summary: 'Data leakage contaminates a model\'s training signal with information unavailable at deployment, producing evaluation scores that overstate real-world performance. Learn to identify target leakage and train-test contamination — and detect both before they ship.',
+    tags: ['data', 'detection'],
+  },
 ];
