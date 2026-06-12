@@ -263,6 +263,7 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `ml-bias.md` | The four entry points — training data, labels, proxies, and feedback loops — that let bias enter a model, with detection code and real examples |
 | `data-leakage.md` | Why a model that scores 99% on every internal test can still fail at deployment — target leakage, train-test contamination, and detection code |
 | `how-ai-detects-patterns.md` | How a Random Forest detects patterns through splits, aggregation, and feature importance, and why it can't distinguish causal patterns from discriminatory ones |
+| `distribution-shift.md` | Why a model that passes a fairness audit can become biased again as the population it serves changes |
 
 ### A good explainer should include
 
