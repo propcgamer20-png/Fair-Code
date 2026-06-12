@@ -132,4 +132,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Data leakage contaminates a model\'s training signal with information unavailable at deployment, producing evaluation scores that overstate real-world performance. Learn to identify target leakage and train-test contamination — and detect both before they ship.',
     tags: ['data', 'detection'],
   },
+  {
+    slug: 'how-ai-detects-patterns',
+    title: 'How AI Detects Patterns',
+    subtitle: 'A model can\'t tell a cause from a proxy',
+    summary: 'Learn how a Random Forest finds patterns through splits, tree aggregation, and feature importance. See why a high importance score means reliance, not justification.',
+    tags: ['explainability'],
+  },
 ];
