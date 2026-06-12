@@ -4,6 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.3] — 12 Jun 2026
+### Added
+- Explainer: How AI Detects Patterns — `how-ai-detects-patterns.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering how a Random Forest Classifier detects patterns through three mechanisms: feature-threshold splitting, aggregation across trees, and feature importance ranking
+  - Three-part mechanism breakdown showing why the model has no built-in distinction between a causal pattern and a discriminatory one
+  - Real-world proof anchored to Audit 01 (COMPAS): `race` (0.18 importance) and `CustodyStatus` (0.31 importance) both score highly because both correlate with the recidivism label; removing both reduces the Black/White fairness gap from 86.77% to 15.69% (71% reduction)
+  - Detection code: `get_pattern_reliance()` — extracts and ranks `feature_importances_` from a fitted RandomForestClassifier; `flag_correlated_patterns()` — chi-squared for categorical features and Pearson correlation for continuous ones, flags features correlated with a protected attribute at p < 0.05
+  - Four numbered limitations: importance vs. causation, pattern redistribution after feature removal, small-subgroup instability, and the inability of pattern detection to judge legitimacy
+  - Cross-links to proxy-variables, neural-networks, shap-values, and proxy-entanglement explainers; related project links to COMPAS, Healthcare Readmission, and AI Fair Recruitment audit folders
+  - Further reading: Breiman *Machine Learning* (2001), Lundberg & Lee *NeurIPS* (2017), Barocas, Hardt & Narayanan (fairmlbook.org)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `how-ai-detects-patterns.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `how-ai-detects-patterns.md` added to existing explainers table
+
+---
+
 ## [1.1.2] — 11 Jun 2026
 ### Added
 - Explainer: What Is Data Leakage? — `data-leakage.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
