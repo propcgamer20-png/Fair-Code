@@ -139,4 +139,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Learn how a Random Forest finds patterns through splits, tree aggregation, and feature importance. See why a high importance score means reliance, not justification.',
     tags: ['explainability'],
   },
+  {
+    slug: 'distribution-shift',
+    title: 'Distribution Shift',
+    subtitle: 'A fairness audit is only valid for the data it was run on',
+    summary: 'Learn why a model that passes a bias audit at launch can drift back into bias as the population it serves changes over time. Covers covariate shift, label shift, and concept drift, with detection code for monitoring both.',
+    tags: ['data', 'detection'],
+  },
 ];
