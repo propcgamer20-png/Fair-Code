@@ -4,6 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.4] — 13 Jun 2026
+### Added
+- Explainer: What Is Distribution Shift? — `distribution-shift.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering how a model's learned patterns stop matching reality once production data diverges from training data, breaking the assumption that a fairness audit done once stays valid
+  - Three-part taxonomy: covariate shift (P(X) changes), label shift (P(Y) changes), and concept drift (P(Y|X) changes)
+  - Real-world proof anchored to Audit 06 (Healthcare Readmission): the 1999-2008 pooled dataset spans payer mix and discharge practice changes that can shift `payer_code` distributions enough to alter the race-related fairness gap without any model retraining
+  - Detection code: `detect_covariate_shift()` — KS test for continuous features and chi-squared for categorical features, comparing reference vs. current distributions; `detect_label_shift()` — chi-squared comparison of outcome rate distributions across time periods
+  - Five numbered limitations: statistical vs. practical significance, drift direction vs. fairness direction, concept drift's invisibility to input tests, arbitrary reference window choice, and small-subgroup statistical instability
+  - Cross-links to sampling-bias, feedback-loop-bias, data-leakage, and ml-bias explainers; related project links to Healthcare Readmission and German Credit Lending audit folders
+  - Further reading: Quiñonero-Candela et al. (2009, MIT Press), Lipton et al. *ICML* (2018), Rabanser et al. *NeurIPS* (2019)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `distribution-shift.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `distribution-shift.md` added to existing explainers table
+
+---
+
 ## [1.1.3] — 12 Jun 2026
 ### Added
 - Explainer: How AI Detects Patterns — `how-ai-detects-patterns.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
