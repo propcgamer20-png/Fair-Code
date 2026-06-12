@@ -139,7 +139,8 @@ Fair-Code/
 │   ├── reinforcement-learning.md
 │   ├── proxy-entanglement.md
 │   ├── ml-bias.md
-│   └── data-leakage.md
+│   ├── data-leakage.md
+│   └── how-ai-detects-patterns.md
 │
 ├── CHANGELOG.md
 ├── CITATION.cff
@@ -520,6 +521,7 @@ features = [
 | [What Is Proxy Entanglement?](explainers/proxy-entanglement.md) | Why removing proxies one at a time fails when multiple features encode the same protected signal through correlated, redundant channels |
 | [What Is Machine Learning Bias?](explainers/ml-bias.md) | The four entry points — training data, labels, proxies, and feedback loops — that let bias enter a model, with detection code and real examples from every audit |
 | [What Is Data Leakage?](explainers/data-leakage.md) | Why a model that scores 99% on every test can still fail completely at deployment — and how to find the contamination before it ships |
+| [How Does AI Detect Patterns?](explainers/how-ai-detects-patterns.md) | How a Random Forest finds patterns through splits, aggregation, and feature importance — and why it can't tell a causal pattern from a discriminatory one |
 
 ---
 
@@ -630,6 +632,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: Proxy Entanglement
 - [x] Explainer: What Is Machine Learning Bias
 - [x] Explainer: What Is Data Leakage
+- [x] Explainer: How AI Detects Patterns
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
