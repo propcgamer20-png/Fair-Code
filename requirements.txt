@@ -16,7 +16,7 @@ scipy>=1.15.3          # chi2_contingency for proxy variable detection
 shap>=0.52.0           # SHAP values — feature attribution & bias auditing
 
 # ── Fairness metrics ──────────────────────────────────────────────────────
-fairlearn>=0.13.0      # MetricFrame, equalized odds, demographic parity ratio
+fairlearn>=0.14.0      # MetricFrame, equalized odds, demographic parity ratio
 
 # ── Visualisation ─────────────────────────────────────────────────────────
 matplotlib>=3.10.9     # Bias bar charts, fairness trade-off plots
