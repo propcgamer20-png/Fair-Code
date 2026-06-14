@@ -146,4 +146,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Learn why a model that passes a bias audit at launch can drift back into bias as the population it serves changes over time. Covers covariate shift, label shift, and concept drift, with detection code for monitoring both.',
     tags: ['data', 'detection'],
   },
+  {
+    slug: 'ai-objectivity-myth',
+    title: 'The Biggest Myth About AI Objectivity',
+    subtitle: '"It\'s just math" is not a defense',
+    summary: 'Learn why statistical models trained on biased history reproduce that bias regardless of intent. See how COMPAS\'s "neutral" risk score hid an 86.77% fairness gap until the right proxies were found.',
+    tags: ['data', 'explainability'],
+  },
 ];
