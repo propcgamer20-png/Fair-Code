@@ -4,6 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.5] — 14 Jun 2026
+### Added
+- Explainer: The Biggest Myth About AI Objectivity — `ai-objectivity-myth.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering the false belief that statistical models are inherently neutral because they aren't human, and why "it's just math" fails as a defense once a model is trained on historically biased data
+  - Three load-bearing assumptions broken down: "statistics don't have opinions," "removing the protected attribute removes the bias," and "high accuracy means the model is correct"
+  - Real-world proof anchored to Audit 01 (COMPAS): an 86.77% fairness gap in a tool marketed as a neutral, statistically validated risk score used in court decisions for over a million people a year, reduced to 15.69% (71% reduction) only after removing both `race` and the proxy `CustodyStatus`
+  - Detection code: `audit_objectivity_claim()` — computes per-group positive prediction rates and the resulting fairness gap against a configurable threshold; `find_features_explaining_gap()` — chi-squared and Pearson correlation proxy screen against a protected attribute
+  - Four numbered limitations: audits as snapshots not guarantees, objectivity vs. explainability, the myth surviving relocation to fairness-metric choice, and the myth re-forming around the next model after one audit
+  - Cross-links to ml-bias, proxy-variables, label-bias, and how-ai-detects-patterns explainers; related project links to COMPAS, Benefits Denial, and Healthcare Readmission audit folders
+  - Further reading: O'Neil *Weapons of Math Destruction* (2016), Angwin et al. ProPublica *Machine Bias* (2016), Barocas, Hardt & Narayanan (fairmlbook.org)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `ai-objectivity-myth.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `ai-objectivity-myth.md` added to existing explainers table
+
+---
+
 ## [1.1.4] — 13 Jun 2026
 ### Added
 - Explainer: What Is Distribution Shift? — `distribution-shift.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
