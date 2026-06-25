@@ -37,6 +37,7 @@
 
 - [What This Is](#what-this-is)
 - [Results at a Glance](#results-at-a-glance)
+- [Healthcare AI Bias Focus](#healthcare-ai-bias-focus)
 - [Repository Structure](#repository-structure)
 - [Projects](#projects)
 - [Explainers](#explainers)
@@ -44,7 +45,10 @@
 - [Why This Matters](#why-this-matters)
 - [Getting Started](#getting-started)
 - [Tech Stack](#tech-stack)
+- [Traction](#traction)
+- [Contributors](#contributors)
 - [What's Next](#whats-next)
+- [Roadmap](#roadmap)
 - [Website](#website)
 - [Connect](#connect)
 
@@ -81,6 +85,27 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 | 06 | [Healthcare Readmission](#06--healthcare-readmission--clinical-bias) | Race, Gender, Age | Payer Code, Discharge Disposition, Medical Specialty, Prior Inpatient | Gender: 0.02% → 0.04% | **+100% ↑** |
 | ↳  | | | | Race: 0.08% → 0.06% | **25%** |
 | ↳  | | | | Age: 0.28% → 0.09% | **68%** |
+
+---
+
+## Healthcare AI Bias Focus
+
+Fair Code has a particular focus on bias in healthcare AI — because the consequences there are not financial or professional. They are clinical.
+
+Three of the six audits are healthcare or welfare-system models. Each demonstrates the same pattern: an algorithm trained on historical health data learns to penalise patients not for their medical risk, but for the structural inequalities baked into their access to care.
+
+**Key healthcare audits:**
+
+- **[Insurance Denial](Insurance%20Denial/)** — An insurance model uses BMI, smoking status, and diabetic status as proxies for race and class, flagging older and female patients for high-cost claims at elevated rates unrelated to actual medical risk.
+- **[Benefits Denial](Benefits%20Denial/)** — An automated welfare means-test flags men for ineligibility at 18 percentage points higher than women — not because of income, but because of who they are married to.
+- **[Healthcare Readmission](Healthcare%20Readmission/)** — A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity.
+
+**Upcoming healthcare AI explainers:**
+
+- Why Accuracy Is Not Enough in Healthcare AI — why a 95% accurate model can still systematically miss high-risk patients from specific demographic groups
+- False Positives and False Negatives in Medical Risk Models — how the direction of error matters, and why false negatives cluster in historically undertreated groups
+
+This directly connects Fair Code to the broader responsible AI in healthcare conversation — where CardioAI, clinical risk scores, and insurance triage tools are increasingly making consequential decisions without demographic audits.
 
 ---
 
@@ -639,12 +664,45 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: How AI Detects Patterns
 - [x] Explainer: What Is Distribution Shift
 - [x] Explainer: The Biggest Myth About AI Objectivity
+- [ ] Explainer: Why Accuracy Is Not Enough in Healthcare AI
+- [ ] Explainer: False Positives and False Negatives in Medical Risk Models
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
 - [ ] Fairness audit web dashboard
 
 Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Roadmap
+
+The full public roadmap — with phases, completion status, and content schedule — is in [ROADMAP.md](ROADMAP.md).
+
+---
+
+## Traction
+
+| Metric | Count |
+|--------|------:|
+| GitHub Stars | 27+ |
+| External Contributors | 7+ |
+| Forks | 8+ |
+| Combined Social Reach (Instagram + LinkedIn) | ~10K |
+| Code Audits Published | 6 |
+| Explainers Published | 22 |
+
+Tracked weekly in [METRICS.md](METRICS.md).
+
+---
+
+## Contributors
+
+Thanks to everyone who has contributed audits, explainers, or documentation to Fair Code.
+
+<!-- Contributors are listed automatically via GitHub's contributor graph. To add yourself here, open a PR and add your GitHub handle below. -->
+
+See the full contributor list on [GitHub](https://github.com/yakew7/Fair-Code/graphs/contributors).
 
 ---
 
