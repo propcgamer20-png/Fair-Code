@@ -5,7 +5,7 @@
 # Python 3.8+ required
 
 # ── Core data & ML ────────────────────────────────────────────────────────
-numpy>=2.5.0           # Numerical ops (pandas/sklearn dependency)
+numpy>=2.4.6,<2.5      # shap→numba 0.65.1 requires numpy<2.5
 pandas>=3.0.3          # DataFrames, CSV loading, crosstabs
 scikit-learn>=1.9.0    # RandomForestClassifier, train/test split, metrics
 
