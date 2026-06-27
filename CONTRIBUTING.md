@@ -265,6 +265,7 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `how-ai-detects-patterns.md` | How a Random Forest detects patterns through splits, aggregation, and feature importance, and why it can't distinguish causal patterns from discriminatory ones |
 | `distribution-shift.md` | Why a model that passes a fairness audit can become biased again as the population it serves changes |
 | `ai-objectivity-myth.md` | Why "it's just math" isn't a defense — models trained on biased history reproduce that bias |
+| `confounding-variable.md` | How a hidden third variable creates spurious correlations that persist after protected-attribute removal — and how to detect and adjust for it |
 
 ### A good explainer should include
 

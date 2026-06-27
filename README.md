@@ -167,7 +167,8 @@ Fair-Code/
 │   ├── data-leakage.md
 │   ├── how-ai-detects-patterns.md
 │   ├── distribution-shift.md
-│   └── ai-objectivity-myth.md
+│   ├── ai-objectivity-myth.md
+│   └── confounding-variable.md
 │
 ├── CHANGELOG.md
 ├── CITATION.cff
@@ -551,6 +552,7 @@ features = [
 | [How Does AI Detect Patterns?](explainers/how-ai-detects-patterns.md) | How a Random Forest finds patterns through splits, aggregation, and feature importance — and why it can't tell a causal pattern from a discriminatory one |
 | [What Is Distribution Shift?](explainers/distribution-shift.md) | Why a model that passes a bias audit at deployment can become biased again as the population it serves changes |
 | [The Biggest Myth About AI Objectivity](explainers/ai-objectivity-myth.md) | Why "it's just math" isn't a defense — models trained on biased history produce biased outcomes, and the math just makes them harder to challenge |
+| [What Is a Confounding Variable?](explainers/confounding-variable.md) | How a hidden third variable creates spurious correlations between a feature and an outcome — and why removing the protected attribute leaves the bias intact until the confounder is removed too |
 
 ---
 
@@ -664,6 +666,7 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [x] Explainer: How AI Detects Patterns
 - [x] Explainer: What Is Distribution Shift
 - [x] Explainer: The Biggest Myth About AI Objectivity
+- [x] Explainer: What Is a Confounding Variable?
 - [ ] Explainer: Why Accuracy Is Not Enough in Healthcare AI
 - [ ] Explainer: False Positives and False Negatives in Medical Risk Models
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
@@ -690,7 +693,7 @@ The full public roadmap — with phases, completion status, and content schedule
 | Forks | 8+ |
 | Combined Social Reach (Instagram + LinkedIn) | ~10K |
 | Code Audits Published | 6 |
-| Explainers Published | 22 |
+| Explainers Published | 23 |
 
 Tracked weekly in [METRICS.md](METRICS.md).
 

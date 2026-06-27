@@ -153,4 +153,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Learn why statistical models trained on biased history reproduce that bias regardless of intent. See how COMPAS\'s "neutral" risk score hid an 86.77% fairness gap until the right proxies were found.',
     tags: ['data', 'explainability'],
   },
+  {
+    slug: 'confounding-variable',
+    title: 'Confounding Variable',
+    subtitle: 'When a hidden cause makes two things look connected.',
+    summary: 'Learn how a third variable that independently causes both a feature and an outcome creates spurious correlations that survive protected-attribute removal. See why COMPAS stayed biased after race was dropped — until the confounder was removed too.',
+    tags: ['detection', 'data'],
+  },
 ];

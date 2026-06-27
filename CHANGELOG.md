@@ -4,6 +4,23 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.1.6] — 27 Jun 2026
+### Added
+- Explainer: What Is a Confounding Variable? — `confounding-variable.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering how a third variable that independently causes both an input feature and an outcome creates spurious statistical associations that survive protected-attribute removal — and how to distinguish confounders from proxy variables and colliders
+  - Proxy vs. confounder distinction table showing the difference in mechanism, causal direction, and correct mitigation strategy
+  - Real-world proof anchored to Audit 01 (COMPAS): dropping `race` alone leaves the Black/White fairness gap at ~84%; removing both `race` and the confounder `CustodyStatus` reduces the gap from 86.77% to 15.69% (71% reduction)
+  - Detection code: `check_confounding()` — chi-squared marginal association test, stratified analysis within confounder levels, and optional confounder-vs-protected-attribute association test using `scipy.stats.chi2_contingency`
+  - Five numbered limitations: effect modification vs. confounding, unmeasured confounders, collider bias from over-adjustment, residual bias after removal, and variance amplification from propensity adjustment
+  - Cross-links to proxy-variables, counterfactual-fairness, disparate-impact, and feedback-loop-bias explainers; related project links to COMPAS, Benefits Denial, and Healthcare Readmission audit folders
+  - Further reading: Pearl *Causality* (2009, Cambridge), Obermeyer et al. *Science* (2019), VanderWeele & Shpitser *Annals of Statistics* (2013)
+  - Roadmap updated on website
+### Changed
+- `README.md`: `confounding-variable.md` added to explainers table, repository structure tree, and What's Next checklist; explainer count updated 22 → 23
+- `CONTRIBUTING.md`: `confounding-variable.md` added to existing explainers table
+
+---
+
 ## [1.1.5] — 14 Jun 2026
 ### Added
 - Explainer: The Biggest Myth About AI Objectivity — `ai-objectivity-myth.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`

@@ -49,6 +49,7 @@ Build the foundational vocabulary and explain core fairness concepts clearly eno
 - [x] How AI Detects Patterns
 - [x] What Is Distribution Shift
 - [x] The Biggest Myth About AI Objectivity
+- [x] What Is a Confounding Variable?
 
 ---
 
