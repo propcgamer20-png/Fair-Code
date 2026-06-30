@@ -4,106 +4,39 @@ All notable changes to Fair Code are documented here.
 
 ---
 
-## [1.1.6] — 27 Jun 2026
-### Added
-- Explainer: What Is a Confounding Variable? — `confounding-variable.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering how a third variable that independently causes both an input feature and an outcome creates spurious statistical associations that survive protected-attribute removal — and how to distinguish confounders from proxy variables and colliders
-  - Proxy vs. confounder distinction table showing the difference in mechanism, causal direction, and correct mitigation strategy
-  - Real-world proof anchored to Audit 01 (COMPAS): dropping `race` alone leaves the Black/White fairness gap at ~84%; removing both `race` and the confounder `CustodyStatus` reduces the gap from 86.77% to 15.69% (71% reduction)
-  - Detection code: `check_confounding()` — chi-squared marginal association test, stratified analysis within confounder levels, and optional confounder-vs-protected-attribute association test using `scipy.stats.chi2_contingency`
-  - Five numbered limitations: effect modification vs. confounding, unmeasured confounders, collider bias from over-adjustment, residual bias after removal, and variance amplification from propensity adjustment
-  - Cross-links to proxy-variables, counterfactual-fairness, disparate-impact, and feedback-loop-bias explainers; related project links to COMPAS, Benefits Denial, and Healthcare Readmission audit folders
-  - Further reading: Pearl *Causality* (2009, Cambridge), Obermeyer et al. *Science* (2019), VanderWeele & Shpitser *Annals of Statistics* (2013)
-  - Roadmap updated on website
+## [1.2.0] — "Open Tools & Causal Foundations" — 30 Jun 2026
+
+First release since **v1.1.0** (9 Jun 2026). The headline is the **Open Dataset Profiler** — Fair Code's first interactive, bring-your-own-data tool, turning the project from a showcase of six fixed audits into something visitors run on their own CSVs. This release also bundles the six explainers shipped between v1.1.0 and now, which deepen the causal and statistical foundations behind the audits.
+
+### Added — Open Dataset Profiler (CLI + web)
+- **`faircode/` Python package + CLI** — the diagnostic counterpart to the audits: instead of measuring a *model's* prediction gap, it audits a *dataset's* demographic representation **before any model is trained** (no model, no train/test split, no proxy removal). `pip install -e .` exposes a `faircode profile <csv>` command with terminal, `--json`, and `--html` output.
+  - Detects demographic columns (sex, race, age, geography) by tokenized, prefix-aware name matching; computes per-dimension metrics — subgroup shares, an entropy-based balance score (0–100) with A–F grade, imbalance ratio, under-represented groups (<5%), missing-data %, numeric-age skewness, and intersectional gaps — all defined once in `faircode/SPEC.md`
+  - Pure **pandas**; deliberately **does not depend on `ydata-profiling`** (a heavy, general-purpose profiler) — only a thin, fairness-specific slice is needed, so the metrics are computed directly
+  - Domain-agnostic: validated on health (`insurance.csv`, `diabetic_data.csv`) and non-health (`adult.csv`, COMPAS) datasets; correctly handles numeric ages, `[70-80)`-style interval ages, and drops date-of-birth/identifier columns
+- **`profiler.html` — client-side web tool** — drop in a CSV (or hit "Try a sample") and get an instant representation audit in the browser. **The file never leaves the visitor's machine** — no upload, no backend — which matters for health data. Built in the "Audit Ledger" design system: score ring, per-dimension bar charts (green = balanced, red = under-represented), flags list, and intersectional gaps; light/dark theme; a `?demo` deep-link auto-loads the sample dataset
+- **`assets/profiler-engine.js`** — a JavaScript port of the Python engine, **verified bit-for-bit identical** to the CLI across every bundled dataset (same scores, dimensions, flags) by sharing the `faircode/SPEC.md` spec
+- **Tests + CI** — `tests/test_profiler.py` (14 tests) and a dedicated `profiler` job in `.github/workflows/audits.yml` that runs the tests and smoke-tests the CLI on every push and PR
+- Wired into the site: a **Profiler** nav link and a feature callout on `index.html`
+
+### Added — Explainers (shipped since v1.1.0)
+- **What Is Machine Learning Bias?** — `ml-bias.md`: the four entry points through which bias enters a model (training data, labels, proxies, feedback loops); detection via `demographic_parity_report()` and `check_proxy()`; anchored to COMPAS *(prev. 1.1.1)*
+- **What Is Data Leakage?** — `data-leakage.md`: target leakage vs. train-test contamination; `detect_target_leakage()` and `check_preprocessing_leakage()`; anchored to COMPAS `CustodyStatus` *(prev. 1.1.2)*
+- **How AI Detects Patterns** — `how-ai-detects-patterns.md`: Random Forest splitting, aggregation, and feature importance, and why the model can't tell a causal pattern from a discriminatory one; `get_pattern_reliance()` and `flag_correlated_patterns()` *(prev. 1.1.3)*
+- **What Is Distribution Shift?** — `distribution-shift.md`: covariate / label / concept drift and why a one-time fairness audit expires; `detect_covariate_shift()` (KS + chi-squared) and `detect_label_shift()` *(prev. 1.1.4)*
+- **The Biggest Myth About AI Objectivity** — `ai-objectivity-myth.md`: why "it's just math" fails once a model is trained on biased history; `audit_objectivity_claim()` and `find_features_explaining_gap()`; anchored to COMPAS *(prev. 1.1.5)*
+- **What Is a Confounding Variable?** — `confounding-variable.md`: how a hidden third variable creates spurious associations that survive protected-attribute removal, and confounder vs. proxy vs. collider; `check_confounding()`; anchored to COMPAS *(prev. 1.1.6)*
+- Each explainer ships with a full write-up, detection code, numbered limitations, cross-links, and further reading, and was added to `index.html` (nav dropdown, ticker strips, roadmap), `README.md`, and `CONTRIBUTING.md`
+
+### Added — Tooling
+- `pyproject.toml` — packages the `faircode` console script (single dependency: pandas)
+
 ### Changed
-- `README.md`: `confounding-variable.md` added to explainers table, repository structure tree, and What's Next checklist; explainer count updated 22 → 23
-- `CONTRIBUTING.md`: `confounding-variable.md` added to existing explainers table
-
----
-
-## [1.1.5] — 14 Jun 2026
-### Added
-- Explainer: The Biggest Myth About AI Objectivity — `ai-objectivity-myth.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering the false belief that statistical models are inherently neutral because they aren't human, and why "it's just math" fails as a defense once a model is trained on historically biased data
-  - Three load-bearing assumptions broken down: "statistics don't have opinions," "removing the protected attribute removes the bias," and "high accuracy means the model is correct"
-  - Real-world proof anchored to Audit 01 (COMPAS): an 86.77% fairness gap in a tool marketed as a neutral, statistically validated risk score used in court decisions for over a million people a year, reduced to 15.69% (71% reduction) only after removing both `race` and the proxy `CustodyStatus`
-  - Detection code: `audit_objectivity_claim()` — computes per-group positive prediction rates and the resulting fairness gap against a configurable threshold; `find_features_explaining_gap()` — chi-squared and Pearson correlation proxy screen against a protected attribute
-  - Four numbered limitations: audits as snapshots not guarantees, objectivity vs. explainability, the myth surviving relocation to fairness-metric choice, and the myth re-forming around the next model after one audit
-  - Cross-links to ml-bias, proxy-variables, label-bias, and how-ai-detects-patterns explainers; related project links to COMPAS, Benefits Denial, and Healthcare Readmission audit folders
-  - Further reading: O'Neil *Weapons of Math Destruction* (2016), Angwin et al. ProPublica *Machine Bias* (2016), Barocas, Hardt & Narayanan (fairmlbook.org)
-  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
-### Changed
-- `README.md`: `ai-objectivity-myth.md` added to explainers table, repository structure tree, and What's Next checklist
-- `CONTRIBUTING.md`: `ai-objectivity-myth.md` added to existing explainers table
-
----
-
-## [1.1.4] — 13 Jun 2026
-### Added
-- Explainer: What Is Distribution Shift? — `distribution-shift.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering how a model's learned patterns stop matching reality once production data diverges from training data, breaking the assumption that a fairness audit done once stays valid
-  - Three-part taxonomy: covariate shift (P(X) changes), label shift (P(Y) changes), and concept drift (P(Y|X) changes)
-  - Real-world proof anchored to Audit 06 (Healthcare Readmission): the 1999-2008 pooled dataset spans payer mix and discharge practice changes that can shift `payer_code` distributions enough to alter the race-related fairness gap without any model retraining
-  - Detection code: `detect_covariate_shift()` — KS test for continuous features and chi-squared for categorical features, comparing reference vs. current distributions; `detect_label_shift()` — chi-squared comparison of outcome rate distributions across time periods
-  - Five numbered limitations: statistical vs. practical significance, drift direction vs. fairness direction, concept drift's invisibility to input tests, arbitrary reference window choice, and small-subgroup statistical instability
-  - Cross-links to sampling-bias, feedback-loop-bias, data-leakage, and ml-bias explainers; related project links to Healthcare Readmission and German Credit Lending audit folders
-  - Further reading: Quiñonero-Candela et al. (2009, MIT Press), Lipton et al. *ICML* (2018), Rabanser et al. *NeurIPS* (2019)
-  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
-### Changed
-- `README.md`: `distribution-shift.md` added to explainers table, repository structure tree, and What's Next checklist
-- `CONTRIBUTING.md`: `distribution-shift.md` added to existing explainers table
-
----
-
-## [1.1.3] — 12 Jun 2026
-### Added
-- Explainer: How AI Detects Patterns — `how-ai-detects-patterns.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering how a Random Forest Classifier detects patterns through three mechanisms: feature-threshold splitting, aggregation across trees, and feature importance ranking
-  - Three-part mechanism breakdown showing why the model has no built-in distinction between a causal pattern and a discriminatory one
-  - Real-world proof anchored to Audit 01 (COMPAS): `race` (0.18 importance) and `CustodyStatus` (0.31 importance) both score highly because both correlate with the recidivism label; removing both reduces the Black/White fairness gap from 86.77% to 15.69% (71% reduction)
-  - Detection code: `get_pattern_reliance()` — extracts and ranks `feature_importances_` from a fitted RandomForestClassifier; `flag_correlated_patterns()` — chi-squared for categorical features and Pearson correlation for continuous ones, flags features correlated with a protected attribute at p < 0.05
-  - Four numbered limitations: importance vs. causation, pattern redistribution after feature removal, small-subgroup instability, and the inability of pattern detection to judge legitimacy
-  - Cross-links to proxy-variables, neural-networks, shap-values, and proxy-entanglement explainers; related project links to COMPAS, Healthcare Readmission, and AI Fair Recruitment audit folders
-  - Further reading: Breiman *Machine Learning* (2001), Lundberg & Lee *NeurIPS* (2017), Barocas, Hardt & Narayanan (fairmlbook.org)
-  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
-### Changed
-- `README.md`: `how-ai-detects-patterns.md` added to explainers table, repository structure tree, and What's Next checklist
-- `CONTRIBUTING.md`: `how-ai-detects-patterns.md` added to existing explainers table
-
----
-
-## [1.1.2] — 11 Jun 2026
-### Added
-- Explainer: What Is Data Leakage? — `data-leakage.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering the two primary forms: target leakage (features that encode downstream effects of the outcome being predicted) and train-test contamination (preprocessing, feature selection, or aggregation run before the train/test split)
-  - Four-row domain table: credit default, healthcare readmission, criminal justice, and insurance denial — each with the specific leaking feature and the causal reason it is leakage
-  - Real-world proof anchored to Audit 01 (COMPAS): `CustodyStatus` as a leaking proxy — encodes prior system contact, which encodes historical over-policing; removing it alongside `race` reduces the Black/White fairness gap from 86.77% to 15.69% (71% reduction)
-  - Detection code: `detect_target_leakage()` — point-biserial correlation for continuous features and Cramér's V for categorical ones, with configurable threshold flag; `check_preprocessing_leakage()` — fits a StandardScaler on train-only, then measures train/test mean deviation to surface splits that were contaminated before fitting
-  - Five numbered limitations: correlation vs. causation, aggregate feature leakage, time-series temporal splitting requirement, SMOTE application order, and the insufficiency of high test scores as proof of clean data
-  - Cross-links to proxy-variables, label-bias, sampling-bias, ml-bias, and ai-hallucinations explainers; related project links to COMPAS, Healthcare Readmission, and Benefits Denial audit folders
-  - Further reading: Kaufman et al. *ACM TKDD* (2012), Kapoor & Narayanan *Patterns* (2023), Nisbet et al. *Handbook of Statistical Analysis* (2018)
-  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
-### Changed
-- `README.md`: `data-leakage.md` added to explainers table, repository structure tree, and What's Next checklist
-- `CONTRIBUTING.md`: `data-leakage.md` added to existing explainers table
-
----
-
-## [1.1.1] — 10 Jun 2026
-### Added
-- Explainer: What Is Machine Learning Bias? — `ml-bias.md` created, added to `index.html`, `README.md`, and `CONTRIBUTING.md`
-  - Full explainer covering the four entry points through which bias enters a model: training data bias (sampling misrepresentation), label bias (historical human decisions inherited by the target variable), proxy variables (protected signal surviving attribute removal via correlated features), and feedback loop bias (bias compounding across retraining cycles)
-  - Two-axis classification: disparate treatment (protected attribute used directly) vs. disparate impact (structural outcome disparity without direct use), with cross-links to both dedicated explainers
-  - Real-world proof anchored to Audit 01 (COMPAS): all four entry points demonstrated in a single production system — over-policing in training distribution, re-arrest as a biased label, `CustodyStatus` as a proxy for race, and feedback loop risk from score-influenced detention → reoffending → retraining
-  - Detection code: `demographic_parity_report()` for measuring group-level positive prediction rate gaps with automatic threshold flags (>20% likely Four-Fifths Rule breach, >5% proxy analysis recommended); `check_proxy()` chi-squared test for candidate proxy screening
-  - Fairness metric comparison table: demographic parity vs. equalized odds vs. predictive parity — with cross-link to [Why Fairness Metrics Conflict](fairness-metric-conflicts.md)
-  - Limitations: bias reduction vs. elimination, demographic label requirement for auditing, metric appropriateness by domain
-  - Cross-links to all eight related explainers and four related audits (COMPAS, AI Fair Recruitment, German Credit Lending, Benefits Denial)
-  - Further reading: Barocas, Hardt & Narayanan *Fairness and Machine Learning* (fairmlbook.org), ProPublica *Machine Bias* (2016), Obermeyer et al. *Science* (2019)
-  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
-### Changed
-- `README.md`: `ml-bias.md` added to explainers table, repository structure tree, and What's Next checklist
-- `CONTRIBUTING.md`: `ml-bias.md` added to existing explainers table
+- `README.md`: six new explainers added to the explainers table, repository-structure tree, and What's Next checklist (total: 23 explainers); new **Open Dataset Profiler** section and Contents entry; "Fairness audit web dashboard" and `faircode/` module boxes checked
+- `ROADMAP.md`: Phase 5 — "Fairness audit web dashboard" and "Bias detection utility library (`faircode/` module)" marked complete, pointing to the Profiler
+- `CONTRIBUTING.md`: six new explainers added to the explainers table
+- `CITATION.cff`: version `1.0.0` → `1.2.0`; release date updated to 2026-06-30; abstract extended to cover welfare-eligibility audits and the dataset profiler
+- `METRICS.md`: explainer count corrected to 23; week 2026-W27 snapshot noting the Profiler release
+- `.gitignore`: ignores Python build/cache artifacts (`__pycache__/`, `*.egg-info/`, `build/`, `dist/`, `.pytest_cache/`)
 
 ---
 

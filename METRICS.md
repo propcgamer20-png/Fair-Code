@@ -19,6 +19,9 @@ Weekly snapshot of project health. Updated every Friday.
 | Week | Stars | Forks | Contributors | Posts | Social Views | Issues Closed | Code Audits |
 |------|------:|------:|-------------:|------:|-------------:|--------------:|------------:|
 | 2026-W26 (baseline) | 27 | 8 | 7 | — | ~10K total | — | 6 total |
+| 2026-W27 | 27 | 8 | 7 | — | ~10K total | — | 6 total |
+
+> **2026-W27 — v1.2.0 shipped:** Open Dataset Profiler (CLI + client-side web tool) released; 23 explainers total.
 
 ---
 
@@ -32,7 +35,7 @@ Weekly snapshot of project health. Updated every Friday.
 | Social reach | ~10K | 10K/mo | Q3 2026 |
 | Issues closed | — | Track weekly | Ongoing |
 | Code audits | 6 | 8+ | End of 2026 |
-| Explainers | 22 | 30+ | End of 2026 |
+| Explainers | 23 | 30+ | End of 2026 |
 
 ---
 

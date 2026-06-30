@@ -3,10 +3,12 @@ message: "If you use this project in your research, please cite it as below."
 type: software
 title: "Fair Code — Algorithmic Bias Detection & Mitigation"
 abstract: "An open-source research project that exposes and fixes bias in
-  real-world AI systems across criminal justice, hiring, lending, and
-  healthcare. Each audit trains a biased model, measures the fairness gap,
-  removes protected attributes and proxy variables, and proves the reduction
-  with reproducible code and public datasets."
+  real-world AI systems across criminal justice, hiring, lending, healthcare,
+  and welfare eligibility. Each audit trains a biased model, measures the
+  fairness gap, removes protected attributes and proxy variables, and proves
+  the reduction with reproducible code and public datasets. Includes the Open
+  Dataset Profiler (CLI and client-side web tool) for auditing any tabular
+  dataset's demographic representation before a model is trained."
 authors:
   - family-names: Kewlani
     given-names: Yash
@@ -15,8 +17,8 @@ authors:
 repository-code: "https://github.com/yakew7/Fair-Code"
 url: "https://fair-code-five.vercel.app"
 license: MIT
-version: "1.0.0"
-date-released: "2026-05-13"
+version: "1.2.0"
+date-released: "2026-06-30"
 keywords:
   - algorithmic-fairness
   - bias-detection
@@ -24,5 +26,6 @@ keywords:
   - ai-ethics
   - proxy-variables
   - demographic-parity
+  - dataset-profiling
   - compas
   - python

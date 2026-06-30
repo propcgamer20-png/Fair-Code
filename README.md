@@ -146,6 +146,16 @@ Fair-Code/
 │   ├── 05_benefits_denial_bias_audit.ipynb
 │   └── 06_healthcare_readmission_bias_audit.ipynb
 │
+├── faircode/                            # Open Dataset Profiler — CLI + engine
+│   ├── SPEC.md                          #   analysis spec shared with the web port
+│   ├── detect.py                        #   demographic column auto-detection
+│   ├── profiler.py                      #   core representation engine (pure pandas)
+│   ├── report.py                        #   terminal / JSON / HTML rendering
+│   └── cli.py                           #   `faircode profile <csv>` entry point
+├── tests/
+│   └── test_profiler.py                 # pytest suite for the profiler
+├── pyproject.toml                       # packages the `faircode` console script
+│
 ├── explainers/
 │   ├── proxy-variables.md
 │   ├── equalized-odds.md
@@ -177,7 +187,10 @@ Fair-Code/
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── SECURITY.md
+├── assets/                              # web assets (CSS + JS)
+│   └── profiler-engine.js, profiler-ui.js, profiler.css   # client-side profiler
 ├── index.html                           # live at fair-code-five.vercel.app
+├── profiler.html                        # Open Dataset Profiler — client-side web tool
 └── requirements.txt
 ```
 
@@ -663,6 +676,8 @@ directly. Run the tests with `pytest tests/`.
 | Language | Python 3 |
 | Libraries | `pandas`, `scikit-learn`, `fairlearn`, `shap`, `matplotlib`, `scipy` |
 | Notebooks | Jupyter (`.ipynb`) — one per audit, in `notebooks/` |
+| Profiler | `faircode/` CLI (pandas-only) + client-side `profiler.html` (vanilla JS); shared spec, no backend |
+| Website | Static HTML/CSS/JS, deployed on Vercel |
 | Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle), UCI Adult Census Income (Kaggle), Diabetes 130-US Hospitals (Kaggle) |
 
 ---
