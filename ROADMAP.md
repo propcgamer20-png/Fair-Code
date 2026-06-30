@@ -114,11 +114,11 @@ Goal: grow to 10+ contributors with quality-controlled contributions.
 
 Go deeper on measurement — fairness dashboards, interactive notebooks, and statistical tools for auditors.
 
-- [ ] Fairness audit web dashboard
+- [x] Fairness audit web dashboard — **Open Dataset Profiler** ([profiler.html](profiler.html))
+- [x] Bias detection utility library (`faircode/` module) — diagnostic representation profiler + CLI
 - [ ] AIF360 / Fairlearn integration examples
 - [ ] Intersectional bias notebook (auditing across multiple protected attributes simultaneously)
 - [ ] Statistical significance testing for fairness gaps
-- [ ] Bias detection utility library (`faircode/` module)
 
 ---
 

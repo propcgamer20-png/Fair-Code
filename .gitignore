@@ -2,3 +2,11 @@
 .agents
 skills-lock.json
 AGENTS.md
+
+# Python build / cache artifacts (faircode profiler)
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/

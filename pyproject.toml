@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faircode"
+version = "0.1.0"
+description = "Diagnostic profiler that audits a tabular dataset for demographic representation."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Yash Kewlani" }]
+keywords = ["fairness", "bias", "dataset", "profiling", "demographics", "audit"]
+dependencies = [
+    "pandas>=2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yakew7/Fair-Code"
+Website = "https://fair-code-five.vercel.app"
+
+[project.scripts]
+faircode = "faircode.cli:main"
+
+[tool.setuptools]
+packages = ["faircode"]
+
+[tool.setuptools.package-data]
+faircode = ["SPEC.md"]

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fair Code — Open Dataset Profiler</title>
+<meta name="description" content="Drop in any tabular CSV and get an instant demographic representation audit — missing subgroups, skewed age/sex distributions, geographic under-sampling. Runs entirely in your browser; your file never leaves your machine.">
+<meta property="og:title" content="Fair Code — Open Dataset Profiler">
+<meta property="og:description" content="Audit any dataset for demographic imbalance in seconds. 100% client-side — your data never leaves your browser.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fair Code — Open Dataset Profiler">
+<meta name="twitter:description" content="Audit any CSV for demographic imbalance — instantly, privately, in your browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f4f1e8'/><circle cx='50' cy='50' r='14' fill='%23a63a22'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var saved = localStorage.getItem('fc-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<style>
+  /* "The Audit Ledger" design tokens — shared with index.html / explainer.html */
+  :root {
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+<link rel="stylesheet" href="assets/profiler.css">
+</head>
+<body class="profiler-page">
+  <main class="profiler-shell">
+    <div class="profiler-topbar">
+      <a class="profiler-back" href="index.html">← Back to Fair Code</a>
+      <div class="profiler-topbar-actions">
+        <a class="profiler-source" href="https://github.com/yakew7/Fair-Code" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="profiler-theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+      </div>
+    </div>
+
+    <section class="profiler-hero">
+      <div class="profiler-kicker">Research Tools</div>
+      <h1 class="profiler-headline">Open Dataset Profiler</h1>
+      <p class="profiler-lede">
+        Drop in any tabular CSV — health records, hiring data, loan applications — and get an
+        instant <strong>demographic representation audit</strong>: under-represented or missing
+        subgroups, skewed age and sex distributions, geographic under-sampling, and intersectional
+        gaps.
+      </p>
+      <p class="profiler-privacy">
+        <span class="lock">🔒</span> Your file never leaves your browser. All analysis runs locally
+        on this page — nothing is uploaded.
+      </p>
+    </section>
+
+    <section class="dropzone" id="dropzone" tabindex="0" role="button"
+             aria-label="Upload a CSV file or click to browse">
+      <input type="file" id="fileInput" accept=".csv,text/csv" hidden>
+      <div class="dropzone-inner">
+        <div class="dropzone-icon">⊕</div>
+        <p class="dropzone-title">Drop a CSV here, or <span class="link">browse</span></p>
+        <p class="dropzone-hint">Plain comma-separated values, with a header row.</p>
+        <button class="sample-btn" id="sampleBtn" type="button">Try it with a sample dataset</button>
+      </div>
+    </section>
+
+    <p class="profiler-error" id="error" hidden></p>
+
+    <section class="results" id="results" hidden>
+      <div class="score-card">
+        <div class="score-ring" id="scoreRing">
+          <span class="score-num" id="scoreNum">–</span>
+          <span class="score-grade" id="scoreGrade"></span>
+        </div>
+        <div class="score-meta">
+          <h2 id="scoreFileName">Representation score</h2>
+          <p id="scoreSummary" class="score-summary"></p>
+          <p class="score-note">A balance-only score (0–100). Missing data, imbalance ratios and
+          intersectional gaps are listed as flags below, not folded into the number.</p>
+        </div>
+      </div>
+
+      <div class="flags-block" id="flagsBlock" hidden>
+        <h3>⚑ Flags <span class="count" id="flagCount"></span></h3>
+        <ul id="flagsList"></ul>
+      </div>
+
+      <h3 class="section-title">Detected demographic dimensions</h3>
+      <div class="dimensions" id="dimensions"></div>
+
+      <div class="intersections-block" id="intersectionsBlock" hidden>
+        <h3 class="section-title">Intersectional gaps</h3>
+        <p class="section-note" id="intersectionNote"></p>
+        <div id="intersections"></div>
+      </div>
+    </section>
+
+    <footer class="profiler-foot">
+      <p>This is the web counterpart of the <code>faircode</code> CLI. Same analysis, same numbers —
+      run <code>faircode profile data.csv</code> locally for terminal, JSON, and HTML reports.
+      The Profiler is <strong>diagnostic</strong>: it audits a dataset's representation; it does not
+      train or fix models. See the
+      <a href="https://github.com/yakew7/Fair-Code">six bias audits</a> for the model side.</p>
+    </footer>
+  </main>
+
+  <script src="assets/profiler-engine.js"></script>
+  <script src="assets/profiler-ui.js"></script>
+  <script>
+    (function () {
+      var toggle = document.getElementById('themeToggle');
+      var html = document.documentElement;
+      function sync() {
+        var cur = html.getAttribute('data-theme') || 'light';
+        toggle.textContent = cur === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', cur === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+      }
+      sync();
+      toggle.addEventListener('click', function () {
+        var next = (html.getAttribute('data-theme') || 'light') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        sync();
+      });
+    })();
+  </script>
+</body>
+</html>

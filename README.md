@@ -44,6 +44,7 @@
 - [Methodology](#methodology)
 - [Why This Matters](#why-this-matters)
 - [Getting Started](#getting-started)
+- [Open Dataset Profiler](#open-dataset-profiler)
 - [Tech Stack](#tech-stack)
 - [Traction](#traction)
 - [Contributors](#contributors)
@@ -623,6 +624,38 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 
 ---
 
+## Open Dataset Profiler
+
+The six audits above measure bias in a **model**. The **Open Dataset Profiler** works one step
+upstream — it audits the **dataset itself** for demographic representation *before* any model is
+trained: under-represented or missing subgroups, skewed age/sex distributions, geographic
+under-sampling, and intersectional gaps. It is **diagnostic**, not predictive — there is no model,
+no train/test split, no proxy removal.
+
+It ships in two forms that share one analysis spec ([faircode/SPEC.md](faircode/SPEC.md)), so the
+same CSV produces the same numbers in both:
+
+**Web — drop in a CSV, audit it in your browser.** Open **[profiler.html](profiler.html)** (linked
+from the site nav, live at [fair-code-five.vercel.app](https://fair-code-five.vercel.app)). All
+analysis runs client-side — **your file never leaves your browser**, which matters for health data.
+
+**CLI — `faircode`.**
+
+```bash
+pip install -e .                                   # installs the faircode console script
+faircode profile "Insurance Denial/insurance.csv"  # terminal report
+faircode profile data.csv --json                   # machine-readable
+faircode profile data.csv --html report.html       # standalone HTML report
+```
+
+The engine is domain-agnostic — it works on any tabular CSV (health, hiring, lending, justice),
+auto-detecting demographic columns (sex, race, age, geography) by name. It depends only on
+**pandas** (no `ydata-profiling`): that library is a heavy, general-purpose profiler, whereas the
+Profiler needs only a thin, fairness-specific slice, so we compute the representation metrics
+directly. Run the tests with `pytest tests/`.
+
+---
+
 ## Tech Stack
 
 | Component | Details |
@@ -672,7 +705,8 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
-- [ ] Fairness audit web dashboard
+- [x] Fairness audit web dashboard — [Open Dataset Profiler](#open-dataset-profiler)
+- [x] Bias detection utility library (`faircode/` module)
 
 Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
