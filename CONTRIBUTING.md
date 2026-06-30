@@ -27,10 +27,10 @@ Consistency matters here. It is what makes the repo credible and easy to review.
 If you are unsure whether an idea fits, open an issue first and ask.
 
 > **Contributing to the Open Dataset Profiler?** The `faircode/` CLI and the client-side
-> `profiler.html` share one analysis spec — [`faircode/SPEC.md`](faircode/SPEC.md). Any change to
+> `profiler.html` share one analysis spec - [`faircode/SPEC.md`](faircode/SPEC.md). Any change to
 > the metrics, thresholds, or detection rules **must** be made in `faircode/profiler.py` **and**
 > `assets/profiler-engine.js` together, and must keep them producing identical results (run
-> `pytest tests/` and cross-check a CSV through both). Update `SPEC.md` first — it is the source of
+> `pytest tests/` and cross-check a CSV through both). Update `SPEC.md` first - it is the source of
 > truth.
 
 ---
@@ -265,14 +265,14 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `counterfactual-fairness.md` | Decisions that stay stable under demographic changes |
 | `neural-networks.md` | How networks learn bias from data |
 | `ai-hallucinations.md` | Why confident predictions can still be wrong |
-| `reinforcement-learning.md` | How RL agents learn from reward signals — and why that makes bias hard to see and harder to fix |
+| `reinforcement-learning.md` | How RL agents learn from reward signals - and why that makes bias hard to see and harder to fix |
 | `proxy-entanglement.md` | Why removing proxies one at a time fails when multiple features encode the same protected signal through correlated, redundant channels |
-| `ml-bias.md` | The four entry points — training data, labels, proxies, and feedback loops — that let bias enter a model, with detection code and real examples |
-| `data-leakage.md` | Why a model that scores 99% on every internal test can still fail at deployment — target leakage, train-test contamination, and detection code |
+| `ml-bias.md` | The four entry points - training data, labels, proxies, and feedback loops - that let bias enter a model, with detection code and real examples |
+| `data-leakage.md` | Why a model that scores 99% on every internal test can still fail at deployment - target leakage, train-test contamination, and detection code |
 | `how-ai-detects-patterns.md` | How a Random Forest detects patterns through splits, aggregation, and feature importance, and why it can't distinguish causal patterns from discriminatory ones |
 | `distribution-shift.md` | Why a model that passes a fairness audit can become biased again as the population it serves changes |
-| `ai-objectivity-myth.md` | Why "it's just math" isn't a defense — models trained on biased history reproduce that bias |
-| `confounding-variable.md` | How a hidden third variable creates spurious correlations that persist after protected-attribute removal — and how to detect and adjust for it |
+| `ai-objectivity-myth.md` | Why "it's just math" isn't a defense - models trained on biased history reproduce that bias |
+| `confounding-variable.md` | How a hidden third variable creates spurious correlations that persist after protected-attribute removal - and how to detect and adjust for it |
 
 ### A good explainer should include
 
@@ -302,7 +302,23 @@ When you add an explainer, update the Explainers table in `README.md`:
 
 ---
 
-## 9. CI and branch rules
+## 9. Style guidelines
+
+One rule that applies to every file in this repo:
+
+**No em dashes.** Use a hyphen with spaces ( ` - ` ) instead.
+
+| Wrong | Correct |
+| ----- | ------- |
+| `The model — trained on biased data — fails.` | `The model - trained on biased data - fails.` |
+| `## Phase 1 — Bias Glossary` | `## Phase 1 - Bias Glossary` |
+| `# Dropped race — a proxy for bias` | `# Dropped race - a proxy for bias` |
+
+This applies to markdown files, Python comments, JavaScript comments, and everything else in the repo. The issue templates have a required checkbox to confirm this before your PR is opened.
+
+---
+
+## 10. CI and branch rules
 
 Every push and pull request runs the audit scripts in `.github/workflows/audits.yml`.
 
@@ -333,7 +349,7 @@ If CI fails, push a new commit to your branch and let the check rerun.
 
 ---
 
-## 10. How to submit
+## 11. How to submit
 
 ### Audit PRs
 
@@ -369,7 +385,7 @@ Include in the PR description:
 
 ---
 
-## 11. What will not be merged
+## 12. What will not be merged
 
 ### Audits
 

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this project in your research, please cite it as below."
 type: software
-title: "Fair Code — Algorithmic Bias Detection & Mitigation"
+title: "Fair Code - Algorithmic Bias Detection & Mitigation"
 abstract: "An open-source research project that exposes and fixes bias in
   real-world AI systems across criminal justice, hiring, lending, healthcare,
   and welfare eligibility. Each audit trains a biased model, measures the

@@ -1,6 +1,6 @@
 # Explainer: Why AI Hallucinates
 
-> *When training data is sparse, models optimize for plausibility over truth — leading to high-confidence fabrications.*
+> *When training data is sparse, models optimize for plausibility over truth - leading to high-confidence fabrications.*
 
 ---
 
@@ -158,7 +158,7 @@ For generative text tasks, similar "System 2" measurement and scaffolding framew
 
 ## How to Mitigate It
 
-Reducing hallucination in high-stakes domains—such as legal tech, medicine, or finance where incorrect outputs have severe real-world consequences—requires moving beyond training better models. As practitioners in legal tech (such as AI Workdeck) have noted, the fix is not better models alone, but better *scaffolding* around them.
+Reducing hallucination in high-stakes domains-such as legal tech, medicine, or finance where incorrect outputs have severe real-world consequences-requires moving beyond training better models. As practitioners in legal tech (such as AI Workdeck) have noted, the fix is not better models alone, but better *scaffolding* around them.
 
 The key patterns for reducing hallucination include:
 
@@ -192,27 +192,27 @@ To prevent hallucination, models are often fine-tuned (e.g., via Reinforcement L
 
 ## Related Concepts
 
-* [Calibration](calibration.md) — Measures whether a model's confidence matches its actual accuracy. Hallucinating models are severely miscalibrated in sparse regions.
-* [Sampling Bias](sampling-bias.md) — When certain feature combinations are completely omitted or underrepresented in the training data, it guarantees the existence of the sparse spaces where models are forced to hallucinate.
-* **Retrieval-Augmented Generation (RAG) Architecture** — How it mitigates but doesn't solve hallucination. (See: IBM Research on *What is RAG?*)
-* **Sycophancy in LLMs** — When models hallucinate to agree with the user. (See: Anthropic Research on *Sycophancy*)
+* [Calibration](calibration.md) - Measures whether a model's confidence matches its actual accuracy. Hallucinating models are severely miscalibrated in sparse regions.
+* [Sampling Bias](sampling-bias.md) - When certain feature combinations are completely omitted or underrepresented in the training data, it guarantees the existence of the sparse spaces where models are forced to hallucinate.
+* **Retrieval-Augmented Generation (RAG) Architecture** - How it mitigates but doesn't solve hallucination. (See: IBM Research on *What is RAG?*)
+* **Sycophancy in LLMs** - When models hallucinate to agree with the user. (See: Anthropic Research on *Sycophancy*)
 
 ---
 
 ## Related Projects in This Repo
 
-* [`Insurance Denial/`](../Insurance%20Denial/) — The healthcare denial audit where the biased model (`unfair.py`) contains the exact sparse BMI, smoking, and diabetic combinations where the model hallucinates 95%+ denial probabilities on thin training data.
+* [`Insurance Denial/`](../Insurance%20Denial/) - The healthcare denial audit where the biased model (`unfair.py`) contains the exact sparse BMI, smoking, and diabetic combinations where the model hallucinates 95%+ denial probabilities on thin training data.
 
 ---
 
 ## Further Reading
 
-* [Mata v. Avianca, No. 1:22-cv-01461 (S.D.N.Y. 2023)](https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/) — U.S. District Court docket containing Judge P. Kevin Castel's complete sanctions opinion detailing the ChatGPT-fabricated cases.
-* [Ji et al. (2023): Survey of Hallucination in Natural Language Processing](https://arxiv.org/abs/2202.03629) — The definitive academic survey classifying the types, causes, and detection methods for generative hallucinations.
+* [Mata v. Avianca, No. 1:22-cv-01461 (S.D.N.Y. 2023)](https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/) - U.S. District Court docket containing Judge P. Kevin Castel's complete sanctions opinion detailing the ChatGPT-fabricated cases.
+* [Ji et al. (2023): Survey of Hallucination in Natural Language Processing](https://arxiv.org/abs/2202.03629) - The definitive academic survey classifying the types, causes, and detection methods for generative hallucinations.
 * [Rawte et al. (2023): A Survey of Hallucination in Large Foundation Models](https://arxiv.org/abs/2309.05922)
 * [McKenna et al. (2023): Sources of Hallucination by Large Language Models on Inference Tasks](https://aclanthology.org/2023.emnlp-main.245/)
-* [Chouldechova (2017): Fair Prediction with Disparate Impact](https://arxiv.org/abs/1703.00056) — Foundational paper on metric trade-offs, showing how calibration requirements can force models to rely on coarse, unfair correlations in sparse subgroups.
+* [Chouldechova (2017): Fair Prediction with Disparate Impact](https://arxiv.org/abs/1703.00056) - Foundational paper on metric trade-offs, showing how calibration requirements can force models to rely on coarse, unfair correlations in sparse subgroups.
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

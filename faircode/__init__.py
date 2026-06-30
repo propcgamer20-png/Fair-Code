@@ -1,4 +1,4 @@
-"""Fair Code — dataset representation profiler.
+"""Fair Code - dataset representation profiler.
 
 The diagnostic counterpart to the project's bias audits: instead of measuring a
 model's prediction gap, `faircode` audits a dataset's demographic representation

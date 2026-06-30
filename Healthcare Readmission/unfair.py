@@ -6,11 +6,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# HOSPITAL READMISSION BIAS AUDIT — BIASED MODEL
+# HOSPITAL READMISSION BIAS AUDIT - BIASED MODEL
 # Dataset: Diabetes 130-US Hospitals (1999–2008)
 # https://www.kaggle.com/datasets/brandao/diabetes
 #
-# Framing: 30-day readmission used as a clinical risk flag —
+# Framing: 30-day readmission used as a clinical risk flag -
 # the same logic used by hospital readmission prediction tools
 # to allocate follow-up care and discharge planning resources.
 #
@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score
 #                         patients are disproportionately
 #                         Hispanic (9.0%) and other minorities
 #                         vs Caucasian (2.7%). Self-pay encodes
-#                         lack of insurance — a socioeconomic
+#                         lack of insurance - a socioeconomic
 #                         signal tightly correlated with race.
 #   discharge_disposition_id → encodes access to post-acute
 #                         care. SNF discharge rates differ
@@ -35,7 +35,7 @@ from sklearn.metrics import accuracy_score
 #   number_inpatient    → prior hospitalisation count carries
 #                         race signal: AfricanAmerican patients
 #                         average 0.70 prior visits vs 0.48
-#                         for Asian patients — a gap driven by
+#                         for Asian patients - a gap driven by
 #                         differential access to preventive
 #                         care, not clinical severity alone.
 # ============================================================
@@ -86,7 +86,7 @@ for r, v in snf_race.items():
     print(f"  {r:<22} {v:.1%}")
 print("  → SNF access requires insurance coverage and nearby facility.")
 print("    Caucasian: 17.3% vs AfricanAmerican: 10.7%.")
-print("    Lower SNF access → higher home readmission risk — encoding")
+print("    Lower SNF access → higher home readmission risk - encoding")
 print("    structural inequality as individual clinical risk.")
 
 print("\nMean prior inpatient visits by race:")
@@ -109,7 +109,7 @@ df_enc = df.copy()
 for col in cat_cols:
     df_enc[col] = le.fit_transform(df_enc[col].astype(str))
 
-# ── FEATURES — BIASED (includes protected attrs + proxies) ───
+# ── FEATURES - BIASED (includes protected attrs + proxies) ───
 features = [
     'race',                      # protected attribute ✗
     'gender',                    # protected attribute ✗
@@ -161,7 +161,7 @@ race_flag  = results.groupby('is_minority')['pred'].mean()
 age_flag   = results.groupby('is_elderly')['pred'].mean()
 
 print("=" * 62)
-print("BIASED MODEL — RESULTS")
+print("BIASED MODEL - RESULTS")
 print("=" * 62)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -187,7 +187,7 @@ print("\n" + "=" * 62)
 print("WHAT'S WRONG")
 print("=" * 62)
 print("""
-This model includes race, gender, and age as direct inputs —
+This model includes race, gender, and age as direct inputs -
 all protected attributes under Title VI, the ADA, and Section
 1557 of the ACA, which prohibit discrimination in healthcare
 programmes that receive federal funding.
@@ -198,7 +198,7 @@ It also includes four proxy variables:
                         which is correlated with race by
                         structural gaps in employment and
                         insurance access. A model that penalises
-                        Medicaid patients is penalising poverty —
+                        Medicaid patients is penalising poverty -
                         and penalising poverty in healthcare
                         disproportionately penalises minority
                         patients.
@@ -208,7 +208,7 @@ It also includes four proxy variables:
                         nearby facility access. Caucasian patients
                         are discharged to SNFs at 17.3% vs 10.7%
                         for AfricanAmerican patients. The model
-                        learns that minority patients go home —
+                        learns that minority patients go home -
                         and then uses that as a risk signal,
                         when in fact it is a resource-access signal.
 
@@ -222,7 +222,7 @@ It also includes four proxy variables:
                         for AfricanAmerican patients (0.70 vs 0.48
                         for Asian patients). A portion of this
                         gap reflects underinvestment in preventive
-                        care in minority communities — not higher
+                        care in minority communities - not higher
                         individual risk. Training on it amplifies
                         that structural gap.
 

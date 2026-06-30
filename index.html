@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fair Code: Algorithmic Bias Detection</title>
-<meta name="description" content="Fair Code exposes and fixes bias in real-world AI systems — criminal justice, hiring, lending, healthcare, welfare eligibility. Open-source audits with measurable results.">
+<meta name="description" content="Fair Code exposes and fixes bias in real-world AI systems - criminal justice, hiring, lending, healthcare, welfare eligibility. Open-source audits with measurable results.">
 <meta property="og:title" content="Fair Code: Algorithmic Bias Detection">
 <meta property="og:description" content="Bias in AI is real, measurable, and fixable. Open-source audits showing up to 97% bias reduction across criminal justice, hiring, lending, healthcare, and welfare AI.">
 <meta property="og:type" content="website">
@@ -23,7 +23,7 @@
 </script>
 <style>
   /* ════════════════════════════════════════════════════
-     FAIR CODE — design system "The Audit Ledger"
+     FAIR CODE - design system "The Audit Ledger"
      paper + ink editorial · serif display · mono data
      ════════════════════════════════════════════════════ */
 
@@ -33,9 +33,9 @@
     --surface: #ebe7d9;
     --border: #d9d3c0;
     --border2: #bdb59c;
-    --accent: #a63a22;           /* brick red — bias, links, brand */
+    --accent: #a63a22;           /* brick red - bias, links, brand */
     --accent2: #8c2f1b;          /* deep red */
-    --accent3: #2f6b4f;          /* ledger green — fair, fixed */
+    --accent3: #2f6b4f;          /* ledger green - fair, fixed */
     --text: #36321f;
     --muted: #7d7459;
     --white: #1d1910;            /* strongest ink (headings) */
@@ -114,7 +114,7 @@
   a, button { cursor: pointer; }
   a { color: inherit; }
 
-  /* shared micro-label — mono, uppercase, tracked out */
+  /* shared micro-label - mono, uppercase, tracked out */
   .hero-eyebrow, .section-eyebrow, .stat-label, .project-num, .terminal-label,
   .key-insight-label, .bias-label, .search-filter-label, .search-count,
   .roadmap-meta, .footer-by, .mobile-section-label, .tag,
@@ -787,7 +787,7 @@
 
   .search-hidden { display: none !important; }
 
-  /* ── PROJECT CARD — the audit dossier ──────────── */
+  /* ── PROJECT CARD - the audit dossier ──────────── */
   .project-card {
     position: relative;
     border: 1px solid var(--border2);
@@ -881,7 +881,7 @@
     max-width: 320px;
   }
 
-  /* terminals — printed output logs */
+  /* terminals - printed output logs */
   .terminals-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -928,7 +928,7 @@
   .t-normal { color: var(--terminal-text); opacity: 0.8; }
   .t-accent { color: #d9b36a; }
 
-  /* key insight — the marginal note */
+  /* key insight - the marginal note */
   .key-insight {
     margin-top: 30px;
     padding: 24px 28px;
@@ -957,7 +957,7 @@
     border-radius: 3px;
   }
 
-  /* bias bars — the ledger */
+  /* bias bars - the ledger */
   .bias-bar-wrap {
     display: flex;
     flex-direction: column;
@@ -1269,7 +1269,7 @@
   }
 
   /* ════════════════════════════════════════════════════
-     PREMIUM POLISH — scroll rail · grain · nav state
+     PREMIUM POLISH - scroll rail · grain · nav state
      hero entrance · count-up · card depth
      additive only; honours prefers-reduced-motion
      ════════════════════════════════════════════════════ */
@@ -1289,7 +1289,7 @@
     will-change: transform;
   }
 
-  /* paper grain — barely-there texture, on-brand for the ledger */
+  /* paper grain - barely-there texture, on-brand for the ledger */
   .grain {
     position: fixed;
     inset: 0;
@@ -1309,10 +1309,10 @@
     border-bottom-color: var(--border2);
   }
 
-  /* count-up — stop digits jittering as widths change */
+  /* count-up - stop digits jittering as widths change */
   .hero-stat-box .num, .impact-num { font-variant-numeric: tabular-nums; }
 
-  /* audit cards — depth on hover, ghost-number parallax */
+  /* audit cards - depth on hover, ghost-number parallax */
   .project-card {
     transition: transform 0.35s cubic-bezier(.16,1,.3,1),
                 box-shadow 0.35s ease,
@@ -1334,7 +1334,7 @@
   .search-filter-btn:active, .copy-btn:active,
   .theme-toggle:active { transform: translateY(1px); }
 
-  /* hero entrance — plays once on load, pure CSS (no JS dependency) */
+  /* hero entrance - plays once on load, pure CSS (no JS dependency) */
   @media (prefers-reduced-motion: no-preference) {
     .hero-eyebrow { animation: fc-rise 0.9s 0.05s cubic-bezier(.16,1,.3,1) both; }
     .hero-title   { animation: fc-rise 1.0s 0.16s cubic-bezier(.16,1,.3,1) both; }
@@ -1351,17 +1351,17 @@
   /* anchor targets clear the sticky nav when jumped to */
   :where(section, .hero, [id^="project-"]) { scroll-margin-top: 84px; }
 
-  /* scrollspy — active section lights its nav link */
+  /* scrollspy - active section lights its nav link */
   .nav-links > li > a.nav-current { color: var(--white); }
   .nav-links > li > a.nav-current::after { transform: scaleX(1); }
 
-  /* ticker — soft dissolve at both edges */
+  /* ticker - soft dissolve at both edges */
   .ticker {
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
             mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   }
 
-  /* audit cards — cursor spotlight that tracks the pointer */
+  /* audit cards - cursor spotlight that tracks the pointer */
   .project-card::before {
     content: '';
     position: absolute;
@@ -1405,12 +1405,12 @@
     <li class="nav-dropdown-wrap">
       <a href="#projects" class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Experiments <span class="nav-caret">▾</span></a>
       <ul class="nav-dropdown" role="menu">
-        <li role="none"><a href="#project-compas" role="menuitem">01 — COMPAS</a></li>
-        <li role="none"><a href="#project-hiring" role="menuitem">02 — AI Hiring</a></li>
-        <li role="none"><a href="#project-credit" role="menuitem">03 — German Credit</a></li>
-        <li role="none"><a href="#project-insurance" role="menuitem">04 — Insurance Denial</a></li>
-        <li role="none"><a href="#project-benefits" role="menuitem">05 — Benefits Denial</a></li>
-        <li role="none"><a href="#project-readmission" role="menuitem">06 — Healthcare Readmission</a></li>
+        <li role="none"><a href="#project-compas" role="menuitem">01 - COMPAS</a></li>
+        <li role="none"><a href="#project-hiring" role="menuitem">02 - AI Hiring</a></li>
+        <li role="none"><a href="#project-credit" role="menuitem">03 - German Credit</a></li>
+        <li role="none"><a href="#project-insurance" role="menuitem">04 - Insurance Denial</a></li>
+        <li role="none"><a href="#project-benefits" role="menuitem">05 - Benefits Denial</a></li>
+        <li role="none"><a href="#project-readmission" role="menuitem">06 - Healthcare Readmission</a></li>
       </ul>
     </li>
     <li><a href="#explainers">Explainers</a></li>
@@ -1435,12 +1435,12 @@
     <a href="#about" class="mobile-link">About</a>
     <a href="#methodology" class="mobile-link">Method</a>
     <span class="mobile-section-label">Experiments</span>
-    <a href="#project-compas" class="mobile-link mobile-sub">01 — COMPAS</a>
-    <a href="#project-hiring" class="mobile-link mobile-sub">02 — AI Hiring</a>
-    <a href="#project-credit" class="mobile-link mobile-sub">03 — German Credit</a>
-    <a href="#project-insurance" class="mobile-link mobile-sub">04 — Insurance Denial</a>
-    <a href="#project-benefits" class="mobile-link mobile-sub">05 — Benefits Denial</a>
-    <a href="#project-readmission" class="mobile-link mobile-sub">06 — Healthcare Readmission</a>
+    <a href="#project-compas" class="mobile-link mobile-sub">01 - COMPAS</a>
+    <a href="#project-hiring" class="mobile-link mobile-sub">02 - AI Hiring</a>
+    <a href="#project-credit" class="mobile-link mobile-sub">03 - German Credit</a>
+    <a href="#project-insurance" class="mobile-link mobile-sub">04 - Insurance Denial</a>
+    <a href="#project-benefits" class="mobile-link mobile-sub">05 - Benefits Denial</a>
+    <a href="#project-readmission" class="mobile-link mobile-sub">06 - Healthcare Readmission</a>
     <a href="#explainers" class="mobile-link">Explainers</a>
     <a href="#impact" class="mobile-link">Impact</a>
     <a href="#roadmap" class="mobile-link">Roadmap</a>
@@ -1458,7 +1458,7 @@
     <p class="hero-eyebrow">Algorithmic bias research · Open source</p>
     <h1 id="hero-heading" class="hero-title">The bias is <span class="hl">real</span>.<br>So is the <span class="hl">fix</span>.</h1>
     <div class="hero-bottom">
-      <p class="hero-sub">AI systems decide your freedom, your job, your future. This project proves the bias is measurable — and shows exactly how to remove it.</p>
+      <p class="hero-sub">AI systems decide your freedom, your job, your future. This project proves the bias is measurable - and shows exactly how to remove it.</p>
       <div class="hero-stats">
         <div class="hero-stat-box">
           <div class="num">87%</div>
@@ -1663,7 +1663,7 @@
       <button class="search-filter-btn" data-filter-group="projects" data-filter="lending" aria-label="Filter by Lending" aria-pressed="false">Lending</button>
       <button class="search-filter-btn" data-filter-group="projects" data-filter="healthcare" aria-label="Filter by Healthcare" aria-pressed="false">Healthcare</button>
       <button class="search-filter-btn" data-filter-group="projects" data-filter="welfare" aria-label="Filter by Welfare" aria-pressed="false">Welfare</button>
-      <span class="search-count" id="projects-count"><span id="projects-count-num">—</span> of <span id="projects-total-num">—</span></span>
+      <span class="search-count" id="projects-count"><span id="projects-count-num">-</span> of <span id="projects-total-num">-</span></span>
     </div>
   </div>
   <div id="projects-no-results" class="search-no-results">
@@ -1677,7 +1677,7 @@
     <div class="card-bg-num">01</div>
     <div class="project-top">
       <div>
-        <div class="project-num">PROJECT — 01</div>
+        <div class="project-num">PROJECT - 01</div>
         <div class="project-name">COMPAS</div>
         <p class="project-desc">A real algorithm used in US courtrooms. ProPublica's public dataset, 70,000+ records. The bias is not a glitch. It's baked in.</p>
       </div>
@@ -1694,7 +1694,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- BIASED MODEL RESULTS ---</div>
@@ -1706,7 +1706,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- MITIGATED (UNBIASED) RESULTS ---</div>
@@ -1752,7 +1752,7 @@
     <div class="card-bg-num">02</div>
     <div class="project-top">
       <div>
-        <div class="project-num">PROJECT — 02</div>
+        <div class="project-num">PROJECT - 02</div>
         <div class="project-name">AI HIRING</div>
         <p class="project-desc">Women hired 20.9% less than equally qualified men. The algorithm wasn't told to discriminate. It learned to.</p>
       </div>
@@ -1769,7 +1769,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- BIASED MODEL OUTPUT ---</div>
@@ -1781,7 +1781,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- MITIGATED MODEL OUTPUT ---</div>
@@ -1827,7 +1827,7 @@
     <div class="card-bg-num">03</div>
     <div class="project-top">
       <div>
-        <div class="project-num">PROJECT — 03</div>
+        <div class="project-num">PROJECT - 03</div>
         <div class="project-name">GERMAN CREDIT</div>
         <p class="project-desc">A lending model rates young applicants as bad credit risks at 6+ points higher than older applicants with identical financial profiles. It learned age from job tenure.</p>
       </div>
@@ -1844,7 +1844,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- BIASED MODEL RESULTS ---</div>
@@ -1856,7 +1856,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- MITIGATED (UNBIASED) RESULTS ---</div>
@@ -1869,7 +1869,7 @@
 
     <div class="key-insight">
       <div class="key-insight-label">Key Insight</div>
-      <p>Employment tenure looks like a legitimate financial signal — and it is. But it's also a near-perfect proxy for age. A 24-year-old cannot have 10 years of employment history. The model penalising short tenure was partially penalising youth. Dropping both <code class="inline-code">age</code> and <code class="inline-code">employment</code> forced it to evaluate what a borrower has — savings, credit history, loan purpose — rather than how long they've been alive.</p>
+      <p>Employment tenure looks like a legitimate financial signal - and it is. But it's also a near-perfect proxy for age. A 24-year-old cannot have 10 years of employment history. The model penalising short tenure was partially penalising youth. Dropping both <code class="inline-code">age</code> and <code class="inline-code">employment</code> forced it to evaluate what a borrower has - savings, credit history, loan purpose - rather than how long they've been alive.</p>
     </div>
 
     <div class="bias-bar-wrap" style="margin-top: 32px;">
@@ -1902,7 +1902,7 @@
     <div class="card-bg-num">04</div>
     <div class="project-top">
       <div>
-        <div class="project-num">PROJECT — 04</div>
+        <div class="project-num">PROJECT - 04</div>
         <div class="project-name">INSURANCE DENIAL</div>
         <p class="project-desc">An insurance AI flags older patients for high-cost claims at 7.93 points higher than younger patients. BMI, smoking status, and diabetic status encode race without naming it.</p>
       </div>
@@ -1919,7 +1919,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- BIASED MODEL RESULTS ---</div>
@@ -1932,7 +1932,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">--- MITIGATED (UNBIASED) RESULTS ---</div>
@@ -1946,7 +1946,7 @@
 
     <div class="key-insight">
       <div class="key-insight-label">Key Insight</div>
-      <p>BMI, smoker status, and diabetic diagnosis rates all differ significantly by race and class — so a model trained on them learns to discriminate by race without the word ever appearing. These are the <code class="inline-code">CustodyStatus</code> of health insurance: clinical-sounding features that carry protected-class signal because of structural inequalities baked into American healthcare. Dropping them alongside age and gender reduced the age gap by 60% and the gender gap by 72%.</p>
+      <p>BMI, smoker status, and diabetic diagnosis rates all differ significantly by race and class - so a model trained on them learns to discriminate by race without the word ever appearing. These are the <code class="inline-code">CustodyStatus</code> of health insurance: clinical-sounding features that carry protected-class signal because of structural inequalities baked into American healthcare. Dropping them alongside age and gender reduced the age gap by 60% and the gender gap by 72%.</p>
     </div>
 
     <div class="bias-bar-wrap" style="margin-top: 32px;">
@@ -1979,9 +1979,9 @@
     <div class="card-bg-num">05</div>
     <div class="project-top">
       <div>
-        <div class="project-num">PROJECT — 05</div>
+        <div class="project-num">PROJECT - 05</div>
         <div class="project-name">BENEFITS DENIAL</div>
-        <p class="project-desc">An automated means-test flags male applicants as ineligible at 18 points higher than female applicants — not because of what they earn, but because of who they're married to.</p>
+        <p class="project-desc">An automated means-test flags male applicants as ineligible at 18 points higher than female applicants - not because of what they earn, but because of who they're married to.</p>
       </div>
       <div class="project-stats">
         <div class="stat-label">SEX FAIRNESS GAP BEFORE</div>
@@ -1996,7 +1996,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">Model Accuracy: 85.66%</div>
@@ -2017,7 +2017,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">Model Accuracy: 83.05%</div>
@@ -2039,7 +2039,7 @@
 
     <div class="key-insight">
       <div class="key-insight-label">Key Insight</div>
-      <p>Automated benefits systems don't need to name sex or race to discriminate by them. <code class="inline-code">relationship</code> (Husband/Wife), <code class="inline-code">marital.status</code>, <code class="inline-code">hours.per.week</code>, and <code class="inline-code">occupation</code> are the <code class="inline-code">CustodyStatus</code> of welfare AI — features that sound purely economic but carry protected-class signal because of how work, caregiving, and labour markets are structurally organised. Dropping all four alongside the direct protected attributes reduced the sex gap by 53%, the race gap by 46%, and the national-origin gap by 88%.</p>
+      <p>Automated benefits systems don't need to name sex or race to discriminate by them. <code class="inline-code">relationship</code> (Husband/Wife), <code class="inline-code">marital.status</code>, <code class="inline-code">hours.per.week</code>, and <code class="inline-code">occupation</code> are the <code class="inline-code">CustodyStatus</code> of welfare AI - features that sound purely economic but carry protected-class signal because of how work, caregiving, and labour markets are structurally organised. Dropping all four alongside the direct protected attributes reduced the sex gap by 53%, the race gap by 46%, and the national-origin gap by 88%.</p>
     </div>
 
     <div class="bias-bar-wrap" style="margin-top: 32px;">
@@ -2072,9 +2072,9 @@
     <div class="card-bg-num">06</div>
     <div class="project-top">
       <div style="min-width: 0; flex: 1;">
-        <div class="project-num">PROJECT — 06</div>
+        <div class="project-num">PROJECT - 06</div>
         <div class="project-name">HEALTHCARE READMISSION</div>
-        <p class="project-desc">A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity.</p>
+        <p class="project-desc">A hospital readmission model flags patients for high clinical risk using payer code and discharge destination - variables that measure insurance access, not medical severity.</p>
       </div>
       <div class="project-stats" style="flex-shrink: 0;">
         <div class="stat-label">AGE FAIRNESS GAP BEFORE</div>
@@ -2089,7 +2089,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">unfair.py — BIASED MODEL</span>
+          <span class="terminal-label">unfair.py - BIASED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">Model Accuracy: 88.79%</div>
@@ -2107,7 +2107,7 @@
       <div class="terminal">
         <div class="terminal-bar">
           <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-          <span class="terminal-label">fair.py — MITIGATED MODEL</span>
+          <span class="terminal-label">fair.py - MITIGATED MODEL</span>
         </div>
         <div class="terminal-body">
           <div class="t-head">Model Accuracy: 88.74%</div>
@@ -2126,7 +2126,7 @@
 
     <div class="key-insight">
       <div class="key-insight-label">Key Insight</div>
-      <p>Healthcare readmission models don't need race or gender to discriminate by them. <code class="inline-code">payer_code</code>, <code class="inline-code">discharge_disposition_id</code>, <code class="inline-code">medical_specialty</code>, and <code class="inline-code">number_inpatient</code> are the <code class="inline-code">CustodyStatus</code> of clinical AI — features that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The age gap reduced 68% and the race gap 25%. The gender gap increased slightly (0.02% → 0.04%) — proxy removal shifted the model in a way that widened it by 0.02pp. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap — the gap creates the risk.</p>
+      <p>Healthcare readmission models don't need race or gender to discriminate by them. <code class="inline-code">payer_code</code>, <code class="inline-code">discharge_disposition_id</code>, <code class="inline-code">medical_specialty</code>, and <code class="inline-code">number_inpatient</code> are the <code class="inline-code">CustodyStatus</code> of clinical AI - features that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The age gap reduced 68% and the race gap 25%. The gender gap increased slightly (0.02% → 0.04%) - proxy removal shifted the model in a way that widened it by 0.02pp. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap - the gap creates the risk.</p>
     </div>
 
     <div class="bias-bar-wrap" style="margin-top: 32px;">
@@ -2164,10 +2164,10 @@
     <h2 style="font-family:var(--serif);font-weight:400;font-size:clamp(26px,3vw,38px);line-height:1.05;color:var(--white);margin:0 0 12px;">Open Dataset Profiler →</h2>
     <p style="font-size:16px;line-height:1.7;max-width:660px;color:var(--text);margin:0 0 10px;">
       The audits above measure bias in a <em>model</em>. The Profiler works upstream: drop in any CSV
-      and get an instant <strong>demographic representation audit</strong> — missing subgroups, skewed
+      and get an instant <strong>demographic representation audit</strong> - missing subgroups, skewed
       age/sex distributions, geographic under-sampling.
     </p>
-    <p style="font-size:13px;color:var(--accent3);margin:0;"><span style="margin-right:6px;">🔒</span>Runs entirely in your browser — your file never leaves your machine.</p>
+    <p style="font-size:13px;color:var(--accent3);margin:0;"><span style="margin-right:6px;">🔒</span>Runs entirely in your browser - your file never leaves your machine.</p>
   </a>
 </section>
 
@@ -2195,7 +2195,7 @@
       <button class="search-filter-btn" data-filter-group="explainers" data-filter="metrics" aria-label="Filter by Metrics" aria-pressed="false">Metrics</button>
       <button class="search-filter-btn" data-filter-group="explainers" data-filter="data" aria-label="Filter by Data Bias" aria-pressed="false">Data Bias</button>
       <button class="search-filter-btn" data-filter-group="explainers" data-filter="explainability" aria-label="Filter by Explainability" aria-pressed="false">Explainability</button>
-      <span class="search-count" id="explainers-count"><span id="explainers-count-num">—</span> of <span id="explainers-total-num">—</span></span>
+      <span class="search-count" id="explainers-count"><span id="explainers-count-num">-</span> of <span id="explainers-total-num">-</span></span>
     </div>
   </div>
   <div id="explainers-no-results" class="search-no-results">
@@ -2258,14 +2258,14 @@
     <div class="roadmap-item">
       <div class="roadmap-status done"></div>
       <div>
-        <div class="roadmap-name">Insurance Denial — Healthcare Bias</div>
+        <div class="roadmap-name">Insurance Denial - Healthcare Bias</div>
         <div class="roadmap-meta">Kaggle · age + gender + BMI/smoker/diabetic proxies · 60% + 72% reduction</div>
       </div>
     </div>
     <div class="roadmap-item">
       <div class="roadmap-status done"></div>
       <div>
-        <div class="roadmap-name">Benefits Denial — Welfare Eligibility Bias</div>
+        <div class="roadmap-name">Benefits Denial - Welfare Eligibility Bias</div>
         <div class="roadmap-meta">UCI Adult Census · sex + race + origin + age + 4 proxies · 53% / 46% / 88% reduction</div>
       </div>
     </div>
@@ -2538,7 +2538,7 @@
     }
   });
 
-  // Scroll reveal — with a gentle cascade when several enter together
+  // Scroll reveal - with a gentle cascade when several enter together
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries, obs) => {
     const shown = entries.filter(e => e.isIntersecting);
@@ -2669,7 +2669,7 @@
     });
   }
 
-  // ── SCROLLSPY — light the nav link for the section in view ────────────────
+  // ── SCROLLSPY - light the nav link for the section in view ────────────────
   const navLinkMap = {};
   document.querySelectorAll('.nav-links a[href^="#"]').forEach(a => {
     navLinkMap[a.getAttribute('href').slice(1)] = a;
@@ -2868,13 +2868,13 @@
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
     const baseLabel = label || 'Copy code to clipboard';
-    const copiedLabel = baseLabel.replace(/^Copy/, 'Copied —');
+    const copiedLabel = baseLabel.replace(/^Copy/, 'Copied -');
     btn.setAttribute('aria-label', baseLabel);
     btn.innerHTML = `${COPY_SVG}<span>Copy</span>`;
     btn.addEventListener('click', () => {
       const text = textFn();
       if (!navigator.clipboard) {
-        // Clipboard API unavailable (non-HTTPS or very old browser) — show prompt
+        // Clipboard API unavailable (non-HTTPS or very old browser) - show prompt
         prompt('Copy this text:', text);
         return;
       }
@@ -2979,8 +2979,8 @@
 
     shareBtn.addEventListener('click', () => {
       const url = window.location.origin + window.location.pathname + (id ? '#' + id : '');
-      const title = meta ? meta.title : `Fair Code — ${name} Bias Audit`;
-      const text = meta ? meta.desc : `Bias audit for ${name} — Fair Code project.`;
+      const title = meta ? meta.title : `Fair Code - ${name} Bias Audit`;
+      const text = meta ? meta.desc : `Bias audit for ${name} - Fair Code project.`;
 
       if (navigator.share) {
         navigator.share({ title, text, url }).catch(() => {});

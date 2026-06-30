@@ -5,14 +5,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# INSURANCE DENIAL BIAS AUDIT — BIASED MODEL
+# INSURANCE DENIAL BIAS AUDIT - BIASED MODEL
 # Dataset: Insurance Claim Analysis: Demographic & Health
 # https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health
 #
 # Protected attributes included: age, gender
 # Proxy variables included:      bmi, smoker, diabetic
 #
-# BMI is a documented proxy for race — Black and Hispanic
+# BMI is a documented proxy for race - Black and Hispanic
 # Americans are flagged as "obese" at higher rates due to
 # population-level differences, not individual health risk.
 # Smoker status correlates with income and education, which
@@ -89,7 +89,7 @@ age_approval    = df_test.groupby('age_group')['prediction'].mean()
 gender_approval = df_test.groupby('gender')['prediction'].mean()
 
 print("=" * 60)
-print("BIASED MODEL — RESULTS")
+print("BIASED MODEL - RESULTS")
 print("=" * 60)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -109,7 +109,7 @@ print("\n" + "=" * 60)
 print("WHAT'S WRONG")
 print("=" * 60)
 print("""
-This model includes age and gender as direct inputs — protected
+This model includes age and gender as direct inputs - protected
 attributes under the ACA and anti-discrimination law.
 
 It also includes three proxy variables:
@@ -123,8 +123,8 @@ It also includes three proxy variables:
   Smoker   → smoking rates are inversely correlated with
               income and education. Income and education are
               themselves correlated with race and class.
-              'Smoker' smuggles socioeconomic signal —
-              and therefore racial signal — back into the
+              'Smoker' smuggles socioeconomic signal -
+              and therefore racial signal - back into the
               model even if race is never named.
 
   Diabetic → Black and Hispanic Americans are diagnosed with

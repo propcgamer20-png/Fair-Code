@@ -1,8 +1,8 @@
 /* ════════════════════════════════════════════════════════════════════════
-   Fair Code — Dataset Profiler UI controller
+   Fair Code - Dataset Profiler UI controller
 
    Wires the dropzone / file input / sample button to the engine
-   (assets/profiler-engine.js) and renders the result. No network, no upload —
+   (assets/profiler-engine.js) and renders the result. No network, no upload -
    FileReader reads the dropped file locally and the engine runs in-page.
    ════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -19,7 +19,7 @@
 
   // ── Embedded sample dataset (health-themed, deliberately imbalanced) ─────
   // Skewed toward young Caucasian patients in two regions, with a sparse
-  // elderly band and an under-sampled region — so the audit clearly fires.
+  // elderly band and an under-sampled region - so the audit clearly fires.
   function buildSampleCSV() {
     var rows = [['patient_id', 'age', 'sex', 'race', 'region', 'diabetic']];
     // Heavily Caucasian; minorities rare. Skewed male. Concentrated young/mid age.

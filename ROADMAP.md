@@ -1,4 +1,4 @@
-# Fair Code — Public Roadmap
+# Fair Code - Public Roadmap
 
 This is the public roadmap for Fair Code. It tracks what has been built, what is actively in progress, and what comes next.
 
@@ -21,7 +21,7 @@ Fair Code is an open-source responsible AI platform explaining algorithmic bias,
 
 ---
 
-## Phase 1 — Bias Glossary and Beginner Explainers ✅
+## Phase 1 - Bias Glossary and Beginner Explainers ✅
 
 **Status: Complete**
 
@@ -53,9 +53,9 @@ Build the foundational vocabulary and explain core fairness concepts clearly eno
 
 ---
 
-## Phase 2 — Healthcare AI Bias Examples ✅ / 🔄 In Progress
+## Phase 2 - Healthcare AI Bias Examples ✅ / 🔄 In Progress
 
-**Status: Audits complete — explainers expanding**
+**Status: Audits complete - explainers expanding**
 
 Publish healthcare-specific bias audits and explainers that show how AI discrimination shows up in clinical and insurance contexts.
 
@@ -71,27 +71,27 @@ Publish healthcare-specific bias audits and explainers that show how AI discrimi
 
 ---
 
-## Phase 3 — Code Audits 🔄 In Progress
+## Phase 3 - Code Audits 🔄 In Progress
 
 **Status: 6 of 8 planned audits published**
 
 Each audit follows the same pipeline: train a biased model → measure the fairness gap → remove proxies → retrain → measure again.
 
-- [x] COMPAS — Criminal Justice Bias
-- [x] AI Fair Recruitment — Hiring Bias
-- [x] German Credit Lending — Lending Bias
-- [x] Insurance Denial — Healthcare Bias
-- [x] Benefits Denial — Welfare Eligibility Bias
-- [x] Healthcare Readmission — Clinical Bias
+- [x] COMPAS - Criminal Justice Bias
+- [x] AI Fair Recruitment - Hiring Bias
+- [x] German Credit Lending - Lending Bias
+- [x] Insurance Denial - Healthcare Bias
+- [x] Benefits Denial - Welfare Eligibility Bias
+- [x] Healthcare Readmission - Clinical Bias
 - [ ] HMDA Mortgage Lending Bias
 - [ ] Facial Recognition Accuracy Gaps (MIT Gender Shades methodology)
 - [ ] LLM bias audit
 
 ---
 
-## Phase 4 — Contributor Expansion 🔄 In Progress
+## Phase 4 - Contributor Expansion 🔄 In Progress
 
-**Status: Active — 7 external contributors**
+**Status: Active - 7 external contributors**
 
 Goal: grow to 10+ contributors with quality-controlled contributions.
 
@@ -108,14 +108,14 @@ Goal: grow to 10+ contributors with quality-controlled contributions.
 
 ---
 
-## Phase 5 — Fairness Metrics and Notebooks ⏳ Planned
+## Phase 5 - Fairness Metrics and Notebooks ⏳ Planned
 
 **Status: Planned**
 
-Go deeper on measurement — fairness dashboards, interactive notebooks, and statistical tools for auditors.
+Go deeper on measurement - fairness dashboards, interactive notebooks, and statistical tools for auditors.
 
-- [x] Fairness audit web dashboard — **Open Dataset Profiler** ([profiler.html](profiler.html))
-- [x] Bias detection utility library (`faircode/` module) — diagnostic representation profiler + CLI
+- [x] Fairness audit web dashboard - **Open Dataset Profiler** ([profiler.html](profiler.html))
+- [x] Bias detection utility library (`faircode/` module) - diagnostic representation profiler + CLI
 - [ ] AIF360 / Fairlearn integration examples
 - [ ] Intersectional bias notebook (auditing across multiple protected attributes simultaneously)
 - [ ] Statistical significance testing for fairness gaps

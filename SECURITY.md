@@ -10,7 +10,7 @@ This policy covers the following repositories:
 
 | Repository | What It Is |
 |---|---|
-| [`yakew7/Fair-Code`](https://github.com/yakew7/Fair-Code) | Algorithmic bias detection & mitigation — audits, explainers, website |
+| [`yakew7/Fair-Code`](https://github.com/yakew7/Fair-Code) | Algorithmic bias detection & mitigation - audits, explainers, website |
 | [`yakew7/Cardiovascular-disease-prediction`](https://github.com/yakew7/Cardiovascular-disease-prediction) | Predits the chance of having Cardiovascular Disease and Hypertension |
 
 If you find a vulnerability in any of the above, follow the process below regardless of which repo it affects.
@@ -32,17 +32,17 @@ These repositories are educational and research projects. Only the **latest comm
 
 Because these projects are primarily data analysis scripts and a static website, the realistic attack surface is narrow. Please report any of the following:
 
-- **Dependency vulnerabilities** — a Python package or npm dependency with a known CVE that could affect users who clone and run the code
-- **Script injection** — any way a specially crafted dataset could cause `unfair.py` or `fair.py` to execute arbitrary code on a user's machine
-- **Website vulnerabilities** — XSS, CSP bypass, or any injection vector in `index.html` that could affect visitors to [fair-code-five.vercel.app](https://fair-code-five.vercel.app)
-- **Dependency confusion / supply chain** — a malicious package name collision in `requirements.txt` or any future `package.json`
-- **Data exposure** — if any future dataset or file in the repo inadvertently contains personally identifiable information (PII) that was not intended to be public
+- **Dependency vulnerabilities** - a Python package or npm dependency with a known CVE that could affect users who clone and run the code
+- **Script injection** - any way a specially crafted dataset could cause `unfair.py` or `fair.py` to execute arbitrary code on a user's machine
+- **Website vulnerabilities** - XSS, CSP bypass, or any injection vector in `index.html` that could affect visitors to [fair-code-five.vercel.app](https://fair-code-five.vercel.app)
+- **Dependency confusion / supply chain** - a malicious package name collision in `requirements.txt` or any future `package.json`
+- **Data exposure** - if any future dataset or file in the repo inadvertently contains personally identifiable information (PII) that was not intended to be public
 
 The following are **out of scope** and do not need to be reported:
 
 - Theoretical vulnerabilities with no practical exploit path on a static site or offline script
-- Issues in third-party tools (scikit-learn, pandas, etc.) — report those upstream
-- Missing security headers on Vercel's CDN — report those to Vercel
+- Issues in third-party tools (scikit-learn, pandas, etc.) - report those upstream
+- Missing security headers on Vercel's CDN - report those to Vercel
 - Rate limiting, DoS, or brute-force concerns (there is no authentication surface)
 
 ---
@@ -53,17 +53,17 @@ The following are **out of scope** and do not need to be reported:
 
 Instead, use one of the following private channels:
 
-### Option 1 — GitHub Private Vulnerability Reporting *(preferred)*
+### Option 1 - GitHub Private Vulnerability Reporting *(preferred)*
 
 GitHub has a built-in private reporting flow:
 
 1. Go to the affected repository on GitHub
 2. Click **Security** → **Advisories** → **Report a vulnerability**
-3. Fill in the form — it goes directly to the maintainer without being public
+3. Fill in the form - it goes directly to the maintainer without being public
 
 This is the fastest path. GitHub will notify me immediately and we can coordinate a fix privately before any public disclosure.
 
-### Option 2 — Direct Contact
+### Option 2 - Direct Contact
 
 If you cannot use GitHub's reporting flow, reach out directly:
 
@@ -110,7 +110,7 @@ This project follows **coordinated disclosure**:
 
 - Vulnerabilities are fixed privately before any public announcement
 - The reporter is credited in the fix commit and/or GitHub Security Advisory (unless they prefer to stay anonymous)
-- Public disclosure happens after a fix is live — typically within 90 days of the initial report, sooner if the fix is fast
+- Public disclosure happens after a fix is live - typically within 90 days of the initial report, sooner if the fix is fast
 
 ---
 

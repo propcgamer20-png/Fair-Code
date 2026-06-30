@@ -6,11 +6,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# BENEFITS DENIAL BIAS AUDIT — BIASED MODEL
+# BENEFITS DENIAL BIAS AUDIT - BIASED MODEL
 # Dataset: UCI Adult Census Income
 # https://www.kaggle.com/datasets/wenruliu/adult-income-dataset
 #
-# Framing: income threshold (>50K) used as eligibility proxy —
+# Framing: income threshold (>50K) used as eligibility proxy -
 # the same logic automated welfare and benefits systems use to
 # screen applicants via income/means tests.
 #
@@ -87,11 +87,11 @@ df_enc = df.copy()
 for col in cat_cols:
     df_enc[col] = le.fit_transform(df_enc[col].astype(str))
 
-# ── FEATURES — BIASED (includes protected attrs + proxies) ───
+# ── FEATURES - BIASED (includes protected attrs + proxies) ───
 features = [
     'age',             # protected attribute ✗
     'workclass',
-    'fnlwgt',          # census weight — no causal link to eligibility
+    'fnlwgt',          # census weight - no causal link to eligibility
     'education',
     'education.num',
     'marital.status',  # proxy: encodes sex via spousal status ✗
@@ -133,7 +133,7 @@ age_flag    = results.groupby('is_elderly')['pred'].mean()
 race_flag   = results.groupby('is_minority')['pred'].mean()
 
 print("=" * 62)
-print("BIASED MODEL — RESULTS")
+print("BIASED MODEL - RESULTS")
 print("=" * 62)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -166,7 +166,7 @@ print("WHAT'S WRONG")
 print("=" * 62)
 print("""
 This model includes sex, race, native.country, and age as direct
-inputs — all protected attributes under Title VII, the Age
+inputs - all protected attributes under Title VII, the Age
 Discrimination Act, and equal-protection principles.
 
 It also includes four proxy variables:
@@ -183,7 +183,7 @@ It also includes four proxy variables:
                   the spousal-dependent pattern the data encodes.
 
   hours.per.week → Women in this dataset average 36 hrs/wk vs 42
-                  for men — a gap driven by unpaid caregiving
+                  for men - a gap driven by unpaid caregiving
                   responsibilities, not ability or productivity.
                   A model that treats lower hours as an eligibility
                   signal is penalising the gender pay gap, not

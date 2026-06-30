@@ -243,7 +243,7 @@
           <a class="explainer-card-link" href="explainer.html?slug=${encodeURIComponent(entry.slug)}" aria-label="Open ${escapeHtml(entry.title)} explainer">
             <div class="explainer-card-top">
               <div>
-                <div class="explainer-num">Explainer — ${label}</div>
+                <div class="explainer-num">Explainer - ${label}</div>
                 <h3 class="explainer-title">${escapeHtml(entry.title)}</h3>
                 <p class="explainer-tagline">${escapeHtml(entry.subtitle)}</p>
               </div>

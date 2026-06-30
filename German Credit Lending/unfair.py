@@ -27,9 +27,9 @@ le = LabelEncoder()
 for col in cat_cols:
     df[col] = le.fit_transform(df[col])
 
-# Features — INCLUDES protected attribute (age) and proxy (employment)
+# Features - INCLUDES protected attribute (age) and proxy (employment)
 # employment is a proxy for age: young applicants have <1yr employment at
-# 27.2% vs only 11.3% for older applicants — the model learns age through tenure.
+# 27.2% vs only 11.3% for older applicants - the model learns age through tenure.
 features = [
     'checking_status',
     'duration',

@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Open this before writing anything. Check the `explainers/` folder first — proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, fairness metric conflicts, and calibration are already done.
+        Open this before writing anything. Check the `explainers/` folder first - proxy variables, equalized odds, sampling bias, SHAP values, disparate impact, fairness metric conflicts, and calibration are already done.
 
   - type: input
     id: concept
@@ -47,7 +47,9 @@ body:
     attributes:
       label: Before you start
       options:
-        - label: I've checked the explainers/ folder — this concept isn't already covered
+        - label: I've checked the explainers/ folder - this concept isn't already covered
           required: true
         - label: I have real data or a documented external case to illustrate the concept (not a toy example)
+          required: true
+        - label: My contribution is em-dash-free - I used hyphens ( - ) instead of em dashes (—) in all files
           required: true

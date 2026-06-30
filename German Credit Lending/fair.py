@@ -28,7 +28,7 @@ for col in cat_cols:
 #
 #   print(pd.crosstab(df['employment'], df['is_young'], normalize='columns'))
 #
-#   Including employment lets the model reconstruct age from tenure patterns —
+#   Including employment lets the model reconstruct age from tenure patterns -
 #   a proxy that encodes age discrimination through career history.
 #
 # Dropped:
@@ -42,7 +42,7 @@ for col in cat_cols:
 #   existing_credits, job, num_dependents, own_telephone, foreign_worker
 # -----------------------------------------------------------------------
 
-# Features — age AND employment proxy REMOVED
+# Features - age AND employment proxy REMOVED
 features = [
     'checking_status',
     'duration',

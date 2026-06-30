@@ -1,9 +1,9 @@
 /* ════════════════════════════════════════════════════════════════════════
-   Fair Code — Dataset Profiler ENGINE (browser port of faircode/profiler.py)
+   Fair Code - Dataset Profiler ENGINE (browser port of faircode/profiler.py)
 
    This is a faithful JavaScript port of faircode/SPEC.md. It MUST produce the
    same numbers as the Python CLI for the same CSV. All analysis runs locally
-   in the browser — the file never leaves the visitor's machine.
+   in the browser - the file never leaves the visitor's machine.
 
    Exposes window.FairCodeProfiler = { parseCSV, profile }.
    ════════════════════════════════════════════════════════════════════════ */
@@ -22,7 +22,7 @@
   // Pandas-style missing tokens, so JS null-handling matches read_csv defaults.
   var NA_TOKENS = { '': 1, 'na': 1, 'n/a': 1, 'nan': 1, 'null': 1, 'none': 1 };
 
-  // ── Keyword lists — MUST mirror faircode/detect.py ─────────────────────
+  // ── Keyword lists - MUST mirror faircode/detect.py ─────────────────────
   var KEYWORDS = [
     ['sex', ['sex', 'gender']],
     ['race', ['race', 'ethnic', 'ethnicity']],
@@ -183,7 +183,7 @@
       return { label: String(label), count: counts[label],
                share: nNonnull ? counts[label] / nNonnull : 0 };
     });
-    // count desc, then label asc — deterministic tie-break to match Python.
+    // count desc, then label asc - deterministic tie-break to match Python.
     groups.sort(function (a, b) {
       return (b.count - a.count) ||
              (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);

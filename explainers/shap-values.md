@@ -1,18 +1,18 @@
 # Explainer: What Are SHAP Values?
 
-> *The reason "the model said so" is not an explanation — and what to do instead.*
+> *The reason "the model said so" is not an explanation - and what to do instead.*
 
 ---
 
 ## The One-Sentence Definition
 
-**SHAP values** (SHapley Additive exPlanations) are a method for explaining individual predictions made by any machine learning model — they tell you exactly how much each feature contributed to a specific output, in a unit you can reason about.
+**SHAP values** (SHapley Additive exPlanations) are a method for explaining individual predictions made by any machine learning model - they tell you exactly how much each feature contributed to a specific output, in a unit you can reason about.
 
 ---
 
 ## Why This Matters
 
-Most AI systems deployed in high-stakes domains — criminal justice, hiring, lending, healthcare — are black boxes. They produce a score or a decision, and they don't explain why. This is not just an inconvenience. It is a fairness problem.
+Most AI systems deployed in high-stakes domains - criminal justice, hiring, lending, healthcare - are black boxes. They produce a score or a decision, and they don't explain why. This is not just an inconvenience. It is a fairness problem.
 
 If you cannot inspect how a model arrived at a decision, you cannot:
 - Detect whether a protected attribute or proxy variable drove the outcome
@@ -20,19 +20,19 @@ If you cannot inspect how a model arrived at a decision, you cannot:
 - Comply with regulations that require explainability (GDPR Article 22, EEOC, ECOA)
 - Audit the system for bias before deployment
 
-SHAP values make the black box transparent. They are grounded in cooperative game theory — specifically, Shapley values — which provide a mathematically principled way to attribute credit (or blame) across features. Unlike simpler techniques, SHAP values are consistent, locally accurate, and model-agnostic.
+SHAP values make the black box transparent. They are grounded in cooperative game theory - specifically, Shapley values - which provide a mathematically principled way to attribute credit (or blame) across features. Unlike simpler techniques, SHAP values are consistent, locally accurate, and model-agnostic.
 
 ---
 
 ## The Intuition: Fair Credit Attribution
 
-Imagine three people — Alice, Bob, and Carol — collaborate on a project that earns $300,000. Who gets credit for what? The Shapley value from game theory answers this by asking: *on average, across every possible ordering in which these people could join the project, how much does each person's addition increase the outcome?*
+Imagine three people - Alice, Bob, and Carol - collaborate on a project that earns $300,000. Who gets credit for what? The Shapley value from game theory answers this by asking: *on average, across every possible ordering in which these people could join the project, how much does each person's addition increase the outcome?*
 
 SHAP applies this same logic to features. For a single prediction:
 
 - Your model outputs a score of 0.82 (high recidivism risk)
 - SHAP asks: across all possible subsets of features, how much does each feature shift the prediction away from the average?
-- The result is a signed contribution value for every feature — positive means it pushed the prediction up, negative means it pushed it down
+- The result is a signed contribution value for every feature - positive means it pushed the prediction up, negative means it pushed it down
 
 **The key property:** the SHAP values for all features sum exactly to the difference between the model's prediction and the global average prediction.
 
@@ -84,11 +84,11 @@ Sex_Code_Text_Male          0.0412
 MaritalStatus_Single        0.0298
 ```
 
-**The model's single largest driver was race.** The second largest was custody status — a known proxy for race. Together they accounted for more than 60% of total feature influence.
+**The model's single largest driver was race.** The second largest was custody status - a known proxy for race. Together they accounted for more than 60% of total feature influence.
 
 Without SHAP, you would not know this. The model's accuracy numbers alone tell you nothing about which features drove individual predictions.
 
-### After the Fix — Fair Model SHAP
+### After the Fix - Fair Model SHAP
 
 ```python
 # Fair feature set (race + proxy removed)
@@ -110,7 +110,7 @@ Sex_Code_Text_Male          0.0489
 MaritalStatus_Married       0.0214
 ```
 
-Race is gone from the feature set. The model now distributes influence across legitimate remaining features. SHAP confirms the fix worked — not just at the aggregate fairness gap level, but at the level of individual decision logic.
+Race is gone from the feature set. The model now distributes influence across legitimate remaining features. SHAP confirms the fix worked - not just at the aggregate fairness gap level, but at the level of individual decision logic.
 
 ---
 
@@ -203,19 +203,19 @@ print(audit.head(10))
 | Feature Importance (Gini) | Global only | ✗ Biased toward high-cardinality | ✗ Tree models only | Fast |
 | Permutation Importance | Global only | Reasonable | ✓ Yes | Medium |
 
-SHAP is the only method that is **locally accurate** (values sum exactly to the prediction), **consistent** (if a feature matters more, its SHAP value will be higher), and **unified** across model types. For fairness auditing specifically, local accuracy is essential — you need to know what drove *this specific decision*, not just what matters on average.
+SHAP is the only method that is **locally accurate** (values sum exactly to the prediction), **consistent** (if a feature matters more, its SHAP value will be higher), and **unified** across model types. For fairness auditing specifically, local accuracy is essential - you need to know what drove *this specific decision*, not just what matters on average.
 
 ---
 
 ## Limitations
 
-**1. SHAP values explain the model, not the world.** If your model is trained on biased data, SHAP will faithfully explain the biased decision. High SHAP for a legitimate feature doesn't mean the feature is fair — it means the model used it heavily. Use SHAP alongside the proxy variable audit, not instead of it.
+**1. SHAP values explain the model, not the world.** If your model is trained on biased data, SHAP will faithfully explain the biased decision. High SHAP for a legitimate feature doesn't mean the feature is fair - it means the model used it heavily. Use SHAP alongside the proxy variable audit, not instead of it.
 
 **2. Correlation is not causation.** SHAP measures how much each feature shifted the prediction. It does not tell you whether that feature *should* shift the prediction. A model can assign high SHAP to zip code without zip code being a valid criterion for the decision.
 
 **3. Computational cost at scale.** KernelExplainer is slow for large datasets. TreeExplainer is fast for tree-based models, but SHAP for deep neural networks (DeepExplainer, GradientExplainer) is approximate and can be expensive.
 
-**4. SHAP values can mislead with correlated features.** When two features are highly correlated (like `age` and `employment_tenure`), SHAP distributes the shared contribution between them in ways that can understate either feature's individual influence. This is one more reason to run proxy variable detection *before* computing SHAP — so you already know which features are collinear.
+**4. SHAP values can mislead with correlated features.** When two features are highly correlated (like `age` and `employment_tenure`), SHAP distributes the shared contribution between them in ways that can understate either feature's individual influence. This is one more reason to run proxy variable detection *before* computing SHAP - so you already know which features are collinear.
 
 ---
 
@@ -223,7 +223,7 @@ SHAP is the only method that is **locally accurate** (values sum exactly to the 
 
 Explainability is not a nice-to-have. It is the mechanism by which accountability becomes possible. A person denied a loan, flagged as high-risk in a courtroom, or rejected by a hiring algorithm has a legitimate interest in knowing why. A company deploying these systems has a legal and ethical obligation to be able to answer that question.
 
-SHAP values do not fix bias. Removing protected attributes and proxy variables fixes bias. What SHAP does is make the model's reasoning visible — so you can catch problems before deployment, explain decisions to the people affected by them, and demonstrate to auditors and regulators that the system is operating as intended.
+SHAP values do not fix bias. Removing protected attributes and proxy variables fixes bias. What SHAP does is make the model's reasoning visible - so you can catch problems before deployment, explain decisions to the people affected by them, and demonstrate to auditors and regulators that the system is operating as intended.
 
 The pipeline is not complete until you can explain every decision the model makes.
 
@@ -231,20 +231,20 @@ The pipeline is not complete until you can explain every decision the model make
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — The biased and fair models where SHAP reveals race as the top driver
-- [`Ai Fair recrutment Dataset/`](../Ai%20Fair%20recrutment%20Dataset/) — Gender + age influence exposed via feature attribution
-- [`German Credit Lending/`](../German%20Credit%20Lending/) — Age and tenure SHAP contributions before and after mitigation
-- [`explainers/proxy-variables.md`](proxy-variables.md) — What proxy variables are and how to detect them
-- [`explainers/sampling-bias.md`](sampling-bias.md) — Why your training data may not represent the people your model affects
+- [`COMPAS/`](../COMPAS/) - The biased and fair models where SHAP reveals race as the top driver
+- [`Ai Fair recrutment Dataset/`](../Ai%20Fair%20recrutment%20Dataset/) - Gender + age influence exposed via feature attribution
+- [`German Credit Lending/`](../German%20Credit%20Lending/) - Age and tenure SHAP contributions before and after mitigation
+- [`explainers/proxy-variables.md`](proxy-variables.md) - What proxy variables are and how to detect them
+- [`explainers/sampling-bias.md`](sampling-bias.md) - Why your training data may not represent the people your model affects
 
 ---
 
 ## Further Reading
 
-- [Lundberg & Lee: A Unified Approach to Interpreting Model Predictions (NeurIPS 2017)](https://arxiv.org/abs/1705.07874) — the original SHAP paper
+- [Lundberg & Lee: A Unified Approach to Interpreting Model Predictions (NeurIPS 2017)](https://arxiv.org/abs/1705.07874) - the original SHAP paper
 - [SHAP Documentation and Examples](https://shap.readthedocs.io/)
-- [Barocas & Hardt: Fairness and Machine Learning](https://fairmlbook.org/) — Chapter 6 covers interpretability in the context of fairness
+- [Barocas & Hardt: Fairness and Machine Learning](https://fairmlbook.org/) - Chapter 6 covers interpretability in the context of fairness
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

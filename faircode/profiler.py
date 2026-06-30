@@ -91,7 +91,7 @@ def _analyze_groups(labels_counts: dict, n_total: int, null_count: int,
     for label, count in labels_counts.items():
         share = count / n_nonnull if n_nonnull else 0.0
         groups.append({"label": str(label), "count": int(count), "share": share})
-    # count desc, then label asc — deterministic tie-break so the JS port agrees.
+    # count desc, then label asc - deterministic tie-break so the JS port agrees.
     groups.sort(key=lambda g: (-g["count"], g["label"]))
 
     shares = [g["share"] for g in groups]

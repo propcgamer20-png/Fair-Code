@@ -24,7 +24,7 @@ The distribution of outcomes `P(Y)` changes, but `P(X|Y)` stays the same. Exampl
 
 The relationship between features and outcome `P(Y|X)` itself changes. This is the hardest to detect because the input data can look identical while what it *means* has changed. Example: during a recession, the same income and debt levels that once predicted "low default risk" now predict higher risk, because the economic context behind the numbers shifted.
 
-## Concrete Example: Healthcare Readmission — Audit 06
+## Concrete Example: Healthcare Readmission - Audit 06
 
 The Healthcare Readmission audit uses the Diabetes 130-US Hospitals dataset, spanning 1999-2008 across 130 hospitals. That's nearly a decade of data pooled from many different care systems, each with its own admission practices, insurance mixes, and discharge protocols.
 
@@ -163,20 +163,20 @@ For protected subgroups that are already small in the dataset (as in Audit 06, w
 
 ## Related Concepts
 
-* [What is Sampling Bias?](sampling-bias.md) — distribution shift is sampling bias that develops *after* deployment, rather than existing at collection time.
-* [What is Feedback Loop Bias?](feedback-loop-bias.md) — retraining on a model's own drifted outputs can compound distribution shift across cycles.
-* [What Is Data Leakage?](data-leakage.md) — both concepts explain why strong test performance can fail to predict production performance, for different underlying reasons.
-* [What Is Machine Learning Bias?](ml-bias.md) — distribution shift is a fifth entry point for bias, occurring after the four covered there, once the model is already deployed.
+* [What is Sampling Bias?](sampling-bias.md) - distribution shift is sampling bias that develops *after* deployment, rather than existing at collection time.
+* [What is Feedback Loop Bias?](feedback-loop-bias.md) - retraining on a model's own drifted outputs can compound distribution shift across cycles.
+* [What Is Data Leakage?](data-leakage.md) - both concepts explain why strong test performance can fail to predict production performance, for different underlying reasons.
+* [What Is Machine Learning Bias?](ml-bias.md) - distribution shift is a fifth entry point for bias, occurring after the four covered there, once the model is already deployed.
 
 ## Related Projects in This Repo
 
-* [`Healthcare Readmission/`](../Healthcare%20Readmission/) — the dataset spans nearly a decade across 130 hospitals, making it the clearest candidate in this repo for demonstrating drift across time slices.
-* [`German Credit Lending/`](../German%20Credit%20Lending/) — lending criteria and applicant demographics shift with economic cycles, making age-related proxy strength a candidate for drift analysis.
+* [`Healthcare Readmission/`](../Healthcare%20Readmission/) - the dataset spans nearly a decade across 130 hospitals, making it the clearest candidate in this repo for demonstrating drift across time slices.
+* [`German Credit Lending/`](../German%20Credit%20Lending/) - lending criteria and applicant demographics shift with economic cycles, making age-related proxy strength a candidate for drift analysis.
 
 ## Further Reading
 
-* [Quiñonero-Candela et al. (2009): Dataset Shift in Machine Learning, MIT Press](https://mitpress.mit.edu/9780262170055/dataset-shift-in-machine-learning/) — the foundational text formalizing covariate shift, label shift, and concept drift as distinct problems.
-* [Lipton et al. (2018): Detecting and Correcting for Label Shift with Black Box Predictors, ICML](https://arxiv.org/abs/1802.03916) — introduces a practical method for detecting and correcting label shift using only model outputs.
-* [Rabanser et al. (2019): Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift, NeurIPS](https://arxiv.org/abs/1810.11953) — empirical comparison of statistical tests for drift detection, including the KS test approach used above.
+* [Quiñonero-Candela et al. (2009): Dataset Shift in Machine Learning, MIT Press](https://mitpress.mit.edu/9780262170055/dataset-shift-in-machine-learning/) - the foundational text formalizing covariate shift, label shift, and concept drift as distinct problems.
+* [Lipton et al. (2018): Detecting and Correcting for Label Shift with Black Box Predictors, ICML](https://arxiv.org/abs/1802.03916) - introduces a practical method for detecting and correcting label shift using only model outputs.
+* [Rabanser et al. (2019): Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift, NeurIPS](https://arxiv.org/abs/1810.11953) - empirical comparison of statistical tests for drift detection, including the KS test approach used above.
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

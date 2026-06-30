@@ -1,24 +1,24 @@
 # Explainer: Why Fairness Metrics Conflict
 
-> *You can't be fair to everyone at once — and the math proves it.*
+> *You can't be fair to everyone at once - and the math proves it.*
 
 ---
 
 ## The One-Sentence Definition
 
-**Fairness metric conflict** is the mathematically proven impossibility of satisfying multiple fairness criteria simultaneously when base rates differ across demographic groups — meaning any choice of fairness metric is also a choice about who bears the cost of being wrong.
+**Fairness metric conflict** is the mathematically proven impossibility of satisfying multiple fairness criteria simultaneously when base rates differ across demographic groups - meaning any choice of fairness metric is also a choice about who bears the cost of being wrong.
 
 ---
 
 ## Why This Matters
 
-Most people assume that making an AI "fair" is a single, solvable problem. It isn't. Researchers have formally proven — not just observed, but *proven* — that several common fairness definitions are mutually incompatible except in degenerate edge cases.
+Most people assume that making an AI "fair" is a single, solvable problem. It isn't. Researchers have formally proven - not just observed, but *proven* - that several common fairness definitions are mutually incompatible except in degenerate edge cases.
 
 This matters in practice because:
 
-- Courts, regulators, and hiring committees each invoke different fairness definitions — and they are often in direct mathematical conflict
+- Courts, regulators, and hiring committees each invoke different fairness definitions - and they are often in direct mathematical conflict
 - A model optimized to satisfy one metric will *necessarily* perform worse on another
-- Choosing a metric is an ethical and political decision, not a technical one — and pretending otherwise is its own form of bias
+- Choosing a metric is an ethical and political decision, not a technical one - and pretending otherwise is its own form of bias
 
 If you deploy a model and declare it "fair" without specifying which metric you used and why, you have not solved the fairness problem. You have hidden it.
 
@@ -38,7 +38,7 @@ P(Ŷ=1 | Group=A) = P(Ŷ=1 | Group=B)
 *Used in:* hiring, lending, admissions audits. Underpins the 80% rule in disparate impact law.
 
 ### 2. Equalized Odds
-The model makes errors at equal rates across groups — equal true positive rates *and* equal false positive rates.
+The model makes errors at equal rates across groups - equal true positive rates *and* equal false positive rates.
 
 ```
 P(Ŷ=1 | Y=1, Group=A) = P(Ŷ=1 | Y=1, Group=B)   [equal TPR]
@@ -60,15 +60,15 @@ P(Y=1 | Ŷ=1, Group=A) = P(Y=1 | Ŷ=1, Group=B)
 
 ## The Formal Impossibility
 
-Chouldechova (2017) and Kleinberg et al. (2016) independently proved the same result: **when base rates differ between groups, you cannot simultaneously satisfy equalized odds and predictive parity** — except in trivial edge cases where the model is perfect or predicts at random.
+Chouldechova (2017) and Kleinberg et al. (2016) independently proved the same result: **when base rates differ between groups, you cannot simultaneously satisfy equalized odds and predictive parity** - except in trivial edge cases where the model is perfect or predicts at random.
 
-The proof is mechanical. If Group A has a higher base rate of positive outcomes than Group B, and your model is calibrated (predictive parity holds), then equalizing true positive rates forces false positive rates to be unequal — and vice versa. You can fix one side of the error table or the other. Not both.
+The proof is mechanical. If Group A has a higher base rate of positive outcomes than Group B, and your model is calibrated (predictive parity holds), then equalizing true positive rates forces false positive rates to be unequal - and vice versa. You can fix one side of the error table or the other. Not both.
 
 ---
 
 ## Real-World Proof: COMPAS
 
-The COMPAS debate is the clearest public illustration of this impossibility. ProPublica and Northpointe were both right — using different metrics.
+The COMPAS debate is the clearest public illustration of this impossibility. ProPublica and Northpointe were both right - using different metrics.
 
 ```python
 import pandas as pd
@@ -119,13 +119,13 @@ Now look at what each party claimed, and why both were technically correct:
 
 | Metric | ProPublica's Claim | Northpointe's Claim |
 |---|---|---|
-| **False Positive Rate** | Black FPR 37% vs White 18% — *unfair* | (didn't dispute this) |
-| **Predictive Parity** | (didn't dispute this) | PPV ~64% vs ~59% — *roughly equal, so fair* |
-| **Who bears the cost** | Black defendants wrongly flagged high-risk | — |
+| **False Positive Rate** | Black FPR 37% vs White 18% - *unfair* | (didn't dispute this) |
+| **Predictive Parity** | (didn't dispute this) | PPV ~64% vs ~59% - *roughly equal, so fair* |
+| **Who bears the cost** | Black defendants wrongly flagged high-risk | - |
 
 **Both claims were mathematically accurate. They were measuring different things.**
 
-ProPublica asked: *do false accusations fall equally?* Northpointe asked: *when we flag someone, are we equally right?* Because Black defendants reoffend at a higher base rate in this dataset — itself a product of over-policing — satisfying one criterion mathematically forces the other to fail.
+ProPublica asked: *do false accusations fall equally?* Northpointe asked: *when we flag someone, are we equally right?* Because Black defendants reoffend at a higher base rate in this dataset - itself a product of over-policing - satisfying one criterion mathematically forces the other to fail.
 
 ---
 
@@ -133,7 +133,7 @@ ProPublica asked: *do false accusations fall equally?* Northpointe asked: *when 
 
 Imagine two groups with different base rates: Group A reoffends at 40%, Group B at 20%.
 
-A calibrated model (predictive parity) assigns risk scores that reflect these real rates. Now you want to equalise false positive rates — the rate at which truly low-risk people are wrongly flagged. To bring Group A's FPR down to match Group B's, you must raise the risk threshold for Group A. But raising the threshold also reduces Group A's true positive rate — now you catch fewer actual reoffenders from Group A. To compensate, you'd need to lower the threshold — which raises the FPR again. The system resists. The math won't let you square this circle.
+A calibrated model (predictive parity) assigns risk scores that reflect these real rates. Now you want to equalise false positive rates - the rate at which truly low-risk people are wrongly flagged. To bring Group A's FPR down to match Group B's, you must raise the risk threshold for Group A. But raising the threshold also reduces Group A's true positive rate - now you catch fewer actual reoffenders from Group A. To compensate, you'd need to lower the threshold - which raises the FPR again. The system resists. The math won't let you square this circle.
 
 ```python
 import numpy as np
@@ -217,7 +217,7 @@ The curves for Group A and Group B will only coincide if the base rates are equa
 
 ## How to Navigate the Conflict
 
-### Step 1 — Audit your base rates first
+### Step 1 - Audit your base rates first
 
 ```python
 def base_rate_audit(df, outcome_col, group_col):
@@ -230,14 +230,14 @@ def base_rate_audit(df, outcome_col, group_col):
     print(rates.to_string())
     print(f"\nBase rate ratio (max/min): {rates.max() / rates.min():.2f}x")
     if rates.max() / rates.min() > 1.2:
-        print("⚠ Base rates differ by >20% — metric conflicts will arise.")
+        print("⚠ Base rates differ by >20% - metric conflicts will arise.")
     return rates
 
 # Example
 base_rate_audit(df, outcome_col='reoffended', group_col='race')
 ```
 
-### Step 2 — Compute all three metrics simultaneously
+### Step 2 - Compute all three metrics simultaneously
 
 ```python
 from sklearn.metrics import confusion_matrix
@@ -267,7 +267,7 @@ audit = full_fairness_audit(
 print(audit)
 ```
 
-### Step 3 — Choose your metric deliberately, and document the trade-off
+### Step 3 - Choose your metric deliberately, and document the trade-off
 
 There is no neutral choice. Each metric prioritises a different kind of fairness and imposes a different kind of cost:
 
@@ -277,7 +277,7 @@ There is no neutral choice. Each metric prioritises a different kind of fairness
 | **Equalized Odds** | Equal error rates in both directions | Predictive accuracy per group may be sacrificed |
 | **Predictive Parity** | Equal reliability of predictions | Groups with lower base rates face higher false positive rates |
 
-Document your choice in the same place you document your model card. A model without a declared fairness metric has not been audited — it has been deployed.
+Document your choice in the same place you document your model card. A model without a declared fairness metric has not been audited - it has been deployed.
 
 ---
 
@@ -285,7 +285,7 @@ Document your choice in the same place you document your model card. A model wit
 
 Even before you pick a metric, there is a prior question: are the base rates in your data *true* rates, or are they artefacts of the system that generated the data?
 
-In the COMPAS dataset, Black defendants appear to reoffend at higher rates. But this statistic is built on arrest records — and arrest rates reflect policing patterns, not actual crime rates. A neighbourhood that is over-policed will produce more arrests of its residents, inflating their apparent recidivism rates. The model treats this as ground truth and calibrates to it. Predictive parity then holds — but it holds against a corrupted baseline.
+In the COMPAS dataset, Black defendants appear to reoffend at higher rates. But this statistic is built on arrest records - and arrest rates reflect policing patterns, not actual crime rates. A neighbourhood that is over-policed will produce more arrests of its residents, inflating their apparent recidivism rates. The model treats this as ground truth and calibrates to it. Predictive parity then holds - but it holds against a corrupted baseline.
 
 This is why choosing a metric is not sufficient. You must also audit the data that defines your ground truth. See the [Proxy Variables explainer](proxy-variables.md) and [Sampling Bias explainer](sampling-bias.md) for the methodology.
 
@@ -293,32 +293,32 @@ This is why choosing a metric is not sufficient. You must also audit the data th
 
 ## Limitations
 
-**There is no universally correct metric.** The choice depends on the domain, the asymmetry between error types, and a normative judgment about whose interests to protect. A hiring algorithm and a medical screening tool warrant different choices, for substantive ethical reasons — not because the math differs.
+**There is no universally correct metric.** The choice depends on the domain, the asymmetry between error types, and a normative judgment about whose interests to protect. A hiring algorithm and a medical screening tool warrant different choices, for substantive ethical reasons - not because the math differs.
 
 **Metric satisfaction does not prove fairness.** A model can satisfy demographic parity by systematically reducing outcomes for an advantaged group rather than improving them for a disadvantaged group. Parity in mediocrity is not justice. Always inspect absolute rates, not just gaps.
 
-**Intersectionality is not captured by pairwise audits.** Auditing by race and by gender separately misses discrimination against Black women specifically, or other intersecting identities. Pairwise metrics pass while intersectional disparities persist. True auditing requires disaggregating by all relevant combinations — which is why large, representative datasets are a prerequisite.
+**Intersectionality is not captured by pairwise audits.** Auditing by race and by gender separately misses discrimination against Black women specifically, or other intersecting identities. Pairwise metrics pass while intersectional disparities persist. True auditing requires disaggregating by all relevant combinations - which is why large, representative datasets are a prerequisite.
 
 ---
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — The ProPublica / Northpointe conflict is a direct illustration of this metric incompatibility
-- [`explainers/equalized-odds.md`](equalized-odds.md) — Deep dive on the error-rate fairness metric
-- [`explainers/demographic-parity.md`](demographic-parity.md) — Deep dive on the equal-outcome-rate metric (the third leg of the impossibility triangle)
-- [`explainers/proxy-variables.md`](proxy-variables.md) — How corrupted base rates flow into metric calculations
-- [`explainers/disparate-impact.md`](disparate-impact.md) — The legal metric (demographic parity under the 80% rule) and its limits
-- [`explainers/sampling-bias.md`](sampling-bias.md) — Why ground truth in training data may not be true
+- [`COMPAS/`](../COMPAS/) - The ProPublica / Northpointe conflict is a direct illustration of this metric incompatibility
+- [`explainers/equalized-odds.md`](equalized-odds.md) - Deep dive on the error-rate fairness metric
+- [`explainers/demographic-parity.md`](demographic-parity.md) - Deep dive on the equal-outcome-rate metric (the third leg of the impossibility triangle)
+- [`explainers/proxy-variables.md`](proxy-variables.md) - How corrupted base rates flow into metric calculations
+- [`explainers/disparate-impact.md`](disparate-impact.md) - The legal metric (demographic parity under the 80% rule) and its limits
+- [`explainers/sampling-bias.md`](sampling-bias.md) - Why ground truth in training data may not be true
 
 ---
 
 ## Further Reading
 
-- [Chouldechova: Fair Prediction with Disparate Impact (2017)](https://arxiv.org/abs/1703.00056) — formal proof of the incompatibility between equalized odds and predictive parity
-- [Kleinberg, Mullainathan & Raghavan: Inherent Trade-offs in the Fair Determination of Risk Scores (2016)](https://arxiv.org/abs/1609.05807) — independent proof of the same impossibility result
-- [Barocas & Hardt: Fairness and Machine Learning](https://fairmlbook.org/) — Chapter 2 (Classification) and Chapter 4 (Legal Background) are directly relevant
-- [ProPublica: Machine Bias (2016)](https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing) — the audit that made this conflict visible to the public
+- [Chouldechova: Fair Prediction with Disparate Impact (2017)](https://arxiv.org/abs/1703.00056) - formal proof of the incompatibility between equalized odds and predictive parity
+- [Kleinberg, Mullainathan & Raghavan: Inherent Trade-offs in the Fair Determination of Risk Scores (2016)](https://arxiv.org/abs/1609.05807) - independent proof of the same impossibility result
+- [Barocas & Hardt: Fairness and Machine Learning](https://fairmlbook.org/) - Chapter 2 (Classification) and Chapter 4 (Legal Background) are directly relevant
+- [ProPublica: Machine Bias (2016)](https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing) - the audit that made this conflict visible to the public
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

@@ -1,5 +1,5 @@
 name: New audit proposal
-description: I want to add a bias audit to the repo — claiming it here first
+description: I want to add a bias audit to the repo - claiming it here first
 labels: ["audit"]
 body:
   - type: markdown
@@ -22,7 +22,7 @@ body:
     attributes:
       label: Dataset
       description: Name and source (Kaggle link, government portal, etc.)
-      placeholder: e.g. HMDA 2022 public LAR — https://ffiec.cfpb.gov/data-browser/
+      placeholder: e.g. HMDA 2022 public LAR - https://ffiec.cfpb.gov/data-browser/
     validations:
       required: true
 
@@ -48,7 +48,7 @@ body:
     id: proxy-variables
     attributes:
       label: Suspected proxy variables
-      description: What correlated features might smuggle the bias back in after you remove the protected attribute? You don't need to have confirmed these yet — just your hypothesis.
+      description: What correlated features might smuggle the bias back in after you remove the protected attribute? You don't need to have confirmed these yet - just your hypothesis.
       placeholder: e.g. Census tract likely correlates with race due to residential segregation patterns
     validations:
       required: true
@@ -67,9 +67,11 @@ body:
     attributes:
       label: Before you start
       options:
-        - label: I've checked the README roadmap and open issues — this audit isn't already claimed or in progress
+        - label: I've checked the README roadmap and open issues - this audit isn't already claimed or in progress
           required: true
         - label: The dataset is publicly available without login or payment
           required: true
         - label: The dataset contains real demographic data (not synthetic)
+          required: true
+        - label: My contribution is em-dash-free - I used hyphens ( - ) instead of em dashes (—) in all files
           required: true

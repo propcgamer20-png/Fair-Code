@@ -1,30 +1,30 @@
-> *A model doesn't know what a "pattern" is — it only knows which numbers tend to move together, and it will use any number that moves together with the target, including the ones that encode race, sex, or age.*
+> *A model doesn't know what a "pattern" is - it only knows which numbers tend to move together, and it will use any number that moves together with the target, including the ones that encode race, sex, or age.*
 
 ## The One-Sentence Definition
 
-**Pattern detection** in machine learning is the process by which a model finds statistical correlations between input features and an outcome, weighting and combining those correlations to produce a prediction — with no built-in distinction between a causal pattern and a discriminatory one.
+**Pattern detection** in machine learning is the process by which a model finds statistical correlations between input features and an outcome, weighting and combining those correlations to produce a prediction - with no built-in distinction between a causal pattern and a discriminatory one.
 
 ## Why It Matters
 
-Every audit in this repo runs on the same underlying mechanism: a Random Forest Classifier finds patterns in `unfair.py` and the exact same patterns, minus a few columns, in `fair.py`. The gap between those two runs is the entire story of algorithmic bias. In hiring, lending, healthcare, and criminal justice, the "pattern" the model found was often a historical record of who got hired, approved, treated, or detained — not a measure of who deserved to be.
+Every audit in this repo runs on the same underlying mechanism: a Random Forest Classifier finds patterns in `unfair.py` and the exact same patterns, minus a few columns, in `fair.py`. The gap between those two runs is the entire story of algorithmic bias. In hiring, lending, healthcare, and criminal justice, the "pattern" the model found was often a historical record of who got hired, approved, treated, or detained - not a measure of who deserved to be.
 
-The non-obvious part is this: pattern detection has no concept of "should." A Random Forest does not know that `CustodyStatus` reflects decades of over-policing rather than individual criminality. It only knows that `CustodyStatus` and `race` move together, and that both move together with the recidivism label. From the model's point of view, a proxy and a cause look identical — both are just columns with high feature importance.
+The non-obvious part is this: pattern detection has no concept of "should." A Random Forest does not know that `CustodyStatus` reflects decades of over-policing rather than individual criminality. It only knows that `CustodyStatus` and `race` move together, and that both move together with the recidivism label. From the model's point of view, a proxy and a cause look identical - both are just columns with high feature importance.
 
 ## How Pattern Detection Works
 
-A Random Forest Classifier — the model used across every audit in this repo — detects patterns through three mechanisms working together.
+A Random Forest Classifier - the model used across every audit in this repo - detects patterns through three mechanisms working together.
 
 ### 1. Splitting on feature thresholds
 
-Each decision tree in the forest repeatedly asks yes/no questions about feature values: "Is `employment` ≥ 7 years?", "Is `payer_code` == Medicaid?". A split is chosen because it best separates the training examples by outcome. The tree does not ask whether the split is *fair* — only whether it is *informative*.
+Each decision tree in the forest repeatedly asks yes/no questions about feature values: "Is `employment` ≥ 7 years?", "Is `payer_code` == Medicaid?". A split is chosen because it best separates the training examples by outcome. The tree does not ask whether the split is *fair* - only whether it is *informative*.
 
 ### 2. Aggregating across many trees
 
-A single tree overfits to noise. A forest of 100 trees (`n_estimators=100`, as used throughout this repo), each trained on a random subset of data and features, averages out that noise. What survives the averaging are the patterns that are *consistently* useful — which includes consistent societal patterns, not just consistent physical ones.
+A single tree overfits to noise. A forest of 100 trees (`n_estimators=100`, as used throughout this repo), each trained on a random subset of data and features, averages out that noise. What survives the averaging are the patterns that are *consistently* useful - which includes consistent societal patterns, not just consistent physical ones.
 
 ### 3. Ranking features by importance
 
-After training, each feature gets an importance score based on how much it improved splits across the forest. In the COMPAS audit, `race` and `CustodyStatus` both score highly — not because the model was told they matter, but because they correlated with the recidivism label in the training data.
+After training, each feature gets an importance score based on how much it improved splits across the forest. In the COMPAS audit, `race` and `CustodyStatus` both score highly - not because the model was told they matter, but because they correlated with the recidivism label in the training data.
 
 ```python
 # Feature importance after training on COMPAS data
@@ -37,13 +37,13 @@ print(importances.sort_values(ascending=False).head())
 # ...
 ```
 
-A high importance score tells you the model relied on that feature. It does not tell you *why* the feature and the outcome are correlated — that requires the proxy analysis covered in [proxy-variables.md](proxy-variables.md).
+A high importance score tells you the model relied on that feature. It does not tell you *why* the feature and the outcome are correlated - that requires the proxy analysis covered in [proxy-variables.md](proxy-variables.md).
 
-## Concrete Example: COMPAS — Audit 01
+## Concrete Example: COMPAS - Audit 01
 
-The COMPAS dataset gives a Random Forest two protected-adjacent features: `race` and `CustodyStatus`. Trained on these alongside other inputs, the model produces an 87.16% high-risk flag rate for Black defendants versus 0.40% for White defendants — an 86.77% fairness gap.
+The COMPAS dataset gives a Random Forest two protected-adjacent features: `race` and `CustodyStatus`. Trained on these alongside other inputs, the model produces an 87.16% high-risk flag rate for Black defendants versus 0.40% for White defendants - an 86.77% fairness gap.
 
-The pattern the model found was real, in the sense that it exists in the data. Black defendants in this dataset genuinely were flagged at higher rates historically. But the pattern is not a measure of who is more likely to reoffend — it is a measure of who was more likely to be *flagged* by a system already shaped by over-policing.
+The pattern the model found was real, in the sense that it exists in the data. Black defendants in this dataset genuinely were flagged at higher rates historically. But the pattern is not a measure of who is more likely to reoffend - it is a measure of who was more likely to be *flagged* by a system already shaped by over-policing.
 
 ```python
 # unfair.py pattern: race and CustodyStatus both carry strong signal
@@ -52,7 +52,7 @@ model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 ```
 
-When `race` is dropped, the gap barely moves — `CustodyStatus` alone reconstructs most of the pattern, because it correlates with `race` at 0.31 importance even on its own. Only when both `race` and `CustodyStatus` are removed does the gap fall to 15.69%, a 71% reduction. The pattern the model was detecting was never really about behavior — it was about which neighborhoods got patrolled.
+When `race` is dropped, the gap barely moves - `CustodyStatus` alone reconstructs most of the pattern, because it correlates with `race` at 0.31 importance even on its own. Only when both `race` and `CustodyStatus` are removed does the gap fall to 15.69%, a 71% reduction. The pattern the model was detecting was never really about behavior - it was about which neighborhoods got patrolled.
 
 ## Detection Code
 
@@ -122,11 +122,11 @@ A high feature importance score means the model used that feature heavily. It do
 
 ### 2. Removing high-importance features can shift the pattern elsewhere
 
-When a strongly relied-upon feature is dropped, the forest does not simply "give up" on the pattern — it redistributes importance to the next most correlated feature. This is exactly what happens with `CustodyStatus` after `race` is dropped in the COMPAS audit. Pattern detection at the feature level must be paired with cluster-level analysis (see [proxy-entanglement.md](proxy-entanglement.md)).
+When a strongly relied-upon feature is dropped, the forest does not simply "give up" on the pattern - it redistributes importance to the next most correlated feature. This is exactly what happens with `CustodyStatus` after `race` is dropped in the COMPAS audit. Pattern detection at the feature level must be paired with cluster-level analysis (see [proxy-entanglement.md](proxy-entanglement.md)).
 
 ### 3. Small subgroups produce unstable importance estimates
 
-In datasets with small demographic subgroups — such as the Asian and Hispanic groups in the Healthcare Readmission audit — feature importance and correlation statistics are sensitive to sample size. A pattern that looks strong in a subgroup of a few hundred records may not replicate at scale, and a pattern that looks weak may simply be underpowered.
+In datasets with small demographic subgroups - such as the Asian and Hispanic groups in the Healthcare Readmission audit - feature importance and correlation statistics are sensitive to sample size. A pattern that looks strong in a subgroup of a few hundred records may not replicate at scale, and a pattern that looks weak may simply be underpowered.
 
 ### 4. Pattern detection cannot tell you which patterns are legitimate
 
@@ -134,23 +134,23 @@ A Random Forest treats `education.num` and `relationship` identically: both are 
 
 ## Related Concepts
 
-* [What Is a Proxy Variable?](proxy-variables.md) — explains why patterns the model detects can carry protected-class signal even when the protected column itself is removed.
-* [What Happens Inside a Neural Network?](neural-networks.md) — covers pattern detection in a different model family, where patterns are encoded as learned weights rather than tree splits.
-* [What Are SHAP Values?](shap-values.md) — a more granular way to inspect which patterns drove a single prediction, not just the model as a whole.
-* [What Is Proxy Entanglement?](proxy-entanglement.md) — what happens when a detected pattern is spread across multiple correlated features instead of concentrated in one.
+* [What Is a Proxy Variable?](proxy-variables.md) - explains why patterns the model detects can carry protected-class signal even when the protected column itself is removed.
+* [What Happens Inside a Neural Network?](neural-networks.md) - covers pattern detection in a different model family, where patterns are encoded as learned weights rather than tree splits.
+* [What Are SHAP Values?](shap-values.md) - a more granular way to inspect which patterns drove a single prediction, not just the model as a whole.
+* [What Is Proxy Entanglement?](proxy-entanglement.md) - what happens when a detected pattern is spread across multiple correlated features instead of concentrated in one.
 
 ## Related Projects in This Repo
 
-* [`COMPAS/`](../COMPAS/) — the clearest example of a model detecting a pattern (race-correlated custody history) that mirrors a discriminatory outcome rather than a behavioral one.
-* [`Healthcare Readmission/`](../Healthcare%20Readmission/) — shows pattern detection across an entangled cluster of administrative features, where no single feature's importance score tells the full story.
-* [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) — shows a clean before/after where the patterns driving 97.3% of the fairness gap were concentrated in just two features (`gender`, `age`).
+* [`COMPAS/`](../COMPAS/) - the clearest example of a model detecting a pattern (race-correlated custody history) that mirrors a discriminatory outcome rather than a behavioral one.
+* [`Healthcare Readmission/`](../Healthcare%20Readmission/) - shows pattern detection across an entangled cluster of administrative features, where no single feature's importance score tells the full story.
+* [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) - shows a clean before/after where the patterns driving 97.3% of the fairness gap were concentrated in just two features (`gender`, `age`).
 
 ## Further Reading
 
-* [Breiman (2001): Random Forests, *Machine Learning* 45(1)](https://link.springer.com/article/10.1023/A:1010933404324) — the original paper describing how random forests aggregate split-based pattern detection across trees.
-* [Lundberg & Lee (2017): A Unified Approach to Interpreting Model Predictions, *NeurIPS*](https://arxiv.org/abs/1705.07874) — formal grounding for SHAP, the standard tool for inspecting which patterns a model used on a per-prediction basis.
-* [Barocas, Hardt & Narayanan: *Fairness and Machine Learning*](https://fairmlbook.org) — chapter on classification covers the gap between statistical pattern detection and causal or normative justification.
+* [Breiman (2001): Random Forests, *Machine Learning* 45(1)](https://link.springer.com/article/10.1023/A:1010933404324) - the original paper describing how random forests aggregate split-based pattern detection across trees.
+* [Lundberg & Lee (2017): A Unified Approach to Interpreting Model Predictions, *NeurIPS*](https://arxiv.org/abs/1705.07874) - formal grounding for SHAP, the standard tool for inspecting which patterns a model used on a per-prediction basis.
+* [Barocas, Hardt & Narayanan: *Fairness and Machine Learning*](https://fairmlbook.org) - chapter on classification covers the gap between statistical pattern detection and causal or normative justification.
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

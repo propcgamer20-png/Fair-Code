@@ -1,20 +1,20 @@
 # Explainer: What is Feedback Loop Bias?
 
-> *The reason AI systems don't just reflect the past — they actively manufacture more of it.*
+> *The reason AI systems don't just reflect the past - they actively manufacture more of it.*
 
 ---
 
 ## The One-Sentence Definition
 
-**Feedback loop bias** occurs when a model's predictions influence the real-world outcomes it will later be trained on, so the model's existing biases are continuously confirmed and amplified over successive retraining cycles — even without any human ever introducing new discrimination.
+**Feedback loop bias** occurs when a model's predictions influence the real-world outcomes it will later be trained on, so the model's existing biases are continuously confirmed and amplified over successive retraining cycles - even without any human ever introducing new discrimination.
 
 ---
 
 ## Why This Matters
 
-Proxy variables and sampling bias are problems you can fix at training time: audit your features, remove the proxies, retrain. Feedback loop bias is different. It's a *temporal* problem. The model doesn't just learn from biased historical data — it generates biased present-day data that then becomes the training set for the next version of itself.
+Proxy variables and sampling bias are problems you can fix at training time: audit your features, remove the proxies, retrain. Feedback loop bias is different. It's a *temporal* problem. The model doesn't just learn from biased historical data - it generates biased present-day data that then becomes the training set for the next version of itself.
 
-This is sometimes called **performative prediction**: the model's output changes the world, and the changed world then feeds back into the model. Left unchecked, this process can take a modestly biased model and turn it into an extremely biased one — not because anyone made it worse, but because nothing stopped it from compounding.
+This is sometimes called **performative prediction**: the model's output changes the world, and the changed world then feeds back into the model. Left unchecked, this process can take a modestly biased model and turn it into an extremely biased one - not because anyone made it worse, but because nothing stopped it from compounding.
 
 The mechanism is self-sealing: the model predicts high risk for Group A, so Group A receives more scrutiny, so more violations are detected in Group A, so the next model sees even more Group A violations in its training data, so it predicts even higher risk for Group A. At no point does anyone add discrimination. The feedback loop does it automatically.
 
@@ -38,11 +38,11 @@ The most documented case of feedback loop bias in production is predictive polic
 
 ### How It Works
 
-Predictive policing systems — like PredPol (now Geolitica) — train on historical arrest data to predict which areas or individuals are "high risk." Police are then deployed based on those predictions.
+Predictive policing systems - like PredPol (now Geolitica) - train on historical arrest data to predict which areas or individuals are "high risk." Police are then deployed based on those predictions.
 
-The flaw is structural. Arrest data doesn't measure crime — it measures *policing*. Areas that receive more police patrols generate more arrests, not because more crime happens there, but because more enforcement is present. When that arrest data is used to train the next iteration of the model, those over-policed areas appear even more dangerous.
+The flaw is structural. Arrest data doesn't measure crime - it measures *policing*. Areas that receive more police patrols generate more arrests, not because more crime happens there, but because more enforcement is present. When that arrest data is used to train the next iteration of the model, those over-policed areas appear even more dangerous.
 
-A 2019 analysis by Rashida Richardson, Jason Schultz, and Kate Crawford documented what they called "dirty data" — cases where predictive policing systems were trained on data generated during periods of documented police misconduct, racial profiling, and corruption. The model learned the misconduct as signal.
+A 2019 analysis by Rashida Richardson, Jason Schultz, and Kate Crawford documented what they called "dirty data" - cases where predictive policing systems were trained on data generated during periods of documented police misconduct, racial profiling, and corruption. The model learned the misconduct as signal.
 
 ### The Feedback Loop in Pseudocode
 
@@ -54,13 +54,13 @@ patrol_zones = model_v1.predict_high_risk()  # Over-predicts Zone A
 # Zone A receives 3x the patrols
 zone_a_arrests = patrol(zone_a, intensity=3x)  # More arrests, not more crime
 
-# Iteration 2 — the loop
+# Iteration 2 - the loop
 new_training_data = historical_arrest_data + zone_a_arrests
 model_v2 = train(new_training_data)  # Zone A signal is now even stronger
 patrol_zones_v2 = model_v2.predict_high_risk()  # Zone A flagged at higher confidence
 ```
 
-Each iteration makes the model more certain about Zone A — not because Zone A is more dangerous, but because the model kept looking there.
+Each iteration makes the model more certain about Zone A - not because Zone A is more dangerous, but because the model kept looking there.
 
 ---
 
@@ -119,7 +119,7 @@ def simulate_feedback_loop(df, feature_cols, label_col, group_col, n_cycles=5, s
 def print_feedback_report(results, group_col):
     """Print a readable summary of group prediction rates across cycles."""
     print(f"\n{'='*55}")
-    print(f"  FEEDBACK LOOP SIMULATION — {group_col.upper()}")
+    print(f"  FEEDBACK LOOP SIMULATION - {group_col.upper()}")
     print(f"{'='*55}")
 
     groups = list(next(iter(results.values())).keys())
@@ -166,7 +166,7 @@ The critical difference between feedback loop bias and ordinary historical bias:
 | **Trajectory** | Stable (fixed at training time) | Compounding (worsens each cycle) |
 | **Fix** | Audit features once before training | Ongoing monitoring across retraining cycles |
 | **Detectability** | Single-point audit | Requires longitudinal tracking |
-| **Self-sealing?** | No | Yes — model confirms its own prior beliefs |
+| **Self-sealing?** | No | Yes - model confirms its own prior beliefs |
 
 ---
 
@@ -209,9 +209,9 @@ def flag_feedback_drift(results, threshold=0.05):
 
 Feedback loop bias is what happens when a biased model is treated as a neutral source of truth. The model's predictions become the next generation's labels. The next generation's labels become the next model's signal. The loop closes, and the bias compounds.
 
-This is not a hypothetical. Predictive policing systems trained on over-policed communities have been formally documented producing exactly this pattern. Healthcare algorithms that used cost as a proxy for need have been documented under-allocating resources to Black patients — and those allocation decisions then reduced the care-seeking behaviour that would have corrected the signal.
+This is not a hypothetical. Predictive policing systems trained on over-policed communities have been formally documented producing exactly this pattern. Healthcare algorithms that used cost as a proxy for need have been documented under-allocating resources to Black patients - and those allocation decisions then reduced the care-seeking behaviour that would have corrected the signal.
 
-Feedback loops are the reason algorithmic auditing cannot be a one-time exercise at deployment. It must be continuous. The model that passes a fairness audit on launch day may fail one a year later — not because anyone changed it, but because it has been changing its own training data the entire time.
+Feedback loops are the reason algorithmic auditing cannot be a one-time exercise at deployment. It must be continuous. The model that passes a fairness audit on launch day may fail one a year later - not because anyone changed it, but because it has been changing its own training data the entire time.
 
 ---
 
@@ -225,18 +225,18 @@ Feedback loops are the reason algorithmic auditing cannot be a one-time exercise
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — The COMPAS criminal justice audit; the arrest-based training data used in this system is precisely the kind of feedback-contaminated label source this explainer describes
-- [`explainers/proxy-variables.md`](proxy-variables.md) — Proxy variables are the mechanism that feedback loops amplify; read this first
-- [`explainers/sampling-bias.md`](sampling-bias.md) — Feedback loops can be understood as a dynamic form of sampling bias that gets worse over time
+- [`COMPAS/`](../COMPAS/) - The COMPAS criminal justice audit; the arrest-based training data used in this system is precisely the kind of feedback-contaminated label source this explainer describes
+- [`explainers/proxy-variables.md`](proxy-variables.md) - Proxy variables are the mechanism that feedback loops amplify; read this first
+- [`explainers/sampling-bias.md`](sampling-bias.md) - Feedback loops can be understood as a dynamic form of sampling bias that gets worse over time
 
 ---
 
 ## Further Reading
 
-- [Richardson, Schultz & Crawford: Dirty Data, Bad Predictions (2019)](https://www.nyulawreview.org/online-features/dirty-data-bad-predictions-how-civil-rights-violations-impact-police-data-predictive-policing-systems-and-justice/) — Documents how predictive policing systems trained on misconduct-tainted data compound historical bias
-- [Ensign et al.: Runaway Feedback Loops in Predictive Policing (FAT* 2018)](https://arxiv.org/abs/1706.09847) — The foundational paper formally modelling feedback loops in predictive policing
-- [Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)](https://science.sciencemag.org/content/366/6464/447) — Healthcare feedback loop case study; cost-as-proxy for need systematically under-allocated care to Black patients
+- [Richardson, Schultz & Crawford: Dirty Data, Bad Predictions (2019)](https://www.nyulawreview.org/online-features/dirty-data-bad-predictions-how-civil-rights-violations-impact-police-data-predictive-policing-systems-and-justice/) - Documents how predictive policing systems trained on misconduct-tainted data compound historical bias
+- [Ensign et al.: Runaway Feedback Loops in Predictive Policing (FAT* 2018)](https://arxiv.org/abs/1706.09847) - The foundational paper formally modelling feedback loops in predictive policing
+- [Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)](https://science.sciencemag.org/content/366/6464/447) - Healthcare feedback loop case study; cost-as-proxy for need systematically under-allocated care to Black patients
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

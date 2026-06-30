@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-# Keyword lists — order matters; the first dimension that matches wins.
+# Keyword lists - order matters; the first dimension that matches wins.
 # Mirror these exactly in assets/profiler-engine.js.
 KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
     ("sex", ("sex", "gender")),

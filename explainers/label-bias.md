@@ -1,18 +1,18 @@
 # Explainer: What is Label Bias?
 
-> *The training data your model learned from was itself a record of human prejudice. Garbage in, discrimination out — and the model has no idea.*
+> *The training data your model learned from was itself a record of human prejudice. Garbage in, discrimination out - and the model has no idea.*
 
 ---
 
 ## The One-Sentence Definition
 
-**Label Bias** is a form of historical bias that occurs when the ground-truth labels used to train a model reflect past human discrimination rather than actual merit, risk, or outcome — causing the model to learn and perpetuate that discrimination as if it were objective fact.
+**Label Bias** is a form of historical bias that occurs when the ground-truth labels used to train a model reflect past human discrimination rather than actual merit, risk, or outcome - causing the model to learn and perpetuate that discrimination as if it were objective fact.
 
 ---
 
 ## Why This Matters
 
-Every supervised learning model learns to predict a label. The quiet assumption is that the label is correct. In practice, labels in real-world datasets are often human decisions — hiring outcomes, parole approvals, loan denials, performance ratings — recorded by people operating inside systems that were already discriminatory.
+Every supervised learning model learns to predict a label. The quiet assumption is that the label is correct. In practice, labels in real-world datasets are often human decisions - hiring outcomes, parole approvals, loan denials, performance ratings - recorded by people operating inside systems that were already discriminatory.
 
 When a model trains on those labels, it doesn't just learn patterns. It learns to reproduce the prejudice baked into every `0` and `1`.
 
@@ -22,7 +22,7 @@ This is what makes label bias fundamentally different from every other bias disc
 - **Sampling bias** is a problem in who is represented. Label bias is a problem in whether the labels were fair in the first place.
 - **Feedback loop bias** is label bias that compounds across retraining cycles.
 
-You cannot detect label bias by looking at your data pipeline. The data pipeline is clean. The labels were just wrong to begin with — and you likely have no ground truth to compare them against.
+You cannot detect label bias by looking at your data pipeline. The data pipeline is clean. The labels were just wrong to begin with - and you likely have no ground truth to compare them against.
 
 ---
 
@@ -32,7 +32,7 @@ Imagine a company builds a resume-screening model trained on ten years of its ow
 
 The model trains, achieves 89% accuracy on a holdout set, passes the Four-Fifths Rule (Disparate Impact Ratio = 0.84), and ships.
 
-The problem: over those ten years, the company's hiring managers disproportionately rejected women for senior roles — not because women were less qualified, but because of documented managerial bias. That pattern is now encoded in the label column.
+The problem: over those ten years, the company's hiring managers disproportionately rejected women for senior roles - not because women were less qualified, but because of documented managerial bias. That pattern is now encoded in the label column.
 
 The model learned that a woman with 8 years of experience and a high technical score is, historically, `hired = 0`. It's not discriminating against women directly. It's accurately predicting what biased humans would have decided.
 
@@ -77,7 +77,7 @@ rates = test_results.groupby('gender')['prediction'].mean()
 print(rates)
 # Female    0.189
 # Male      0.241
-# The model reproduces the historical gap — not because of any feature engineering,
+# The model reproduces the historical gap - not because of any feature engineering,
 # but because it faithfully learned from biased labels.
 ```
 
@@ -87,9 +87,9 @@ The model was never told about gender-based bias. It discovered the pattern in t
 
 ## Why It's So Hard to Detect
 
-Most fairness checks — Disparate Impact, Equalized Odds, Demographic Parity — are comparisons between model predictions and ground-truth labels. Label bias breaks this test design at the root, because the ground-truth labels are the problem.
+Most fairness checks - Disparate Impact, Equalized Odds, Demographic Parity - are comparisons between model predictions and ground-truth labels. Label bias breaks this test design at the root, because the ground-truth labels are the problem.
 
-Consider the COMPAS audit in this repo. Black defendants are flagged as high-risk at dramatically higher rates than White defendants. One interpretation: the model is biased. Another, harder interpretation: the model learned from recidivism labels that were themselves shaped by over-policing, prosecution rate disparities, and sentencing gaps. A model trained to predict reoffending — using labels derived from who *got arrested again* — is training on a variable that reflects policing decisions as much as defendant behaviour.
+Consider the COMPAS audit in this repo. Black defendants are flagged as high-risk at dramatically higher rates than White defendants. One interpretation: the model is biased. Another, harder interpretation: the model learned from recidivism labels that were themselves shaped by over-policing, prosecution rate disparities, and sentencing gaps. A model trained to predict reoffending - using labels derived from who *got arrested again* - is training on a variable that reflects policing decisions as much as defendant behaviour.
 
 No standard bias audit can distinguish between "the model is wrong" and "the labels were wrong." You need external ground truth to do that, and in most deployment domains, none exists.
 
@@ -138,7 +138,7 @@ def label_bias_audit(df, label_col, group_col, feature_cols, n_bins=4):
 
 ### 2. Consistency test
 
-Within the same merit tier, the label rate should be roughly equal across groups. If it is not — if highly-qualified members of one group received `0` labels at higher rates — that is a signal of label bias.
+Within the same merit tier, the label rate should be roughly equal across groups. If it is not - if highly-qualified members of one group received `0` labels at higher rates - that is a signal of label bias.
 
 ```python
 # Apply it to the hiring simulation above
@@ -155,14 +155,14 @@ label_bias_audit(
 # 0               0.084   0.098   ← low merit tier: small gap, plausible
 # 1               0.151   0.182   ← moderate tier: gap growing
 # 2               0.231   0.290   ← gap persists even at high merit
-# 3               0.350   0.431   ← top tier: 8pp gap — flags label bias
+# 3               0.350   0.431   ← top tier: 8pp gap - flags label bias
 ```
 
-A consistent gap that *increases with merit* — exactly where it should disappear — is a strong label-bias signal.
+A consistent gap that *increases with merit* - exactly where it should disappear - is a strong label-bias signal.
 
 ### 3. Counterfactual label audit
 
-Where records exist for both groups with matched features, compare label rates directly. This is the methodological approach used in audit studies — the "matched resume" experiments in hiring research — and it can be replicated computationally on historical datasets via propensity score matching.
+Where records exist for both groups with matched features, compare label rates directly. This is the methodological approach used in audit studies - the "matched resume" experiments in hiring research - and it can be replicated computationally on historical datasets via propensity score matching.
 
 ```python
 from sklearn.linear_model import LogisticRegression
@@ -238,7 +238,7 @@ The most direct approach: convene a structured review of a sample of labels, spe
 
 ### 2. Learning with noisy labels
 
-If you believe labels are biased but cannot relabel, noise-robust training methods can reduce the model's tendency to fit the biased signal. The key assumption: label errors are not random — they are correlated with the protected attribute.
+If you believe labels are biased but cannot relabel, noise-robust training methods can reduce the model's tendency to fit the biased signal. The key assumption: label errors are not random - they are correlated with the protected attribute.
 
 ```python
 # Conceptual example: downweight training examples where label is
@@ -280,13 +280,13 @@ model.fit(X_train, y_train, sample_weight=weights[X_train.index])
 
 ### 3. Outcome-based labels where possible
 
-Where the label captures a *decision* (hired, approved, denied), consider replacing it with an *outcome* if one exists — actual job performance, actual loan repayment, actual recidivism. Decisions are biased by the decision-maker. Outcomes are closer to ground truth.
+Where the label captures a *decision* (hired, approved, denied), consider replacing it with an *outcome* if one exists - actual job performance, actual loan repayment, actual recidivism. Decisions are biased by the decision-maker. Outcomes are closer to ground truth.
 
 This is not always available (historical data may not include follow-up) and has its own complications (outcomes also reflect systemic inequities), but it is a stronger label where it exists.
 
 ### 4. Fairness constraints at training time
 
-If you cannot fix the labels, you can constrain the model to ignore the discriminatory signal in them. Fairlearn's `ExponentiatedGradient` and `GridSearch` reducers can enforce Demographic Parity or Equalized Odds constraints regardless of what is in the label column — effectively refusing to learn the biased pattern even when it is present.
+If you cannot fix the labels, you can constrain the model to ignore the discriminatory signal in them. Fairlearn's `ExponentiatedGradient` and `GridSearch` reducers can enforce Demographic Parity or Equalized Odds constraints regardless of what is in the label column - effectively refusing to learn the biased pattern even when it is present.
 
 ```python
 from fairlearn.reductions import ExponentiatedGradient, DemographicParity
@@ -303,7 +303,7 @@ mitigator.fit(
 )
 ```
 
-This does not remove the label bias — it overrides it. The model learns a different mapping that satisfies the fairness constraint even though the labels were discriminatory.
+This does not remove the label bias - it overrides it. The model learns a different mapping that satisfies the fairness constraint even though the labels were discriminatory.
 
 ---
 
@@ -311,7 +311,7 @@ This does not remove the label bias — it overrides it. The model learns a diff
 
 ### You often can't prove it without external ground truth
 
-The conditional label distribution test is suggestive, not conclusive. A gap in label rates within a merit tier could reflect label bias, or it could reflect a legitimate merit signal not captured in your features. Distinguishing the two requires either external validation data or a randomised audit study — both of which are rarely available in production settings.
+The conditional label distribution test is suggestive, not conclusive. A gap in label rates within a merit tier could reflect label bias, or it could reflect a legitimate merit signal not captured in your features. Distinguishing the two requires either external validation data or a randomised audit study - both of which are rarely available in production settings.
 
 ### Fixing labels can introduce new errors
 
@@ -319,7 +319,7 @@ Relabeling historical data changes the ground truth that future models train on.
 
 ### Fairness constraints trade accuracy for parity
 
-Applying Demographic Parity or Equalized Odds constraints during training forces the model away from the labels — which means worse predictive accuracy on the (biased) test set. This is the right trade-off when the test labels are themselves biased, but it appears as an accuracy regression if evaluated naively. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
+Applying Demographic Parity or Equalized Odds constraints during training forces the model away from the labels - which means worse predictive accuracy on the (biased) test set. This is the right trade-off when the test labels are themselves biased, but it appears as an accuracy regression if evaluated naively. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
 
 ### It compounds with feedback loops
 
@@ -329,13 +329,13 @@ Label bias is the starting condition for feedback loop bias. A model trained on 
 
 ## The Bigger Picture
 
-Label bias forces an uncomfortable question: if the training data records what humans decided, and humans decided in discriminatory ways, is a model trained on that data learning job-relevant patterns — or is it learning to replicate discrimination at scale?
+Label bias forces an uncomfortable question: if the training data records what humans decided, and humans decided in discriminatory ways, is a model trained on that data learning job-relevant patterns - or is it learning to replicate discrimination at scale?
 
 The answer is usually both. The model learns real signal *and* discriminatory signal because both are present in the labels. Standard evaluation cannot distinguish them because it uses the same labels as the ground truth.
 
-This is why label bias is particularly dangerous in high-stakes domains: criminal justice, hiring, lending, healthcare. These are exactly the domains where historical records exist at scale, where AI adoption is fastest, and where the decisions have the largest impact on people's lives. They are also the domains where historical discrimination was most systematic — and therefore most thoroughly documented in the label column.
+This is why label bias is particularly dangerous in high-stakes domains: criminal justice, hiring, lending, healthcare. These are exactly the domains where historical records exist at scale, where AI adoption is fastest, and where the decisions have the largest impact on people's lives. They are also the domains where historical discrimination was most systematic - and therefore most thoroughly documented in the label column.
 
-**Auditing for label bias requires going beyond the model. It requires asking whether the target variable you trained on was ever a legitimate measure of what you claim to predict — or whether it was always a record of what biased humans decided.**
+**Auditing for label bias requires going beyond the model. It requires asking whether the target variable you trained on was ever a legitimate measure of what you claim to predict - or whether it was always a record of what biased humans decided.**
 
 ---
 
@@ -359,25 +359,25 @@ Disparate Treatment occurs when a protected attribute is used directly in the de
 
 ### Fairness Metric Conflicts
 
-Any fairness constraint applied to correct for label bias will trade off against accuracy on the biased labels. This apparent trade-off is a feature, not a bug — but it registers as an accuracy drop in standard evaluation. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
+Any fairness constraint applied to correct for label bias will trade off against accuracy on the biased labels. This apparent trade-off is a feature, not a bug - but it registers as an accuracy drop in standard evaluation. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
 
 ---
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — recidivism labels derived from re-arrest data, which reflects policing decisions as much as defendant behaviour. The most direct worked example of label bias in this repo.
-- [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) — hiring labels generated by human managers whose decisions carried gender and age bias. The biased model (DI ratio 0.791) learns from those labels without any explicit demographic input.
-- [`Benefits Denial/`](../Benefits%20Denial/) — income labels from 1994 Census data, a period when structural discrimination in wages and labour access was undocumented and unmitigated. The label column records outcomes, not potential.
+- [`COMPAS/`](../COMPAS/) - recidivism labels derived from re-arrest data, which reflects policing decisions as much as defendant behaviour. The most direct worked example of label bias in this repo.
+- [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) - hiring labels generated by human managers whose decisions carried gender and age bias. The biased model (DI ratio 0.791) learns from those labels without any explicit demographic input.
+- [`Benefits Denial/`](../Benefits%20Denial/) - income labels from 1994 Census data, a period when structural discrimination in wages and labour access was undocumented and unmitigated. The label column records outcomes, not potential.
 
 ---
 
 ## Further Reading
 
-- [Barocas & Selbst (2016): *Big Data's Disparate Impact*, 104 Calif. L. Rev. 671](https://www.californialawreview.org/print/2-big-datas-disparate-impact) — Section III covers biased training labels as a mechanism of algorithmic discrimination
-- [Friedler et al. (2019): *A Comparative Study of Fairness-Enhancing Interventions in Machine Learning*](https://arxiv.org/abs/1802.04422) — empirical comparison of pre-, in-, and post-processing mitigation strategies, including label noise correction
-- [Jacobs & Wallach (2021): *Measurement and Fairness*, FAccT 2021](https://arxiv.org/abs/1912.05511) — the definitive paper on the gap between what ML labels purport to measure and what they actually encode
-- [Obermeyer et al. (2019): *Dissecting Racial Bias in an Algorithm Used to Manage the Health of Populations*, Science](https://www.science.org/doi/10.1126/science.aax2342) — landmark audit showing a healthcare algorithm that used healthcare cost as a proxy for health need; the label itself (cost) was biased because Black patients had less access to care at equal health levels
+- [Barocas & Selbst (2016): *Big Data's Disparate Impact*, 104 Calif. L. Rev. 671](https://www.californialawreview.org/print/2-big-datas-disparate-impact) - Section III covers biased training labels as a mechanism of algorithmic discrimination
+- [Friedler et al. (2019): *A Comparative Study of Fairness-Enhancing Interventions in Machine Learning*](https://arxiv.org/abs/1802.04422) - empirical comparison of pre-, in-, and post-processing mitigation strategies, including label noise correction
+- [Jacobs & Wallach (2021): *Measurement and Fairness*, FAccT 2021](https://arxiv.org/abs/1912.05511) - the definitive paper on the gap between what ML labels purport to measure and what they actually encode
+- [Obermeyer et al. (2019): *Dissecting Racial Bias in an Algorithm Used to Manage the Health of Populations*, Science](https://www.science.org/doi/10.1126/science.aax2342) - landmark audit showing a healthcare algorithm that used healthcare cost as a proxy for health need; the label itself (cost) was biased because Black patients had less access to care at equal health levels
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

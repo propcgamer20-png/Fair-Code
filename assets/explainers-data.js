@@ -122,14 +122,14 @@ window.FAIR_CODE_EXPLAINERS = [
     slug: 'ml-bias',
     title: 'What Is Machine Learning Bias?',
     subtitle: 'Four entry points. One pipeline. Measurable everywhere.',
-    summary: 'Understand how bias enters AI systems through training data, labels, proxy variables, and feedback loops — with detection code and real examples from every audit in this repo.',
+    summary: 'Understand how bias enters AI systems through training data, labels, proxy variables, and feedback loops - with detection code and real examples from every audit in this repo.',
     tags: ['detection', 'data', 'explainability'],
   },
   {
     slug: 'data-leakage',
     title: 'What Is Data Leakage?',
     subtitle: 'When the model has already seen the answer sheet.',
-    summary: 'Data leakage contaminates a model\'s training signal with information unavailable at deployment, producing evaluation scores that overstate real-world performance. Learn to identify target leakage and train-test contamination — and detect both before they ship.',
+    summary: 'Data leakage contaminates a model\'s training signal with information unavailable at deployment, producing evaluation scores that overstate real-world performance. Learn to identify target leakage and train-test contamination - and detect both before they ship.',
     tags: ['data', 'detection'],
   },
   {
@@ -157,7 +157,7 @@ window.FAIR_CODE_EXPLAINERS = [
     slug: 'confounding-variable',
     title: 'Confounding Variable',
     subtitle: 'When a hidden cause makes two things look connected.',
-    summary: 'Learn how a third variable that independently causes both a feature and an outcome creates spurious correlations that survive protected-attribute removal. See why COMPAS stayed biased after race was dropped — until the confounder was removed too.',
+    summary: 'Learn how a third variable that independently causes both a feature and an outcome creates spurious correlations that survive protected-attribute removal. See why COMPAS stayed biased after race was dropped - until the confounder was removed too.',
     tags: ['detection', 'data'],
   },
 ];

@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# INSURANCE DENIAL BIAS AUDIT — FAIR MODEL
+# INSURANCE DENIAL BIAS AUDIT - FAIR MODEL
 # Dataset: Insurance Claim Analysis: Demographic & Health
 # https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health
 #
@@ -13,13 +13,13 @@ from sklearn.metrics import accuracy_score
 # Proxy variables removed:      bmi, smoker, diabetic
 #
 # Retained: only features that reflect documented policy
-# context — not who the person is or proxies for their
+# context - not who the person is or proxies for their
 # race, class, or protected status.
 # ============================================================
 
 df = pd.read_csv(Path(__file__).parent / 'insurance.csv')
 
-# Same binarization threshold as unfair.py — valid comparison.
+# Same binarization threshold as unfair.py - valid comparison.
 median_charge = df['claim'].median()
 y = (df['claim'] > median_charge).astype(int)
 
@@ -28,8 +28,8 @@ df['age_group'] = df['age'].apply(lambda x: 'Young (<35)' if x < 35 else 'Older 
 # ── THE FIX: Policy signals only ────────────────────────────
 X = pd.get_dummies(df[[
     'bloodpressure', # objective clinical measurement
-    'children',      # number of dependants — policy-level fact
-    'region',        # geographic region — policy-level factor
+    'children',      # number of dependants - policy-level fact
+    'region',        # geographic region - policy-level factor
     # age      removed ✓  (protected attribute)
     # gender   removed ✓  (protected attribute)
     # bmi      removed ✓  (proxy: encodes race via population BMI distributions)
@@ -57,7 +57,7 @@ age_approval    = df_test.groupby('age_group')['prediction'].mean()
 gender_approval = df_test.groupby('gender')['prediction'].mean()
 
 print("=" * 60)
-print("FAIR MODEL — RESULTS")
+print("FAIR MODEL - RESULTS")
 print("=" * 60)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -90,7 +90,7 @@ THE FIX: Drop the protected attributes AND their proxies.
               model learned to penalise women.
 
   bmi      → removed. BMI is not an independent health
-              signal — it is partially a function of race,
+              signal - it is partially a function of race,
               ethnicity, and socioeconomic status. A model
               that penalises high BMI is partially
               penalising race, regardless of whether
@@ -106,11 +106,11 @@ THE FIX: Drop the protected attributes AND their proxies.
               diagnosed diabetic at 60–100% higher rates.
               Using diabetic status as a feature encodes
               racial disparities in healthcare access and
-              diagnosis rates — not individual health risk.
+              diagnosis rates - not individual health risk.
 
 Key Insight: Insurance AI models don't need to name race
 to discriminate by race. BMI, smoking, and diabetic status
-are the CustodyStatus of health insurance — clinical-
+are the CustodyStatus of health insurance - clinical-
 sounding features that carry protected-class signal because
 of structural inequalities baked into American healthcare.
 """)

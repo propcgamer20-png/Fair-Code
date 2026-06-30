@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# HOSPITAL READMISSION BIAS AUDIT — FAIR MODEL
+# HOSPITAL READMISSION BIAS AUDIT - FAIR MODEL
 # Dataset: Diabetes 130-US Hospitals (1999–2008)
 # https://www.kaggle.com/datasets/brandao/diabetes
 #
@@ -17,7 +17,7 @@ from sklearn.metrics import accuracy_score
 #                         Medicaid rates differ significantly
 #                         by race. A clinical readmission model
 #                         has no legitimate use for payment
-#                         source — medical risk is independent
+#                         source - medical risk is independent
 #                         of who is paying.
 #   discharge_disposition_id → encodes post-acute care access,
 #                         which is determined by insurance and
@@ -30,7 +30,7 @@ from sklearn.metrics import accuracy_score
 #   medical_specialty   → correlates with insurance type and
 #                         therefore with race and income.
 #                         Specialty assignment is upstream of
-#                         clinical management — not an
+#                         clinical management - not an
 #                         independent clinical risk signal.
 #   number_inpatient    → prior hospitalisation count is
 #                         partially driven by gaps in
@@ -40,7 +40,7 @@ from sklearn.metrics import accuracy_score
 #                         individual clinical history.
 #
 # Retained: objective clinical signals that directly measure
-# this admission's severity and diabetes management —
+# this admission's severity and diabetes management -
 #   time_in_hospital   → length of stay for this admission
 #   num_lab_procedures → diagnostic workup intensity
 #   num_procedures     → clinical procedures performed
@@ -67,7 +67,7 @@ df = df[df['gender'] != 'Unknown/Invalid']
 #         0 = not readmitted within 30 days
 df['target'] = (df['readmitted'] == '<30').astype(int)
 
-# Protected attribute flags — retained for fairness measurement only
+# Protected attribute flags - retained for fairness measurement only
 df['is_female']     = (df['gender'] == 'Female').astype(int)
 df['is_minority']   = (~df['race'].isin(['Caucasian', 'Asian'])).astype(int)
 df['age_numeric']   = df['age'].str.extract(r'\[(\d+)').astype(int)
@@ -75,7 +75,7 @@ df['is_elderly']    = (df['age_numeric'] >= 70).astype(int)
 
 # ── PROXY VARIABLE ANALYSIS (retained for comparison) ────────
 print("=" * 62)
-print("PROXY VARIABLE ANALYSIS — WHY EACH FEATURE WAS DROPPED")
+print("PROXY VARIABLE ANALYSIS - WHY EACH FEATURE WAS DROPPED")
 print("=" * 62)
 
 print("""
@@ -99,7 +99,7 @@ print("""
                    type. Medicaid rates: Hispanic 9.0%,
                    AfricanAmerican 5.5%, Caucasian 2.7%.
                    A readmission model should assess clinical
-                   risk — not penalise patients for their
+                   risk - not penalise patients for their
                    insurer. Payment source has no causal
                    relationship to physiological readmission
                    risk.
@@ -108,7 +108,7 @@ print("""
                    insurance and geography. Caucasian patients
                    discharged to SNFs at 17.3% vs AfricanAmerican
                    at 10.7%. Lower SNF rates → higher home
-                   readmission risk — but this is a resource-
+                   readmission risk - but this is a resource-
                    access gap, not a clinical one. Keeping this
                    feature lets the model penalise patients for
                    lacking access to post-acute care.
@@ -124,13 +124,13 @@ print("""
                    higher for AfricanAmerican patients (0.70
                    vs 0.48 for Asian patients). A meaningful
                    fraction of this gap reflects differential
-                   access to preventive care — penalising
+                   access to preventive care - penalising
                    patients for structural underinvestment in
                    their communities, not individual health
                    behaviour or severity.
 """)
 
-# Encode categoricals — only clinical ones remain
+# Encode categoricals - only clinical ones remain
 cat_cols = [
     'diag_1', 'diag_2', 'diag_3',
     'max_glu_serum', 'A1Cresult',
@@ -141,7 +141,7 @@ df_enc = df.copy()
 for col in cat_cols:
     df_enc[col] = le.fit_transform(df_enc[col].astype(str))
 
-# ── FEATURES — FAIR (clinical signals only) ──────────────────
+# ── FEATURES - FAIR (clinical signals only) ──────────────────
 features = [
     # race                    removed ✓ (protected attribute)
     # gender                  removed ✓ (protected attribute)
@@ -152,17 +152,17 @@ features = [
     # number_inpatient        removed ✓ (proxy: encodes preventive care access gap)
     'admission_type_id',       # retained: emergency vs elective admission
     'admission_source_id',     # retained: ER vs referral vs transfer
-    'time_in_hospital',        # retained: severity proxy — days in hospital
+    'time_in_hospital',        # retained: severity proxy - days in hospital
     'num_lab_procedures',      # retained: diagnostic intensity this visit
     'num_procedures',          # retained: clinical procedures this visit
     'num_medications',         # retained: medication burden this visit
     'number_outpatient',       # retained: outpatient visits (access to care signal,
                                #           less racially stratified than inpatient)
     'number_emergency',        # retained: emergency visits (acute events, not elective)
-    'number_diagnoses',        # retained: comorbidity count — captures age signal
+    'number_diagnoses',        # retained: comorbidity count - captures age signal
                                #           without the protected-class risk
     'max_glu_serum',           # retained: glucose reading this admission
-    'A1Cresult',               # retained: HbA1c — direct diabetes control measure
+    'A1Cresult',               # retained: HbA1c - direct diabetes control measure
     'insulin',                 # retained: treatment decision this visit
     'change',                  # retained: medication change flag this visit
     'diabetesMed',             # retained: on diabetes medication flag
@@ -195,7 +195,7 @@ race_flag  = results.groupby('is_minority')['pred'].mean()
 age_flag   = results.groupby('is_elderly')['pred'].mean()
 
 print("=" * 62)
-print("FAIR MODEL — MITIGATED RESULTS")
+print("FAIR MODEL - MITIGATED RESULTS")
 print("=" * 62)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -231,7 +231,7 @@ THE FIX: Remove protected attributes AND their structural proxies.
 
   payer_code → removed. Insurance type is a downstream effect of
     systemic inequalities in employment, immigration status, and
-    wealth. A clinical model should assess physiological risk —
+    wealth. A clinical model should assess physiological risk -
     not penalise patients for having Medicaid instead of a PPO.
     This is the healthcare equivalent of keeping 'relationship'
     in a benefits model: it sounds administrative, but it carries
@@ -239,7 +239,7 @@ THE FIX: Remove protected attributes AND their structural proxies.
 
   discharge_disposition_id → removed. Where a patient goes after
     discharge depends on their insurance, geography, and family
-    support — not their clinical trajectory. A model that learns
+    support - not their clinical trajectory. A model that learns
     'Black patients go home → higher readmission risk' is encoding
     a resource gap as a patient-level risk factor. The causal
     direction is backwards: the gap creates the risk, the patient
@@ -247,18 +247,18 @@ THE FIX: Remove protected attributes AND their structural proxies.
 
   medical_specialty → removed. Specialty assignment reflects who
     can access specialist care. That is determined by insurance
-    type and zip code — not by clinical presentation alone.
+    type and zip code - not by clinical presentation alone.
     Keeping it would allow the model to score patients on their
     access to care as if it were their clinical complexity.
 
   number_inpatient → removed. Prior inpatient visits for
     AfricanAmerican patients average 0.70 vs 0.48 for Asian
     patients. Part of this difference reflects the consequences
-    of underinvestment in preventive care in minority communities —
+    of underinvestment in preventive care in minority communities -
     a structural gap, not an individual risk attribute. Retaining
     it amplifies that gap in every future prediction.
 
-What remains: the clinical record of this admission — diagnosis
+What remains: the clinical record of this admission - diagnosis
 codes, lab and procedure counts, glucose control, medication
 management, and how the patient arrived. These are the signals a
 clinician would use to assess readmission risk without reference
@@ -267,7 +267,7 @@ to who the patient is demographically.
 Key Insight: Healthcare readmission models don't need race or
 gender to discriminate by them. Payer code, discharge destination,
 and prior inpatient visits are the 'occupation' and 'relationship'
-of clinical AI — variables that look like neutral operational
+of clinical AI - variables that look like neutral operational
 data but encode structural inequalities in insurance, geography,
 and access to preventive care.
 """)

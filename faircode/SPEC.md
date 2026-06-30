@@ -1,11 +1,11 @@
-# Fair Code Profiler — Analysis Spec
+# Fair Code Profiler - Analysis Spec
 
-This is the **single source of truth** for the Open Dataset Profiler. Both implementations —
-the Python engine (`faircode/profiler.py`) and the browser engine (`assets/profiler-engine.js`) —
+This is the **single source of truth** for the Open Dataset Profiler. Both implementations -
+the Python engine (`faircode/profiler.py`) and the browser engine (`assets/profiler-engine.js`) -
 must implement *exactly* this spec so the same CSV yields the same numbers in the CLI and on the web.
 
 The Profiler is **diagnostic**, not predictive. It audits a dataset's *demographic representation*
-before any model is trained. It does not train models, drop columns, or measure prediction gaps —
+before any model is trained. It does not train models, drop columns, or measure prediction gaps -
 that is what the `unfair.py` / `fair.py` audits do. The Profiler answers a different question:
 **"who is, and is not, adequately represented in this data?"**
 
@@ -18,7 +18,7 @@ that is what the `unfair.py` / `fair.py` audits do. The Profiler answers a diffe
 Token boundaries are what stop `age` from matching `Agency_Text` or `Language`.
 
 A keyword matches a token by **exact match** when the keyword is <4 chars, or **prefix match** when
-it is ≥4 chars (prefix, not substring — so `age` never matches `agency`, but `statecode` matches
+it is ≥4 chars (prefix, not substring - so `age` never matches `agency`, but `statecode` matches
 `state`). Classify by the **first** keyword list that matches any token (order matters):
 
 | Dimension   | Keywords                                                                 |
@@ -35,14 +35,14 @@ Detection returns, for each kept column, its `name` and `kind` ∈ {`sex`, `race
 `geography`, `categorical`}.
 
 After per-dimension analysis, any dimension that exploded into more than `MAX_DIMENSION_GROUPS`
-(default **50**) groups is **dropped** as a likely identifier/date column — *except* `geography`,
+(default **50**) groups is **dropped** as a likely identifier/date column - *except* `geography`,
 which legitimately has high cardinality (many cities/regions).
 
 ---
 
 ## 2. Age normalization
 
-Age columns come in three shapes — normalize to numeric bands:
+Age columns come in three shapes - normalize to numeric bands:
 
 - **Numeric** (e.g. `34`): use directly.
 - **Interval string** (e.g. `[70-80)`): take the lower bound integer via the first run of digits.
@@ -57,20 +57,20 @@ The band shares are then analyzed exactly like a categorical column.
 
 For a dimension with `k` groups and null-excluded normalized shares `p_1 … p_k` (each `p_i = count_i / N_nonnull`):
 
-- **shares** — the `p_i`, descending, with raw counts.
+- **shares** - the `p_i`, descending, with raw counts.
 - **min_share** = `min(p_i)`; **max_share** = `max(p_i)`.
 - **imbalance_ratio** = `max_share / min_share` (the most-represented group is this many times the least).
 - **entropy_ratio** = `H / ln(k)` where `H = −Σ p_i · ln(p_i)`.
   - Range `[0, 1]`; `1` = perfectly uniform, `0` = all mass in one group.
   - If `k ≤ 1`: `entropy_ratio = 0` (a single-group column has no diversity).
   - Use natural log in both languages (`Math.log` / `math.log`); the log base cancels in the ratio.
-- **under_represented** — groups with `p_i < min_share_threshold` (default **0.05**).
+- **under_represented** - groups with `p_i < min_share_threshold` (default **0.05**).
 - **missing_pct** = `null_count / N_total` for the column.
 
 `dimension_score = round(entropy_ratio × 100)`.
 
 ### Numeric-age extra (informational, not scored)
-- **skewness** — Fisher–Pearson sample skewness of the raw numeric ages:
+- **skewness** - Fisher–Pearson sample skewness of the raw numeric ages:
   `g1 = (1/N · Σ (x−x̄)³) / (1/N · Σ (x−x̄)²)^1.5`. `null`/`0` if variance is 0 or `N < 3`.
 
 ---
@@ -100,7 +100,7 @@ Grade bands:
 | F     | 0–39    | Severe imbalance or single-group dimensions          |
 
 The score intentionally reflects **balance only**. Missing-data %, imbalance ratios, and
-intersectional gaps are surfaced as **flags** alongside the score, not folded into it — this keeps
+intersectional gaps are surfaced as **flags** alongside the score, not folded into it - this keeps
 the two engines trivially in sync and the score easy to explain.
 
 ---

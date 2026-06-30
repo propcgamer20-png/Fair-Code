@@ -1,53 +1,53 @@
 # Explainer: What is Disparate Treatment?
 
-> *Disparate impact is accidental discrimination. Disparate treatment is deliberate — and the law treats them very differently.*
+> *Disparate impact is accidental discrimination. Disparate treatment is deliberate - and the law treats them very differently.*
 
 ---
 
 ## The One-Sentence Definition
 
-**Disparate treatment** is intentional discrimination: a decision-making process that treats an individual differently because of a protected characteristic (race, gender, age, religion, national origin, etc.) — regardless of whether that characteristic is named explicitly or encoded through a feature that serves as a stand-in for it.
+**Disparate treatment** is intentional discrimination: a decision-making process that treats an individual differently because of a protected characteristic (race, gender, age, religion, national origin, etc.) - regardless of whether that characteristic is named explicitly or encoded through a feature that serves as a stand-in for it.
 
 ---
 
 ## Why This Matters
 
-Most algorithmic fairness work focuses on disparate impact — unequal outcomes produced by a model that never explicitly uses a protected attribute. Disparate treatment is the other half of discrimination law, and it is the half that is harder to escape in court.
+Most algorithmic fairness work focuses on disparate impact - unequal outcomes produced by a model that never explicitly uses a protected attribute. Disparate treatment is the other half of discrimination law, and it is the half that is harder to escape in court.
 
-Where disparate impact asks *"did outcomes differ across groups?"*, disparate treatment asks *"was the protected attribute a factor in the decision?"* A model that directly includes `Gender`, `Race`, or `Age` as input features is, by definition, engaging in disparate treatment — even if the resulting outcome gap is small. The intent is embedded in the design.
+Where disparate impact asks *"did outcomes differ across groups?"*, disparate treatment asks *"was the protected attribute a factor in the decision?"* A model that directly includes `Gender`, `Race`, or `Age` as input features is, by definition, engaging in disparate treatment - even if the resulting outcome gap is small. The intent is embedded in the design.
 
 This matters in practice because:
 
-- Including a protected attribute as a model feature is *per se* disparate treatment under Title VII, the Equal Credit Opportunity Act (ECOA), and the Fair Housing Act — regardless of whether you can measure a downstream gap
+- Including a protected attribute as a model feature is *per se* disparate treatment under Title VII, the Equal Credit Opportunity Act (ECOA), and the Fair Housing Act - regardless of whether you can measure a downstream gap
 - Courts distinguish between the two doctrines sharply: disparate impact claims require statistical evidence of outcome disparity; disparate treatment claims require evidence that the protected characteristic was *used*, not just that outcomes differed
-- Every biased model in this repo was first trained with protected attributes included — that is, every `unfair.py` script is a disparate treatment example before it becomes a disparate impact one
+- Every biased model in this repo was first trained with protected attributes included - that is, every `unfair.py` script is a disparate treatment example before it becomes a disparate impact one
 
 ---
 
-## Disparate Treatment vs Disparate Impact — The Distinction That Matters
+## Disparate Treatment vs Disparate Impact - The Distinction That Matters
 
 These two doctrines are often confused. They are different legal claims with different burdens of proof and different fixes.
 
 | | Disparate Treatment | Disparate Impact |
 |---|---|---|
 | **Definition** | Protected attribute was used as a factor in the decision | Neutral process produces unequal outcomes across groups |
-| **Intent required?** | Yes — the attribute must have been used, deliberately or by design | No — no intent required; the outcome gap is the evidence |
-| **Legal standard** | Title VII §703(a) — treating someone differently *because of* race, sex, etc. | Title VII §703(k) — neutral practice with unjustified disparate effect |
+| **Intent required?** | Yes - the attribute must have been used, deliberately or by design | No - no intent required; the outcome gap is the evidence |
+| **Legal standard** | Title VII §703(a) - treating someone differently *because of* race, sex, etc. | Title VII §703(k) - neutral practice with unjustified disparate effect |
 | **Proof** | Show the attribute was an input or a determinative factor | Show the statistical outcome gap (four-fifths rule, etc.) |
-| **Defence** | Bona Fide Occupational Qualification (BFOQ) — narrow, rarely succeeds | Business necessity + job-relatedness |
+| **Defence** | Bona Fide Occupational Qualification (BFOQ) - narrow, rarely succeeds | Business necessity + job-relatedness |
 | **Algorithmic form** | Protected attribute or known proxy included as a model feature | Protected attribute excluded but proxies remain; outcome gap persists |
 | **Fix** | Remove the protected attribute from the feature set | Remove the protected attribute *and* its proxy variables |
-| **Metric** | Feature presence audit — is it in the model at all? | Disparate impact ratio, demographic parity gap |
+| **Metric** | Feature presence audit - is it in the model at all? | Disparate impact ratio, demographic parity gap |
 
-The critical asymmetry: you can have disparate treatment *without* disparate impact (the attribute is used but outcomes happen to be equal), and disparate impact *without* disparate treatment (no protected attribute was used but proxies recreated the gap). In practice, disparate treatment usually produces disparate impact — but the legal exposure exists independently.
+The critical asymmetry: you can have disparate treatment *without* disparate impact (the attribute is used but outcomes happen to be equal), and disparate impact *without* disparate treatment (no protected attribute was used but proxies recreated the gap). In practice, disparate treatment usually produces disparate impact - but the legal exposure exists independently.
 
 ---
 
 ## Real-World Proof: Every `unfair.py` in This Repo
 
-Every biased model in this repo is a disparate treatment example. The protected attribute is a direct model input. The outcome gap is the downstream disparate impact. They are the same model — looked at through two different legal lenses.
+Every biased model in this repo is a disparate treatment example. The protected attribute is a direct model input. The outcome gap is the downstream disparate impact. They are the same model - looked at through two different legal lenses.
 
-### COMPAS — `unfair.py`
+### COMPAS - `unfair.py`
 
 ```python
 # DISPARATE TREATMENT: Race is a direct model feature
@@ -61,7 +61,7 @@ X = pd.get_dummies(df[[
 
 Race is an explicit input. The model is permitted to use race as a predictive signal. That is disparate treatment. The resulting 86.77pp gap between Black and White defendants is the disparate impact it produces.
 
-### AI Fair Recruitment — `unfair.py`
+### AI Fair Recruitment - `unfair.py`
 
 ```python
 # DISPARATE TREATMENT: Gender and Age are direct model features
@@ -69,18 +69,18 @@ features = ['Gender', 'Age', 'Experience_Years', 'Technical_Test_Score',
             'Education_Level', 'Previous_Companies', 'Distance_from_Company']
 ```
 
-`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over — once directly, once through correlation). The model was *designed* to see these attributes. The 20.9pp hire rate gap is the disparate impact.
+`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was *designed* to see these attributes. The 20.9pp hire rate gap is the disparate impact.
 
-### The Fix — What Removing Disparate Treatment Looks Like
+### The Fix - What Removing Disparate Treatment Looks Like
 
 ```python
 # fair.py: protected attribute and its proxy removed
 features = ['Experience_Years', 'Technical_Test_Score']
-# Gender removed ✓  — eliminates disparate treatment
-# Age removed ✓     — eliminates proxy-based disparate treatment
+# Gender removed ✓  - eliminates disparate treatment
+# Age removed ✓     - eliminates proxy-based disparate treatment
 ```
 
-Removing the protected attribute ends the disparate treatment. Whether it also ends the disparate impact depends on whether proxies remain — which is why proxy variable analysis is a required step in every audit. See [`proxy-variables.md`](proxy-variables.md).
+Removing the protected attribute ends the disparate treatment. Whether it also ends the disparate impact depends on whether proxies remain - which is why proxy variable analysis is a required step in every audit. See [`proxy-variables.md`](proxy-variables.md).
 
 ---
 
@@ -118,29 +118,29 @@ def disparate_treatment_audit(feature_columns, protected=PROTECTED_ATTRIBUTES):
                 break
 
     if flagged:
-        print(f"⚠ Disparate treatment risk — protected attributes in feature set:")
+        print(f"⚠ Disparate treatment risk - protected attributes in feature set:")
         for f in flagged:
             print(f"  · {f}")
     else:
         print("✓ No protected attributes detected in feature set.")
-        print("  Run a proxy variable audit next — see proxy-variables.md")
+        print("  Run a proxy variable audit next - see proxy-variables.md")
 
     return flagged
 
 
-# Example — AI Fair Recruitment biased model
+# Example - AI Fair Recruitment biased model
 features_unfair = ['Gender', 'Age', 'Experience_Years', 'Technical_Test_Score',
                    'Education_Level', 'Previous_Companies', 'Distance_from_Company']
 
 disparate_treatment_audit(features_unfair)
-# ⚠ Disparate treatment risk — protected attributes in feature set:
+# ⚠ Disparate treatment risk - protected attributes in feature set:
 #   · Gender
 #   · Age
 
 features_fair = ['Experience_Years', 'Technical_Test_Score']
 disparate_treatment_audit(features_fair)
 # ✓ No protected attributes detected in feature set.
-#   Run a proxy variable audit next — see proxy-variables.md
+#   Run a proxy variable audit next - see proxy-variables.md
 ```
 
 ### Check a trained sklearn model's feature list
@@ -186,8 +186,8 @@ audit_sklearn_model(model, feature_cols)
 ```python
 def full_discrimination_audit(feature_columns, y_true, y_pred, group_series):
     """
-    Stage 1: Disparate treatment — are protected attributes in the feature set?
-    Stage 2: Disparate impact   — does the outcome gap exceed the four-fifths threshold?
+    Stage 1: Disparate treatment - are protected attributes in the feature set?
+    Stage 2: Disparate impact   - does the outcome gap exceed the four-fifths threshold?
 
     Run both regardless: treatment can exist without impact, and impact without treatment.
     """
@@ -212,9 +212,9 @@ def full_discrimination_audit(feature_columns, y_true, y_pred, group_series):
 
 ## The Proxy Problem: Indirect Disparate Treatment
 
-Removing the protected attribute stops *direct* disparate treatment. It does not stop *indirect* disparate treatment — where a correlated feature serves as a stand-in for the protected attribute the model is no longer permitted to see.
+Removing the protected attribute stops *direct* disparate treatment. It does not stop *indirect* disparate treatment - where a correlated feature serves as a stand-in for the protected attribute the model is no longer permitted to see.
 
-Courts have recognised this. In *Watson v. Fort Worth Bank & Trust* (1988), the Supreme Court held that facially neutral criteria that serve as proxies for protected characteristics can constitute disparate treatment — not just disparate impact — when the intent to use them as substitutes can be shown.
+Courts have recognised this. In *Watson v. Fort Worth Bank & Trust* (1988), the Supreme Court held that facially neutral criteria that serve as proxies for protected characteristics can constitute disparate treatment - not just disparate impact - when the intent to use them as substitutes can be shown.
 
 In algorithmic systems, proving intent is difficult. But the structure of indirect disparate treatment is mechanical and detectable:
 
@@ -232,10 +232,10 @@ def proxy_treatment_check(df, feature_col, protected_col, threshold=0.05):
     flag = p < threshold
 
     print(f"{feature_col} ~ {protected_col}:  χ²={chi2:.2f}, p={p:.4f}  "
-          f"{'⚠ correlated — proxy risk' if flag else '✓ not significantly correlated'}")
+          f"{'⚠ correlated - proxy risk' if flag else '✓ not significantly correlated'}")
     return flag
 
-# Example — German Credit Lending: employment tenure as age proxy
+# Example - German Credit Lending: employment tenure as age proxy
 proxy_treatment_check(df, feature_col='employment', protected_col='age_class')
 ```
 
@@ -245,11 +245,11 @@ If a feature is significantly correlated with the protected attribute *and* you 
 
 ## Limitations
 
-**Intent is legally required but technically invisible.** Disparate treatment doctrine requires that the protected characteristic was *used* as a factor — which in ML terms means it was in the feature set, or a proxy was included with knowledge of its correlation. A model that produces equal outcomes using race as a feature technically engaged in disparate treatment even though the outcome was fair. The law cares about the process, not just the result.
+**Intent is legally required but technically invisible.** Disparate treatment doctrine requires that the protected characteristic was *used* as a factor - which in ML terms means it was in the feature set, or a proxy was included with knowledge of its correlation. A model that produces equal outcomes using race as a feature technically engaged in disparate treatment even though the outcome was fair. The law cares about the process, not just the result.
 
-**The BFOQ defence is narrower than most employers assume.** The Bona Fide Occupational Qualification exception — which allows using a protected attribute if it is genuinely necessary for the job — is extremely narrow under Title VII. Sex is permissible as a criterion for a role in a women's shelter. Age is permissible for an airline pilot under FAA safety rules. Race is almost never a permissible BFOQ. Do not rely on BFOQ as a general defence for including protected attributes in a model.
+**The BFOQ defence is narrower than most employers assume.** The Bona Fide Occupational Qualification exception - which allows using a protected attribute if it is genuinely necessary for the job - is extremely narrow under Title VII. Sex is permissible as a criterion for a role in a women's shelter. Age is permissible for an airline pilot under FAA safety rules. Race is almost never a permissible BFOQ. Do not rely on BFOQ as a general defence for including protected attributes in a model.
 
-**Removing protected attributes does not eliminate all legal exposure.** A model with no protected attributes in its feature set can still produce a disparate impact ratio that fails the four-fifths rule — because proxy variables remain. Clearing the disparate treatment audit is the first step, not the last. Always follow it with a disparate impact audit and a proxy variable check.
+**Removing protected attributes does not eliminate all legal exposure.** A model with no protected attributes in its feature set can still produce a disparate impact ratio that fails the four-fifths rule - because proxy variables remain. Clearing the disparate treatment audit is the first step, not the last. Always follow it with a disparate impact audit and a proxy variable check.
 
 **Intersectionality is not captured by single-attribute audits.** Auditing for `Gender` alone and `Race` alone can both pass while a model systematically discriminates against Black women specifically. Run the feature audit and the impact audit across all relevant intersecting combinations where sample sizes allow.
 
@@ -258,10 +258,10 @@ If a feature is significantly correlated with the protected attribute *and* you 
 ## Related Concepts
 
 ### Disparate Impact
-Disparate impact is the outcome-based counterpart — a facially neutral process that produces unequal results across groups. You can have one without the other, but in practice biased models produce both. The fix for disparate treatment (remove the attribute) is necessary but not sufficient to fix disparate impact. See [`disparate-impact.md`](disparate-impact.md).
+Disparate impact is the outcome-based counterpart - a facially neutral process that produces unequal results across groups. You can have one without the other, but in practice biased models produce both. The fix for disparate treatment (remove the attribute) is necessary but not sufficient to fix disparate impact. See [`disparate-impact.md`](disparate-impact.md).
 
 ### Proxy Variables
-The mechanism by which disparate treatment persists after the protected attribute is removed. If you drop `Gender` but keep `Age` — which correlates with gender in the dataset — the model reconstructs gender signal from age. That is proxy-based disparate treatment. See [`proxy-variables.md`](proxy-variables.md).
+The mechanism by which disparate treatment persists after the protected attribute is removed. If you drop `Gender` but keep `Age` - which correlates with gender in the dataset - the model reconstructs gender signal from age. That is proxy-based disparate treatment. See [`proxy-variables.md`](proxy-variables.md).
 
 ### Demographic Parity
 The fairness metric that directly measures the downstream outcome of disparate treatment: equal positive prediction rates across groups. A model free of disparate treatment may still fail demographic parity if proxies remain. See [`demographic-parity.md`](demographic-parity.md).
@@ -270,23 +270,23 @@ The fairness metric that directly measures the downstream outcome of disparate t
 
 ## Related Projects in This Repo
 
-- [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) — `unfair.py` includes `Gender` and `Age` directly; `fair.py` removes both. The cleanest before/after disparate treatment example in the repo.
-- [`COMPAS/`](../COMPAS/) — `unfair.py` includes `race` and `CustodyStatus` (a race proxy) directly. Removing both in `fair.py` ends both the disparate treatment and reduces the disparate impact gap from 86.77pp to 15.69pp.
-- [`German Credit Lending/`](../German%20Credit%20Lending/) — `unfair.py` includes `age` and `employment` (an age proxy). The proxy relationship is documented in the notebook.
-- [`explainers/disparate-impact.md`](disparate-impact.md) — the outcome-based counterpart; the four-fifths rule and how it is measured
-- [`explainers/proxy-variables.md`](proxy-variables.md) — how indirect disparate treatment survives attribute removal and how to detect it
-- [`explainers/demographic-parity.md`](demographic-parity.md) — the downstream metric that disparate treatment violations typically produce
+- [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) - `unfair.py` includes `Gender` and `Age` directly; `fair.py` removes both. The cleanest before/after disparate treatment example in the repo.
+- [`COMPAS/`](../COMPAS/) - `unfair.py` includes `race` and `CustodyStatus` (a race proxy) directly. Removing both in `fair.py` ends both the disparate treatment and reduces the disparate impact gap from 86.77pp to 15.69pp.
+- [`German Credit Lending/`](../German%20Credit%20Lending/) - `unfair.py` includes `age` and `employment` (an age proxy). The proxy relationship is documented in the notebook.
+- [`explainers/disparate-impact.md`](disparate-impact.md) - the outcome-based counterpart; the four-fifths rule and how it is measured
+- [`explainers/proxy-variables.md`](proxy-variables.md) - how indirect disparate treatment survives attribute removal and how to detect it
+- [`explainers/demographic-parity.md`](demographic-parity.md) - the downstream metric that disparate treatment violations typically produce
 
 ---
 
 ## Further Reading
 
-- [Title VII of the Civil Rights Act of 1964, 42 U.S.C. §2000e-2](https://www.eeoc.gov/statutes/title-vii-civil-rights-act-1964) — the statutory basis for both disparate treatment and disparate impact doctrine
-- [*McDonnell Douglas Corp. v. Green*, 411 U.S. 792 (1973)](https://supreme.justia.com/cases/federal/us/411/792/) — the Supreme Court case establishing the burden-shifting framework for disparate treatment claims
-- [*Watson v. Fort Worth Bank & Trust*, 487 U.S. 977 (1988)](https://supreme.justia.com/cases/federal/us/487/977/) — extended disparate impact analysis to subjective criteria; relevant to proxy-based indirect treatment
-- [Barocas & Selbst (2016): *Big Data's Disparate Impact*, 104 Calif. L. Rev. 671](https://www.californialawreview.org/print/2-big-datas-disparate-impact) — the definitive law review article mapping both doctrines onto algorithmic decision-making
-- [EEOC: Prohibited Employment Policies/Practices](https://www.eeoc.gov/prohibited-employment-policiespractices) — plain-language EEOC guidance distinguishing disparate treatment from disparate impact in employment contexts
+- [Title VII of the Civil Rights Act of 1964, 42 U.S.C. §2000e-2](https://www.eeoc.gov/statutes/title-vii-civil-rights-act-1964) - the statutory basis for both disparate treatment and disparate impact doctrine
+- [*McDonnell Douglas Corp. v. Green*, 411 U.S. 792 (1973)](https://supreme.justia.com/cases/federal/us/411/792/) - the Supreme Court case establishing the burden-shifting framework for disparate treatment claims
+- [*Watson v. Fort Worth Bank & Trust*, 487 U.S. 977 (1988)](https://supreme.justia.com/cases/federal/us/487/977/) - extended disparate impact analysis to subjective criteria; relevant to proxy-based indirect treatment
+- [Barocas & Selbst (2016): *Big Data's Disparate Impact*, 104 Calif. L. Rev. 671](https://www.californialawreview.org/print/2-big-datas-disparate-impact) - the definitive law review article mapping both doctrines onto algorithmic decision-making
+- [EEOC: Prohibited Employment Policies/Practices](https://www.eeoc.gov/prohibited-employment-policiespractices) - plain-language EEOC guidance distinguishing disparate treatment from disparate impact in employment contexts
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

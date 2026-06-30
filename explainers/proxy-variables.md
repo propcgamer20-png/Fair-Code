@@ -6,7 +6,7 @@
 
 ## The One-Sentence Definition
 
-A **proxy variable** is a data feature that *correlates* with a protected attribute (like race, gender, or class) even though it doesn't mention it directly — so removing the protected attribute from a model doesn't remove the bias it encodes.
+A **proxy variable** is a data feature that *correlates* with a protected attribute (like race, gender, or class) even though it doesn't mention it directly - so removing the protected attribute from a model doesn't remove the bias it encodes.
 
 ---
 
@@ -14,7 +14,7 @@ A **proxy variable** is a data feature that *correlates* with a protected attrib
 
 Most people assume that removing race from an AI model makes it race-neutral. This is wrong.
 
-Machine learning models don't care what a feature is *called*. They care what it *predicts*. If a feature like `custody_status` or `zip_code` is correlated with race in the training data, the model will learn and use that correlation — whether or not the word "race" appears anywhere in the dataset.
+Machine learning models don't care what a feature is *called*. They care what it *predicts*. If a feature like `custody_status` or `zip_code` is correlated with race in the training data, the model will learn and use that correlation - whether or not the word "race" appears anywhere in the dataset.
 
 This is called **proxy discrimination**, and it's one of the hardest problems in algorithmic fairness.
 
@@ -39,7 +39,7 @@ We tested this directly using the [ProPublica COMPAS dataset](https://github.com
 
 ### What We Did
 
-**Step 1 — Biased model (includes race + proxies):**
+**Step 1 - Biased model (includes race + proxies):**
 ```python
 X = pd.get_dummies(df[[
     'race',
@@ -58,7 +58,7 @@ X = pd.get_dummies(df[[
 
 ---
 
-**Step 2 — Remove race only (naive approach):**
+**Step 2 - Remove race only (naive approach):**
 
 Many developers stop here. They drop the `race` column and assume the model is now fair. It isn't.
 
@@ -66,7 +66,7 @@ The `CustodyStatus` feature was still acting as a racial proxy. The gap barely m
 
 ---
 
-**Step 3 — Remove race AND known proxies (our fix):**
+**Step 3 - Remove race AND known proxies (our fix):**
 ```python
 X = pd.get_dummies(df[[
     'Sex_Code_Text',
@@ -87,7 +87,7 @@ X = pd.get_dummies(df[[
 
 | Approach | Fairness Gap | Reduction |
 |---|---|---|
-| Biased model | 86.77% | — |
+| Biased model | 86.77% | - |
 | Remove race only | ~80%+ | Minimal |
 | Remove race + proxy | 15.69% | **71%** |
 
@@ -105,7 +105,7 @@ def check_proxy(df, feature, protected_attr):
     """
     Check if a feature is a proxy for a protected attribute
     using a chi-squared test of independence.
-    Returns p-value — if < 0.05, likely a proxy.
+    Returns p-value - if < 0.05, likely a proxy.
     """
     contingency = pd.crosstab(df[feature], df[protected_attr])
     chi2, p, dof, expected = chi2_contingency(contingency)
@@ -122,7 +122,7 @@ print(result)
 # {'feature': 'CustodyStatus', 'protected_attr': 'race', 'p_value': 0.0001, 'is_proxy': True}
 ```
 
-Run this on every feature in your dataset before training. Any feature with `is_proxy: True` needs careful consideration — either remove it or apply fairness-aware techniques.
+Run this on every feature in your dataset before training. Any feature with `is_proxy: True` needs careful consideration - either remove it or apply fairness-aware techniques.
 
 ---
 
@@ -130,7 +130,7 @@ Run this on every feature in your dataset before training. Any feature with `is_
 
 Proxy variables exist because our social world is stratified. Zip codes encode race because of redlining. Custody records encode race because of over-policing. Credit scores encode class because of historical exclusion.
 
-Data doesn't exist in a vacuum. It reflects the society that generated it. A model trained on that data will learn those reflections — unless you actively audit and intervene.
+Data doesn't exist in a vacuum. It reflects the society that generated it. A model trained on that data will learn those reflections - unless you actively audit and intervene.
 
 **This is why algorithmic auditing is not optional. It is a prerequisite for deployment.**
 
@@ -138,8 +138,8 @@ Data doesn't exist in a vacuum. It reflects the society that generated it. A mod
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — Full COMPAS analysis: biased model → fair model → 71% gap reduction
-- [`Ai Fair recrutment Dataset/`](../Ai%20Fair%20recrutment%20Dataset/) — AI recruitment bias: 97.3% gap reduction after feature audit
+- [`COMPAS/`](../COMPAS/) - Full COMPAS analysis: biased model → fair model → 71% gap reduction
+- [`Ai Fair recrutment Dataset/`](../Ai%20Fair%20recrutment%20Dataset/) - AI recruitment bias: 97.3% gap reduction after feature audit
 - Coming soon: Facial recognition bias, HMDA loan bias, healthcare AI
 
 ---
@@ -152,4 +152,4 @@ Data doesn't exist in a vacuum. It reflects the society that generated it. A mod
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

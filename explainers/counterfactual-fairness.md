@@ -6,7 +6,7 @@
 
 ## The One-Sentence Definition
 
-**Counterfactual Fairness** is a causal fairness criterion that requires a model to produce the same prediction for an individual in the real world as it would in a counterfactual world where that individual belongs to a different demographic group — with all causally independent factors held constant.
+**Counterfactual Fairness** is a causal fairness criterion that requires a model to produce the same prediction for an individual in the real world as it would in a counterfactual world where that individual belongs to a different demographic group - with all causally independent factors held constant.
 
 It was formalised by Kusner et al. (2017) as: *"a decision is fair towards an individual if it is the same in the actual world and in a counterfactual world where the individual belonged to a different demographic group."*
 
@@ -14,11 +14,11 @@ It was formalised by Kusner et al. (2017) as: *"a decision is fair towards an in
 
 ## Why This Matters
 
-Every fairness metric discussed so far — Demographic Parity, Equalized Odds, Individual Fairness — is fundamentally observational. It asks: *across people we can see in the data, are outcomes distributed fairly?* These metrics operate on what happened. They cannot tell you whether the demographic attribute itself caused the outcome to be different.
+Every fairness metric discussed so far - Demographic Parity, Equalized Odds, Individual Fairness - is fundamentally observational. It asks: *across people we can see in the data, are outcomes distributed fairly?* These metrics operate on what happened. They cannot tell you whether the demographic attribute itself caused the outcome to be different.
 
-This distinction matters enormously in practice. Consider a loan model that doesn't use race as a feature, but uses zip code. Zip code correlates strongly with race due to decades of redlining and residential segregation. A Black applicant living in a historically redlined neighbourhood receives a rejection. An observationally identical white applicant living in the same zip code would also be rejected — so individual fairness is technically satisfied. But ask the counterfactual question: *if this applicant had been white, and had therefore grown up in a different neighbourhood due to the same historical forces, would they have been rejected?* Almost certainly not.
+This distinction matters enormously in practice. Consider a loan model that doesn't use race as a feature, but uses zip code. Zip code correlates strongly with race due to decades of redlining and residential segregation. A Black applicant living in a historically redlined neighbourhood receives a rejection. An observationally identical white applicant living in the same zip code would also be rejected - so individual fairness is technically satisfied. But ask the counterfactual question: *if this applicant had been white, and had therefore grown up in a different neighbourhood due to the same historical forces, would they have been rejected?* Almost certainly not.
 
-Counterfactual fairness captures what observational methods miss: when a demographic attribute is a root cause in the causal graph, dropping it from the feature set is not enough. The downstream variables it caused — the proxies — still carry the signal. The model is still, in a causal sense, discriminating on the basis of race.
+Counterfactual fairness captures what observational methods miss: when a demographic attribute is a root cause in the causal graph, dropping it from the feature set is not enough. The downstream variables it caused - the proxies - still carry the signal. The model is still, in a causal sense, discriminating on the basis of race.
 
 This is the precise problem counterfactual fairness is designed to detect and prevent.
 
@@ -26,7 +26,7 @@ This is the precise problem counterfactual fairness is designed to detect and pr
 
 ## The Formal Definition
 
-Counterfactual fairness is grounded in the language of causal models. The framework requires a **Structural Causal Model (SCM)** — a directed acyclic graph (DAG) that represents the causal relationships between variables.
+Counterfactual fairness is grounded in the language of causal models. The framework requires a **Structural Causal Model (SCM)** - a directed acyclic graph (DAG) that represents the causal relationships between variables.
 
 Let:
 - `A` be the protected attribute (e.g. race, sex)
@@ -42,23 +42,23 @@ P(Ŷ_{A←a}(U) = y | X = x, A = a) = P(Ŷ_{A←a'}(U) = y | X = x, A = a)
 
 Plain English: the probability of prediction `y` for this individual is the same whether we set their group membership to `a` (the real world) or to `a'` (the counterfactual). The subscript notation `A←a'` means "intervene on A, setting it to a'", following do-calculus notation.
 
-The critical term is `U` — the unobserved background variables. These represent everything about the person that is causally independent of their demographic group: their intrinsic ability, their choices given their circumstances, their effort. A counterfactually fair model makes predictions based only on `U` — the factors the person controls — not on `A` or on features that `A` caused.
+The critical term is `U` - the unobserved background variables. These represent everything about the person that is causally independent of their demographic group: their intrinsic ability, their choices given their circumstances, their effort. A counterfactually fair model makes predictions based only on `U` - the factors the person controls - not on `A` or on features that `A` caused.
 
 **Three categories of features** emerge from the causal graph:
 
 | Category | Relationship to A | Allowed in fair model? |
 |----------|-------------------|----------------------|
-| **Resolving variables** | Causally downstream of A, but a direct, legitimate part of the task | Sometimes — context-dependent |
+| **Resolving variables** | Causally downstream of A, but a direct, legitimate part of the task | Sometimes - context-dependent |
 | **Proxy variables** | Causally downstream of A, encoding demographic signal | No |
 | **Non-descendants** | Causally independent of A | Yes |
 
-The challenge is that you must know the causal graph to make these determinations. And causal graphs are not discovered — they are specified, based on domain knowledge and subject to disagreement.
+The challenge is that you must know the causal graph to make these determinations. And causal graphs are not discovered - they are specified, based on domain knowledge and subject to disagreement.
 
 ---
 
 ## Concrete Example: COMPAS Recidivism
 
-The [`COMPAS/`](../COMPAS/) audit in this repo is a direct illustration of counterfactual fairness violation — even without using the causal framework explicitly.
+The [`COMPAS/`](../COMPAS/) audit in this repo is a direct illustration of counterfactual fairness violation - even without using the causal framework explicitly.
 
 COMPAS assigns recidivism risk scores based on features including prior arrest count, age at first arrest, and custody status. The biased model produces:
 
@@ -70,13 +70,13 @@ COMPAS assigns recidivism risk scores based on features including prior arrest c
 
 Now ask the counterfactual question. Take a Black defendant with 3 prior arrests. Ask: *if this person had been white, with the same underlying behaviour and the same 3 prior arrests, would their risk score be the same?*
 
-The answer is no — and the reason is `CustodyStatus`, which the [proxy variables explainer](proxy-variables.md) identifies as the key proxy. Black communities have been subject to historical over-policing: for the same underlying behaviour, Black individuals are arrested at higher rates than white individuals. Prior arrest count is therefore not causally independent of race — it is partly *caused* by race, via differential policing. A model trained on prior arrests is therefore using a variable that race, in part, caused.
+The answer is no - and the reason is `CustodyStatus`, which the [proxy variables explainer](proxy-variables.md) identifies as the key proxy. Black communities have been subject to historical over-policing: for the same underlying behaviour, Black individuals are arrested at higher rates than white individuals. Prior arrest count is therefore not causally independent of race - it is partly *caused* by race, via differential policing. A model trained on prior arrests is therefore using a variable that race, in part, caused.
 
 ```
 Race ──→ Policing intensity ──→ Arrest rate ──→ Prior arrests ──→ Risk score
 ```
 
-`Prior arrests` is downstream of `Race` in the causal graph. A counterfactually fair model cannot use it directly — or must adjust for the part of the variance in prior arrests that race caused.
+`Prior arrests` is downstream of `Race` in the causal graph. A counterfactually fair model cannot use it directly - or must adjust for the part of the variance in prior arrests that race caused.
 
 This is the structural explanation for why removing race from the COMPAS feature set did not remove the racial bias. The bias had already been absorbed into the features race caused.
 
@@ -102,20 +102,20 @@ n = 3000
 
 race = np.random.choice(['White', 'Black'], n, p=[0.6, 0.4])
 
-# Neighbourhood quality score — causally downstream of race
+# Neighbourhood quality score - causally downstream of race
 neighbourhood = np.where(
     race == 'Black',
     np.random.normal(40, 12, n),   # historically redlined areas score lower
     np.random.normal(65, 12, n)
 ).clip(0, 100)
 
-# Credit score — causally downstream of neighbourhood (structural access)
+# Credit score - causally downstream of neighbourhood (structural access)
 credit_score = (neighbourhood * 3 + np.random.normal(400, 50, n)).clip(300, 850)
 
-# Income — causally independent of race in this synthetic model
+# Income - causally independent of race in this synthetic model
 income = np.random.normal(55000, 15000, n).clip(20000, 150000)
 
-# Loan outcome — set to depend on credit and income (not race)
+# Loan outcome - set to depend on credit and income (not race)
 prob_approve = (
     (credit_score - 300) / 550 * 0.5 +
     (income - 20000) / 130000 * 0.5
@@ -196,13 +196,13 @@ for race_group in ['White', 'Black']:
 #   Black applicants whose decision flips: 127/244 (52.0%)
 ```
 
-A 35.7% violation rate means more than one in three applicants would receive a different loan decision if they had been born into the other racial group — with everything causally independent (income, personal behaviour) held constant. This is the operational signature of a model that is, at the causal level, making race-based decisions.
+A 35.7% violation rate means more than one in three applicants would receive a different loan decision if they had been born into the other racial group - with everything causally independent (income, personal behaviour) held constant. This is the operational signature of a model that is, at the causal level, making race-based decisions.
 
 ### The fix: use only causally independent features
 
 ```python
 # ── Train a counterfactually fair model ──────────────────────────────────────
-# Drop neighbourhood and credit_score — both causally downstream of race.
+# Drop neighbourhood and credit_score - both causally downstream of race.
 # Keep only income, which is causally independent of race in this model.
 
 features_fair = ['income']
@@ -216,7 +216,7 @@ model_fair.fit(X_train_f, y_train_f)
 
 test_df['prediction_fair'] = model_fair.predict(X_test_f)
 
-# Re-run audit — counterfactual flipping race no longer changes income,
+# Re-run audit - counterfactual flipping race no longer changes income,
 # so predictions are now stable across the counterfactual
 cf_df['cf_prediction_fair'] = model_fair.predict(
     cf_df[['income']]
@@ -225,14 +225,14 @@ cf_df['cf_prediction_fair'] = model_fair.predict(
 violations_fair = cf_df[cf_df['prediction_fair'] != cf_df['cf_prediction_fair']]
 print(f"Fair model violation rate: {len(violations_fair)/len(cf_df)*100:.1f}%")
 # Fair model violation rate: 0.0%
-# — predictions are identical in the real and counterfactual worlds
+# - predictions are identical in the real and counterfactual worlds
 ```
 
 ---
 
 ## The Causal Graph Requirement
 
-Counterfactual fairness has one non-negotiable prerequisite: you must specify a causal graph. This is not a limitation that can be engineered away — it is a feature of the framework, because the question it asks (*what would have happened?*) is inherently causal, not statistical.
+Counterfactual fairness has one non-negotiable prerequisite: you must specify a causal graph. This is not a limitation that can be engineered away - it is a feature of the framework, because the question it asks (*what would have happened?*) is inherently causal, not statistical.
 
 In practice, the graph is specified from domain knowledge and documented assumptions. For the lending example above:
 
@@ -245,33 +245,33 @@ Race ──→ Neighbourhood ──→ Credit Score ──→ Approval
   └──────────────────────────────────────────────→ (direct path, must be blocked)
 ```
 
-Building the causal graph requires asking: *for this specific domain, what causes what?* That is a normative and domain-expert question, not a data question. Different stakeholders may specify different graphs — and different graphs will identify different sets of variables as proxies. Documenting and justifying the graph is therefore as important as running the code.
+Building the causal graph requires asking: *for this specific domain, what causes what?* That is a normative and domain-expert question, not a data question. Different stakeholders may specify different graphs - and different graphs will identify different sets of variables as proxies. Documenting and justifying the graph is therefore as important as running the code.
 
 ---
 
 ## Limitations / Trade-offs
 
-### It requires a causal graph — which may be wrong or contested
+### It requires a causal graph - which may be wrong or contested
 
-The entire framework is contingent on the correctness of the specified DAG. If the causal assumptions are wrong — if a variable is placed on the wrong side of a causal path — then the audit will certify as fair a model that isn't, or reject as unfair a model that is. There is no statistical test that can validate a causal graph from observational data alone. The graph encodes assumptions that must be justified externally.
+The entire framework is contingent on the correctness of the specified DAG. If the causal assumptions are wrong - if a variable is placed on the wrong side of a causal path - then the audit will certify as fair a model that isn't, or reject as unfair a model that is. There is no statistical test that can validate a causal graph from observational data alone. The graph encodes assumptions that must be justified externally.
 
 ### Causally independent features may themselves carry historical bias
 
-Even features deemed causally independent of the protected attribute may still encode historical inequality. Income, in the example above, is modelled as independent of race — but in the real world, the racial wealth gap means income distributions differ significantly by race. A model trained on income alone may still produce demographically unequal outcomes. Counterfactual fairness permits this, because the disparity traces back to background variables `U`, not to the causal effect of `A`. Whether that is morally acceptable is a separate question the framework does not answer.
+Even features deemed causally independent of the protected attribute may still encode historical inequality. Income, in the example above, is modelled as independent of race - but in the real world, the racial wealth gap means income distributions differ significantly by race. A model trained on income alone may still produce demographically unequal outcomes. Counterfactual fairness permits this, because the disparity traces back to background variables `U`, not to the causal effect of `A`. Whether that is morally acceptable is a separate question the framework does not answer.
 
 ### It can conflict with group fairness metrics
 
-A counterfactually fair model will often produce demographic outcome gaps, because groups have different distributions of causally independent features. If those differences are real — rooted in the background variables `U` — counterfactual fairness does not require equalising the outcomes. Demographic Parity does. The two metrics therefore directly conflict whenever base rates of causally independent features differ across groups. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
+A counterfactually fair model will often produce demographic outcome gaps, because groups have different distributions of causally independent features. If those differences are real - rooted in the background variables `U` - counterfactual fairness does not require equalising the outcomes. Demographic Parity does. The two metrics therefore directly conflict whenever base rates of causally independent features differ across groups. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
 
 ### Resolving variables require judgment calls
 
 Some features are causally downstream of the protected attribute but are also direct, legitimate merit signals. A law school applicant's grades are causally affected by the quality of their secondary education, which is causally affected by their race via school funding disparities. Should grades be treated as a proxy and dropped? Or are they a legitimate signal of performance, even if partially shaped by structural inequality?
 
-Kusner et al. call these **resolving variables** — features where the causal path from `A` is mediated by a legitimate process (individual effort, direct performance). There is no automatic rule. Whether to treat a variable as a proxy or a resolving variable is a normative judgment that requires explicit documentation and justification.
+Kusner et al. call these **resolving variables** - features where the causal path from `A` is mediated by a legitimate process (individual effort, direct performance). There is no automatic rule. Whether to treat a variable as a proxy or a resolving variable is a normative judgment that requires explicit documentation and justification.
 
 ### Approximate audits have simulation variance
 
-The practical audit above approximates counterfactual individuals by re-sampling downstream features from the counterfactual group's distribution. This introduces randomness and may not accurately reflect the true counterfactual. Structural causal models, fitted to data, produce more principled counterfactual simulations — but require stronger modelling assumptions and significantly more implementation effort.
+The practical audit above approximates counterfactual individuals by re-sampling downstream features from the counterfactual group's distribution. This introduces randomness and may not accurately reflect the true counterfactual. Structural causal models, fitted to data, produce more principled counterfactual simulations - but require stronger modelling assumptions and significantly more implementation effort.
 
 ---
 
@@ -282,15 +282,15 @@ These two criteria are closely related and are often confused. The distinction i
 | | Individual Fairness | Counterfactual Fairness |
 |---|---|---|
 | **Question** | Are similar people treated similarly in the observed data? | Would the same person receive the same outcome in a world where they belong to a different group? |
-| **Framework** | Observational — operates on the data as-is | Causal — requires a structural causal model |
+| **Framework** | Observational - operates on the data as-is | Causal - requires a structural causal model |
 | **Unit of analysis** | Pairs of individuals | The same individual across possible worlds |
 | **What it requires** | A task-specific similarity metric `d(x, y)` | A causal DAG specifying which features are downstream of `A` |
 | **What it catches** | Inconsistent treatment of matched pairs | Decisions whose causal ancestry runs through the protected attribute |
 | **What it misses** | When the similarity metric is itself biased | When the causal graph is mis-specified |
-| **Easier to compute?** | Yes — no causal model needed | No — requires DAG + counterfactual simulation |
-| **Easier to interpret?** | Less intuitive | Highly intuitive — maps to how people reason about discrimination |
+| **Easier to compute?** | Yes - no causal model needed | No - requires DAG + counterfactual simulation |
+| **Easier to interpret?** | Less intuitive | Highly intuitive - maps to how people reason about discrimination |
 
-The two are complementary. Individual fairness is easier to audit empirically; counterfactual fairness provides the causal explanation for *why* individual fairness violations occur. A defendant who receives a different risk score than an identical defendant is an individual fairness violation. The reason it happens — because prior arrest count is causally downstream of race via differential policing — is a counterfactual fairness explanation.
+The two are complementary. Individual fairness is easier to audit empirically; counterfactual fairness provides the causal explanation for *why* individual fairness violations occur. A defendant who receives a different risk score than an identical defendant is an individual fairness violation. The reason it happens - because prior arrest count is causally downstream of race via differential policing - is a counterfactual fairness explanation.
 
 ---
 
@@ -310,28 +310,28 @@ Disparate treatment occurs when the protected attribute is a direct model input.
 
 ### Fairness Metric Conflicts
 
-Counterfactual fairness can produce demographic outcome gaps — because it permits unequal outcomes when those outcomes trace to causally independent background variables. This places it in direct tension with Demographic Parity and other group-level metrics. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
+Counterfactual fairness can produce demographic outcome gaps - because it permits unequal outcomes when those outcomes trace to causally independent background variables. This places it in direct tension with Demographic Parity and other group-level metrics. See the [fairness metric conflicts explainer](fairness-metric-conflicts.md).
 
 ### Label Bias
 
-Label bias means the training labels themselves encode historical discrimination — the human decisions the model was trained to replicate were made under biased conditions. Even a counterfactually fair feature set cannot correct for labels that carry the discriminatory signal directly. A causally fair model trained on causally unfair labels is still unfair. See the [label bias explainer](label-bias.md).
+Label bias means the training labels themselves encode historical discrimination - the human decisions the model was trained to replicate were made under biased conditions. Even a counterfactually fair feature set cannot correct for labels that carry the discriminatory signal directly. A causally fair model trained on causally unfair labels is still unfair. See the [label bias explainer](label-bias.md).
 
 ---
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) — the clearest real-world example: prior arrest count is causally downstream of race via differential policing. Removing race from the feature set does not achieve counterfactual fairness because the proxy carries the same causal signal.
-- [`German Credit Lending/`](../German%20Credit%20Lending/) — employment tenure is causally downstream of age (a 24-year-old structurally cannot have 10 years of work history), making it a proxy in the causal sense. Dropping it is a counterfactual fairness intervention.
-- [`Benefits Denial/`](../Benefits%20Denial/) — marital status and relationship type are causally downstream of sex via structural family roles. The spousal rate feature reconstructs sex through marriage patterns — a textbook counterfactual fairness violation.
+- [`COMPAS/`](../COMPAS/) - the clearest real-world example: prior arrest count is causally downstream of race via differential policing. Removing race from the feature set does not achieve counterfactual fairness because the proxy carries the same causal signal.
+- [`German Credit Lending/`](../German%20Credit%20Lending/) - employment tenure is causally downstream of age (a 24-year-old structurally cannot have 10 years of work history), making it a proxy in the causal sense. Dropping it is a counterfactual fairness intervention.
+- [`Benefits Denial/`](../Benefits%20Denial/) - marital status and relationship type are causally downstream of sex via structural family roles. The spousal rate feature reconstructs sex through marriage patterns - a textbook counterfactual fairness violation.
 
 ---
 
 ## Further Reading
 
-- [Kusner et al. (2017): *Counterfactual Fairness*, NeurIPS 2017](https://arxiv.org/abs/1703.06856) — the paper that introduced counterfactual fairness and the causal framework used throughout this explainer
-- [Pearl (2009): *Causality: Models, Reasoning, and Inference*](https://doi.org/10.1017/CBO9780511803161) — the foundational text on structural causal models and do-calculus; the causal machinery the Kusner framework depends on
-- [Chiappa (2019): *Path-Specific Counterfactual Fairness*, AAAI 2019](https://arxiv.org/abs/1802.08139) — extends the framework to handle resolving variables: features causally downstream of the protected attribute that encode legitimate merit signals rather than pure proxies
+- [Kusner et al. (2017): *Counterfactual Fairness*, NeurIPS 2017](https://arxiv.org/abs/1703.06856) - the paper that introduced counterfactual fairness and the causal framework used throughout this explainer
+- [Pearl (2009): *Causality: Models, Reasoning, and Inference*](https://doi.org/10.1017/CBO9780511803161) - the foundational text on structural causal models and do-calculus; the causal machinery the Kusner framework depends on
+- [Chiappa (2019): *Path-Specific Counterfactual Fairness*, AAAI 2019](https://arxiv.org/abs/1802.08139) - extends the framework to handle resolving variables: features causally downstream of the protected attribute that encode legitimate merit signals rather than pure proxies
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

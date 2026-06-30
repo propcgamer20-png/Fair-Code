@@ -6,7 +6,7 @@
 
 ## The One-Sentence Definition
 
-**Sampling bias** occurs when the data used to train an AI system doesn't accurately represent the population it will be deployed on — so the model learns patterns that don't generalize, performing well for over-represented groups and failing for under-represented ones.
+**Sampling bias** occurs when the data used to train an AI system doesn't accurately represent the population it will be deployed on - so the model learns patterns that don't generalize, performing well for over-represented groups and failing for under-represented ones.
 
 ---
 
@@ -14,9 +14,9 @@
 
 Most people assume that if you have a large dataset, the model will be fair. This is wrong.
 
-Size doesn't equal representativeness. A dataset of 10 million records is still biased if 9.8 million of them come from the same demographic. The model doesn't know what it hasn't seen. It optimizes for the distribution it was trained on — and when that distribution doesn't match the real world, the people left out pay the price.
+Size doesn't equal representativeness. A dataset of 10 million records is still biased if 9.8 million of them come from the same demographic. The model doesn't know what it hasn't seen. It optimizes for the distribution it was trained on - and when that distribution doesn't match the real world, the people left out pay the price.
 
-This is called **sampling bias**, and it shows up in facial recognition systems that fail on darker skin tones, clinical tools that miss diagnoses in women, and NLP models that perform worse on dialects outside Standard American English. In each case, the data collection process systematically excluded certain groups — and the model inherited that exclusion.
+This is called **sampling bias**, and it shows up in facial recognition systems that fail on darker skin tones, clinical tools that miss diagnoses in women, and NLP models that perform worse on dialects outside Standard American English. In each case, the data collection process systematically excluded certain groups - and the model inherited that exclusion.
 
 ---
 
@@ -29,7 +29,7 @@ This is called **sampling bias**, and it shows up in facial recognition systems 
 | **Historical bias** | Past data reflects past inequities; the model learns the inequity, not the truth | Hiring models trained on 10 years of male-dominated engineering hires |
 | **Survivorship bias** | Only "successful" cases make it into the dataset; failures are invisible | Loan models trained only on approved applicants, never denied ones |
 | **Temporal bias** | Training data is from a time period that no longer reflects current reality | A model trained on 2005 internet text used today |
-| **Measurement bias** | The same underlying reality is measured differently for different groups | Over-policing means more arrest records for Black communities — not higher crime rates |
+| **Measurement bias** | The same underlying reality is measured differently for different groups | Over-policing means more arrest records for Black communities - not higher crime rates |
 
 ---
 
@@ -37,7 +37,7 @@ This is called **sampling bias**, and it shows up in facial recognition systems 
 
 The clearest documented case of sampling bias in AI is the Gender Shades study (Joy Buolamwini & Timnit Gebru, 2018).
 
-Three commercial facial recognition systems were tested on a dataset specifically balanced across gender and skin tone. The results showed that every system performed dramatically worse on darker-skinned women — not because the algorithms were explicitly programmed to fail them, but because the training datasets were overwhelmingly composed of lighter-skinned faces.
+Three commercial facial recognition systems were tested on a dataset specifically balanced across gender and skin tone. The results showed that every system performed dramatically worse on darker-skinned women - not because the algorithms were explicitly programmed to fail them, but because the training datasets were overwhelmingly composed of lighter-skinned faces.
 
 | Group | Error Rate (best system) | Error Rate (worst system) |
 |---|---|---|
@@ -46,7 +46,7 @@ Three commercial facial recognition systems were tested on a dataset specificall
 | Darker-skinned males | ~10.8% | ~16.0% |
 | Darker-skinned females | **~20.8%** | **~34.7%** |
 
-The gap between best-case (lighter males) and worst-case (darker females) was **up to 34 percentage points** — from the same model, on the same task, because of who was and wasn't in the training data.
+The gap between best-case (lighter males) and worst-case (darker females) was **up to 34 percentage points** - from the same model, on the same task, because of who was and wasn't in the training data.
 
 The fix was not a new algorithm. It was a more representative dataset.
 
@@ -110,7 +110,7 @@ print(f"\nAccuracy gap: {abs(results.loc['A','accuracy'] - results.loc['B','accu
 print(f"Positive rate gap: {abs(results.loc['A','positive_rate'] - results.loc['B','positive_rate']):.4f}")
 ```
 
-**What you'll see:** Group B — the undersampled group — has measurably lower accuracy and a distorted positive rate, despite having nearly identical underlying skill scores. The bias is entirely a function of who was in the training data, not who deserves to be hired.
+**What you'll see:** Group B - the undersampled group - has measurably lower accuracy and a distorted positive rate, despite having nearly identical underlying skill scores. The bias is entirely a function of who was in the training data, not who deserves to be hired.
 
 ---
 
@@ -160,7 +160,7 @@ print(result)
 # Options: oversample, collect more data, apply sample weights, or use fairness-aware training.
 ```
 
-Run this before any training run. A group flagged `UNDERREPRESENTED` means the model will have less signal to learn from for that group — and more opportunity to get it wrong.
+Run this before any training run. A group flagged `UNDERREPRESENTED` means the model will have less signal to learn from for that group - and more opportunity to get it wrong.
 
 ---
 
@@ -168,9 +168,9 @@ Run this before any training run. A group flagged `UNDERREPRESENTED` means the m
 
 Detecting sampling bias is step one. Fixing it requires one of the following strategies, chosen based on how severe the imbalance is and how much data you can realistically collect:
 
-**1. Collect more data** — the cleanest fix. Go get more samples from underrepresented groups before training. Not always possible, but always preferable when it is.
+**1. Collect more data** - the cleanest fix. Go get more samples from underrepresented groups before training. Not always possible, but always preferable when it is.
 
-**2. Oversample** — repeat underrepresented examples during training so the model sees them more often. Simple and effective for moderate imbalances.
+**2. Oversample** - repeat underrepresented examples during training so the model sees them more often. Simple and effective for moderate imbalances.
 
 ```python
 from sklearn.utils import resample
@@ -182,7 +182,7 @@ minority_upsampled = resample(minority, replace=True, n_samples=len(majority), r
 balanced_train = pd.concat([majority, minority_upsampled])
 ```
 
-**3. Apply sample weights** — tell the model to penalize errors on underrepresented groups more heavily. Works well when you can't change the dataset itself.
+**3. Apply sample weights** - tell the model to penalize errors on underrepresented groups more heavily. Works well when you can't change the dataset itself.
 
 ```python
 from sklearn.utils.class_weight import compute_sample_weight
@@ -191,7 +191,7 @@ weights = compute_sample_weight('balanced', y=y_train)
 clf.fit(X_train, y_train, sample_weight=weights)
 ```
 
-**4. Stratified splits** — always split train/test data in a way that preserves group proportions. Prevents the test set itself from being biased.
+**4. Stratified splits** - always split train/test data in a way that preserves group proportions. Prevents the test set itself from being biased.
 
 ```python
 from sklearn.model_selection import train_test_split
@@ -207,15 +207,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 Sampling bias is not a technical accident. It reflects who had access to the systems that generated the data in the first place. Facial recognition datasets are biased toward lighter-skinned faces because the researchers who collected them moved in predominantly lighter-skinned professional environments. Clinical AI is biased toward wealthy patients because hospitals in wealthy ZIP codes have better electronic health record infrastructure. NLP models are biased toward Standard American English because that's what most of the training corpus is written in.
 
-The data you have is a record of the world as it was — including which people were visible, documented, and deemed worth measuring. A model trained on that data will reproduce those visibility decisions at scale.
+The data you have is a record of the world as it was - including which people were visible, documented, and deemed worth measuring. A model trained on that data will reproduce those visibility decisions at scale.
 
-**You cannot fix a representativeness problem with a better algorithm. You fix it with better data — or you disclose the limitation and restrict deployment accordingly.**
+**You cannot fix a representativeness problem with a better algorithm. You fix it with better data - or you disclose the limitation and restrict deployment accordingly.**
 
 ---
 
 ## Relationship to Other Concepts
 
-Sampling bias is distinct from — but connected to — other fairness failure modes:
+Sampling bias is distinct from - but connected to - other fairness failure modes:
 
 - **Proxy variables** encode protected attributes through correlated features. Sampling bias encodes them through who was included in the data at all. Both must be audited independently. See [`proxy-variables.md`](proxy-variables.md).
 - **Demographic parity** (coming soon) measures whether positive prediction rates are equal across groups. Sampling bias is one of the root causes of demographic parity violations.
@@ -225,10 +225,10 @@ Sampling bias is distinct from — but connected to — other fairness failure m
 
 ## Further Reading
 
-- [Buolamwini & Gebru: Gender Shades (2018)](http://proceedings.mlr.press/v81/buolamwini18a.html) — the foundational study on facial recognition sampling bias
-- [Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)](https://science.sciencemag.org/content/366/6464/447) — survivorship and selection bias in clinical AI
-- [Bender et al.: On the Dangers of Stochastic Parrots (2021)](https://dl.acm.org/doi/10.1145/3442188.3445922) — sampling bias in large language model training corpora
+- [Buolamwini & Gebru: Gender Shades (2018)](http://proceedings.mlr.press/v81/buolamwini18a.html) - the foundational study on facial recognition sampling bias
+- [Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)](https://science.sciencemag.org/content/366/6464/447) - survivorship and selection bias in clinical AI
+- [Bender et al.: On the Dangers of Stochastic Parrots (2021)](https://dl.acm.org/doi/10.1145/3442188.3445922) - sampling bias in large language model training corpora
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

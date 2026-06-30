@@ -1,8 +1,8 @@
 <div align="center">
 
-# Fair Code — Algorithmic Bias Detection & Mitigation
+# Fair Code - Algorithmic Bias Detection & Mitigation
 
-*AI systems are making decisions about your freedom, your job, and your healthcare. This project shows the bias is real — and how to fix it.*
+*AI systems are making decisions about your freedom, your job, and your healthcare. This project shows the bias is real - and how to fix it.*
 
 **by [Yash Kewlani](https://github.com/yakew7) · [@thefaircodeproject](https://instagram.com/thefaircodeproject)**
 
@@ -67,7 +67,7 @@ train a biased model → measure the fairness gap → engineer a fair model → 
 
 No theory. No hand-waving. Just data, code, and results.
 
-Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for direct execution and a Jupyter notebook (`notebooks/`) that walks through the full pipeline step by step — with visualisations, proxy detection, and annotated findings.
+Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for direct execution and a Jupyter notebook (`notebooks/`) that walks through the full pipeline step by step - with visualisations, proxy detection, and annotated findings.
 
 ---
 
@@ -91,22 +91,22 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 
 ## Healthcare AI Bias Focus
 
-Fair Code has a particular focus on bias in healthcare AI — because the consequences there are not financial or professional. They are clinical.
+Fair Code has a particular focus on bias in healthcare AI - because the consequences there are not financial or professional. They are clinical.
 
 Three of the six audits are healthcare or welfare-system models. Each demonstrates the same pattern: an algorithm trained on historical health data learns to penalise patients not for their medical risk, but for the structural inequalities baked into their access to care.
 
 **Key healthcare audits:**
 
-- **[Insurance Denial](Insurance%20Denial/)** — An insurance model uses BMI, smoking status, and diabetic status as proxies for race and class, flagging older and female patients for high-cost claims at elevated rates unrelated to actual medical risk.
-- **[Benefits Denial](Benefits%20Denial/)** — An automated welfare means-test flags men for ineligibility at 18 percentage points higher than women — not because of income, but because of who they are married to.
-- **[Healthcare Readmission](Healthcare%20Readmission/)** — A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity.
+- **[Insurance Denial](Insurance%20Denial/)** - An insurance model uses BMI, smoking status, and diabetic status as proxies for race and class, flagging older and female patients for high-cost claims at elevated rates unrelated to actual medical risk.
+- **[Benefits Denial](Benefits%20Denial/)** - An automated welfare means-test flags men for ineligibility at 18 percentage points higher than women - not because of income, but because of who they are married to.
+- **[Healthcare Readmission](Healthcare%20Readmission/)** - A hospital readmission model flags patients for high clinical risk using payer code and discharge destination - variables that measure insurance access, not medical severity.
 
 **Upcoming healthcare AI explainers:**
 
-- Why Accuracy Is Not Enough in Healthcare AI — why a 95% accurate model can still systematically miss high-risk patients from specific demographic groups
-- False Positives and False Negatives in Medical Risk Models — how the direction of error matters, and why false negatives cluster in historically undertreated groups
+- Why Accuracy Is Not Enough in Healthcare AI - why a 95% accurate model can still systematically miss high-risk patients from specific demographic groups
+- False Positives and False Negatives in Medical Risk Models - how the direction of error matters, and why false negatives cluster in historically undertreated groups
 
-This directly connects Fair Code to the broader responsible AI in healthcare conversation — where CardioAI, clinical risk scores, and insurance triage tools are increasingly making consequential decisions without demographic audits.
+This directly connects Fair Code to the broader responsible AI in healthcare conversation - where CardioAI, clinical risk scores, and insurance triage tools are increasingly making consequential decisions without demographic audits.
 
 ---
 
@@ -130,8 +130,8 @@ Fair-Code/
 │   ├── unfair.py                        #   biased model
 │   ├── fair.py                          #   mitigated model
 │   ├── *.csv                            #   dataset
-│   ├── unfair.png                       #   terminal output — biased results
-│   └── fair.png                         #   terminal output — mitigated results
+│   ├── unfair.png                       #   terminal output - biased results
+│   └── fair.png                         #   terminal output - mitigated results
 ├── AI Fair Recruitment/
 ├── German Credit Lending/
 ├── Insurance Denial/
@@ -146,7 +146,7 @@ Fair-Code/
 │   ├── 05_benefits_denial_bias_audit.ipynb
 │   └── 06_healthcare_readmission_bias_audit.ipynb
 │
-├── faircode/                            # Open Dataset Profiler — CLI + engine
+├── faircode/                            # Open Dataset Profiler - CLI + engine
 │   ├── SPEC.md                          #   analysis spec shared with the web port
 │   ├── detect.py                        #   demographic column auto-detection
 │   ├── profiler.py                      #   core representation engine (pure pandas)
@@ -190,7 +190,7 @@ Fair-Code/
 ├── assets/                              # web assets (CSS + JS)
 │   └── profiler-engine.js, profiler-ui.js, profiler.css   # client-side profiler
 ├── index.html                           # live at fair-code-five.vercel.app
-├── profiler.html                        # Open Dataset Profiler — client-side web tool
+├── profiler.html                        # Open Dataset Profiler - client-side web tool
 └── requirements.txt
 ```
 
@@ -198,17 +198,17 @@ Fair-Code/
 
 ## Projects
 
-### 01 · COMPAS — Criminal Justice Bias
+### 01 · COMPAS - Criminal Justice Bias
 
 > *"A real algorithm used in US courtrooms flags Black defendants as high-risk at 87%. White defendants? 0.4%. Same system. Different outcomes."*
 
-**Dataset:** `compas-scores-raw.csv` — ProPublica's public COMPAS dataset (70,000+ records)
+**Dataset:** `compas-scores-raw.csv` - ProPublica's public COMPAS dataset (70,000+ records)
 
 COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) is deployed across 46 US states to predict whether a defendant will reoffend. Judges use its scores to make bail, sentencing, and parole decisions. More than 1 million people are assessed by COMPAS-style tools annually. Zero states require it to be audited for bias.
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
-Trained with race and custody status as features — inputs that COMPAS-style systems actually use in production.
+Trained with race and custody status as features - inputs that COMPAS-style systems actually use in production.
 
 | Group | High-Risk Flag Rate |
 |-------|:-------------------:|
@@ -216,9 +216,9 @@ Trained with race and custody status as features — inputs that COMPAS-style sy
 | White Defendants | 0.40% |
 | **Fairness Gap** | **86.77%** |
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
-Dropped race directly, and `CustodyStatus` as a known proxy variable — a correlated feature that smuggles racial signal back in even after the race column is removed.
+Dropped race directly, and `CustodyStatus` as a known proxy variable - a correlated feature that smuggles racial signal back in even after the race column is removed.
 
 ```python
 # THE FIX: Drop race + proxy variables
@@ -244,13 +244,13 @@ X = pd.get_dummies(df[[
 
 ---
 
-### 02 · AI Fair Recruitment — Hiring Bias
+### 02 · AI Fair Recruitment - Hiring Bias
 
 > *"Women were hired 20.9% less than equally qualified men. The algorithm wasn't told to discriminate. It learned to."*
 
-**Dataset:** `AI_Fair_Recruitment_Dataset.csv` — Recruitment dataset with gender, age, experience, and technical test scores
+**Dataset:** `AI_Fair_Recruitment_Dataset.csv` - Recruitment dataset with gender, age, experience, and technical test scores
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
 Biased model trained with gender and age alongside merit-based inputs.
 
@@ -262,7 +262,7 @@ Biased model trained with gender and age alongside merit-based inputs.
 
 Women were hired ~21% less than men with identical experience and test scores.
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
 Dropped gender and age entirely. Retained only merit-based features: experience years and technical test score.
 
@@ -281,21 +281,21 @@ X = df[['experience_years', 'test_score']]
 
 **Result: 97.3% reduction in the fairness gap.**
 
-> **Key insight:** The model was never explicitly told to discriminate by gender. It inferred a gender penalty from historical hiring patterns in the training data — patterns reflecting human bias, not merit. Restricting inputs to demonstrated ability eliminates the channel through which that bias flows.
+> **Key insight:** The model was never explicitly told to discriminate by gender. It inferred a gender penalty from historical hiring patterns in the training data - patterns reflecting human bias, not merit. Restricting inputs to demonstrated ability eliminates the channel through which that bias flows.
 
 📓 **[Full notebook walkthrough →](notebooks/02_hiring_bias_audit.ipynb)**
 
 ---
 
-### 03 · German Credit Lending — Lending Bias
+### 03 · German Credit Lending - Lending Bias
 
 > *"A credit scoring model rates young applicants as bad credit risks at 6.39 percentage points higher than older applicants with identical financial profiles. It learned age from job tenure."*
 
-**Dataset:** `credit_customers.csv` — UCI Statlog German Credit dataset (1,000 records) · [Kaggle source](https://www.kaggle.com/datasets/ppb00x/credit-risk-customers)
+**Dataset:** `credit_customers.csv` - UCI Statlog German Credit dataset (1,000 records) · [Kaggle source](https://www.kaggle.com/datasets/ppb00x/credit-risk-customers)
 
-Age discrimination in lending is documented across financial systems worldwide. Young borrowers face higher rejection rates not because of creditworthiness, but because the features used to measure it — employment tenure, account history, savings — are structurally correlated with age.
+Age discrimination in lending is documented across financial systems worldwide. Young borrowers face higher rejection rates not because of creditworthiness, but because the features used to measure it - employment tenure, account history, savings - are structurally correlated with age.
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
 Biased model trained with `age` and `employment` (tenure) as features.
 
@@ -319,7 +319,7 @@ print(pd.crosstab(df['employment'], df['is_young'], normalize='columns').round(3
 # >=7yr          0.359  0.073   ← older applicants over-represented
 ```
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
 Dropped `age` and `employment`. Retained only objective financial signals.
 
@@ -337,13 +337,13 @@ Dropped `age` and `employment`. Retained only objective financial signals.
 
 ---
 
-### 04 · Insurance Denial — Healthcare Bias
+### 04 · Insurance Denial - Healthcare Bias
 
-> *"An insurance AI flags older patients for high-cost claims at 7.93 percentage points higher than younger patients — using BMI, smoking status, and diabetic status as proxies for race and class."*
+> *"An insurance AI flags older patients for high-cost claims at 7.93 percentage points higher than younger patients - using BMI, smoking status, and diabetic status as proxies for race and class."*
 
-**Dataset:** `insurance.csv` — [Kaggle: Insurance Claim Analysis](https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health) (1,340 records)
+**Dataset:** `insurance.csv` - [Kaggle: Insurance Claim Analysis](https://www.kaggle.com/datasets/thedevastator/insurance-claim-analysis-demographic-and-health) (1,340 records)
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
 | Group | High-Cost Claim Flag Rate |
 |-------|:-------------------------:|
@@ -357,7 +357,7 @@ Dropped `age` and `employment`. Retained only objective financial signals.
 | Male | 38.41% |
 | **Fairness Gap (Gender)** | **5.44%** |
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
 Dropped `age`, `gender`, `bmi`, `smoker`, and `diabetic`. Retained only objective policy-level signals: `bloodpressure`, `children`, `region`.
 
@@ -375,21 +375,21 @@ Dropped `age`, `gender`, `bmi`, `smoker`, and `diabetic`. Retained only objectiv
 
 **Result: 60% reduction in age gap. 72% reduction in gender gap.**
 
-> **Key insight:** Insurance AI models don't need to name race to discriminate by race. BMI, smoking, and diabetic status are the `CustodyStatus` of health insurance — clinical-sounding features that carry protected-class signal because of structural inequalities baked into American healthcare.
+> **Key insight:** Insurance AI models don't need to name race to discriminate by race. BMI, smoking, and diabetic status are the `CustodyStatus` of health insurance - clinical-sounding features that carry protected-class signal because of structural inequalities baked into American healthcare.
 
 📓 **[Full notebook walkthrough →](notebooks/04_insurance_denial_bias_audit.ipynb)**
 
 ---
 
-### 05 · Benefits Denial — Welfare Eligibility Bias
+### 05 · Benefits Denial - Welfare Eligibility Bias
 
-> *"An automated means-test flags male applicants as ineligible at 18 percentage points higher than female applicants — not because of what they earn, but because of who they're married to."*
+> *"An automated means-test flags male applicants as ineligible at 18 percentage points higher than female applicants - not because of what they earn, but because of who they're married to."*
 
-**Dataset:** `adult.csv` — UCI Adult Census Income dataset (48,842 records) · [Kaggle source](https://www.kaggle.com/datasets/wenruliu/adult-income-dataset)
+**Dataset:** `adult.csv` - UCI Adult Census Income dataset (48,842 records) · [Kaggle source](https://www.kaggle.com/datasets/wenruliu/adult-income-dataset)
 
 Automated welfare and benefits systems use income-prediction models to screen applicants for housing assistance, food support, and healthcare subsidies. This audit replicates that logic: the model predicts whether an applicant earns above a means-test threshold ($50K) and flags them as ineligible.
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
 Trained with sex, race, age, and national origin directly, plus four proxy variables that reconstruct those attributes even after the protected columns are removed.
 
@@ -411,7 +411,7 @@ Trained with sex, race, age, and national origin directly, plus four proxy varia
 | Foreign-born | 15.81% |
 | **Fairness Gap (Origin)** | **4.40%** |
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
 Dropped all four protected attributes and all four proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
 
@@ -442,21 +442,21 @@ features = [
 
 **Result: 53% reduction in sex gap. 46% reduction in race gap. 88% reduction in national-origin gap.**
 
-> **Key insight:** `relationship`, `marital.status`, `hours.per.week`, and `occupation` all sound purely economic — but each carries protected-class signal because of how work, caregiving, and labour markets are structurally organised. The fix is to ask only what the law actually permits: education, employment sector, and capital assets.
+> **Key insight:** `relationship`, `marital.status`, `hours.per.week`, and `occupation` all sound purely economic - but each carries protected-class signal because of how work, caregiving, and labour markets are structurally organised. The fix is to ask only what the law actually permits: education, employment sector, and capital assets.
 
 📓 **[Full notebook walkthrough →](notebooks/05_benefits_denial_bias_audit.ipynb)**
 
 ---
 
-### 06 · Healthcare Readmission — Clinical Bias
+### 06 · Healthcare Readmission - Clinical Bias
 
-> *"A hospital readmission model flags patients for high clinical risk using payer code and discharge destination — variables that measure insurance access, not medical severity."*
+> *"A hospital readmission model flags patients for high clinical risk using payer code and discharge destination - variables that measure insurance access, not medical severity."*
 
-**Dataset:** `diabetic_data.csv` — Diabetes 130-US Hospitals 1999–2008 (101,766 records) · [Kaggle source](https://www.kaggle.com/datasets/brandao/diabetes)
+**Dataset:** `diabetic_data.csv` - Diabetes 130-US Hospitals 1999–2008 (101,766 records) · [Kaggle source](https://www.kaggle.com/datasets/brandao/diabetes)
 
-Hospital readmission prediction tools are used to allocate follow-up care, discharge planning resources, and post-acute interventions. This audit replicates that logic: the model predicts 30-day readmission and flags patients as high clinical risk. Tools like these are deployed in real hospital systems — and the features they use encode insurance and race, not physiology.
+Hospital readmission prediction tools are used to allocate follow-up care, discharge planning resources, and post-acute interventions. This audit replicates that logic: the model predicts 30-day readmission and flags patients as high clinical risk. Tools like these are deployed in real hospital systems - and the features they use encode insurance and race, not physiology.
 
-#### The Problem — `unfair.py`
+#### The Problem - `unfair.py`
 
 Trained with race, gender, and age directly, plus four proxy variables that carry the same signal through administrative-sounding features.
 
@@ -494,7 +494,7 @@ print(df.groupby('race')['discharged_to_snf'].mean().round(3))
 print(df.groupby('race')['number_inpatient'].mean().round(3))
 ```
 
-#### The Fix — `fair.py`
+#### The Fix - `fair.py`
 
 Dropped race, gender, age, payer code, discharge disposition, medical specialty, and prior inpatient count. Retained only clinical signals from this admission.
 
@@ -511,7 +511,7 @@ features = [
     'number_emergency',     # emergency visits
     'number_diagnoses',     # comorbidity count
     'max_glu_serum',        # glucose reading
-    'A1Cresult',            # HbA1c — diabetes control
+    'A1Cresult',            # HbA1c - diabetes control
     'insulin',              # treatment this visit
     'change',               # medication change flag
     'diabetesMed',          # on diabetes medication
@@ -534,7 +534,7 @@ features = [
 
 **Result: Gender gap increased from 0.02% to 0.04% (proxy removal worsened this gap slightly). 25% reduction in race gap. 68% reduction in age gap.**
 
-> **Key insight:** Healthcare readmission models don't need race or gender to discriminate by them. Payer code, discharge destination, and prior inpatient visits are the `occupation` and `relationship` of clinical AI — variables that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap — the gap creates the risk.
+> **Key insight:** Healthcare readmission models don't need race or gender to discriminate by them. Payer code, discharge destination, and prior inpatient visits are the `occupation` and `relationship` of clinical AI - variables that look like neutral operational data but encode structural inequalities in insurance, geography, and access to preventive care. The causal direction matters: lower SNF access creates readmission risk. The patient does not bring the risk to the gap - the gap creates the risk.
 
 📓 **[Full notebook walkthrough →](notebooks/06_healthcare_readmission_bias_audit.ipynb)**
 
@@ -545,28 +545,28 @@ features = [
 | Explainer | What it covers |
 |-----------|----------------|
 | [What is a Proxy Variable?](explainers/proxy-variables.md) | Why AI stays biased even after you remove protected attributes from the data |
-| [What is Equalized Odds?](explainers/equalized-odds.md) | The fairness metric that catches a model treating two groups differently — even when overall accuracy looks fine |
+| [What is Equalized Odds?](explainers/equalized-odds.md) | The fairness metric that catches a model treating two groups differently - even when overall accuracy looks fine |
 | [What is Sampling Bias?](explainers/sampling-bias.md) | Why your AI works great in the lab and fails on the people who need it most |
-| [What Are SHAP Values?](explainers/shap-values.md) | How to see exactly what drove an AI decision — and use that to catch bias |
-| [What is Disparate Impact?](explainers/disparate-impact.md) | The 80% rule — the legal threshold under US employment law that flags an AI decision as discriminatory |
-| [What is Disparate Treatment?](explainers/disparate-treatment.md) | Intentional discrimination — when a protected attribute or its proxy is a direct input to the model |
+| [What Are SHAP Values?](explainers/shap-values.md) | How to see exactly what drove an AI decision - and use that to catch bias |
+| [What is Disparate Impact?](explainers/disparate-impact.md) | The 80% rule - the legal threshold under US employment law that flags an AI decision as discriminatory |
+| [What is Disparate Treatment?](explainers/disparate-treatment.md) | Intentional discrimination - when a protected attribute or its proxy is a direct input to the model |
 | [Why Fairness Metrics Conflict](explainers/fairness-metric-conflicts.md) | The proven mathematical impossibility of satisfying demographic parity, equalized odds, and predictive parity simultaneously |
 | [What is Calibration?](explainers/calibration.md) | Why a model can be equally accurate for everyone and still treat them unequally |
 | [What is Demographic Parity?](explainers/demographic-parity.md) | The foundational fairness metric that requires equal positive prediction rates across groups |
-| [What is Feedback Loop Bias?](explainers/feedback-loop-bias.md) | Why AI systems don't just reflect historical bias — they actively amplify it across retraining cycles |
-| [What is Label Bias?](explainers/label-bias.md) | Why a model trained on historical decisions inherits the prejudice of the humans who made them — even when the features look clean |
-| [What is Individual Fairness?](explainers/individual-fairness.md) | Why treating groups equally in aggregate is not enough — and what it means to treat similar people similarly |
-| [What is Counterfactual Fairness?](explainers/counterfactual-fairness.md) | Why removing a protected attribute isn't enough — and what it means for a model's decision to be causally free of demographic influence |
+| [What is Feedback Loop Bias?](explainers/feedback-loop-bias.md) | Why AI systems don't just reflect historical bias - they actively amplify it across retraining cycles |
+| [What is Label Bias?](explainers/label-bias.md) | Why a model trained on historical decisions inherits the prejudice of the humans who made them - even when the features look clean |
+| [What is Individual Fairness?](explainers/individual-fairness.md) | Why treating groups equally in aggregate is not enough - and what it means to treat similar people similarly |
+| [What is Counterfactual Fairness?](explainers/counterfactual-fairness.md) | Why removing a protected attribute isn't enough - and what it means for a model's decision to be causally free of demographic influence |
 | [What Happens Inside a Neural Network?](explainers/neural-networks.md) | How networks learn from data, why that makes bias inevitable without auditing, and how to inspect what a model actually learned |
-| [Why AI Hallucinates?](explainers/ai-hallucinations.md) | Confident predictions in sparse areas of the feature space — from tabular denial scores to ChatGPT's fake court citations |
-| [What Is Reinforcement Learning?](explainers/reinforcement-learning.md) | How RL agents learn policies from reward signals — and why reward misspecification, proxy exploitation, and credit assignment failure make them dangerous in high-stakes decisions |
+| [Why AI Hallucinates?](explainers/ai-hallucinations.md) | Confident predictions in sparse areas of the feature space - from tabular denial scores to ChatGPT's fake court citations |
+| [What Is Reinforcement Learning?](explainers/reinforcement-learning.md) | How RL agents learn policies from reward signals - and why reward misspecification, proxy exploitation, and credit assignment failure make them dangerous in high-stakes decisions |
 | [What Is Proxy Entanglement?](explainers/proxy-entanglement.md) | Why removing proxies one at a time fails when multiple features encode the same protected signal through correlated, redundant channels |
-| [What Is Machine Learning Bias?](explainers/ml-bias.md) | The four entry points — training data, labels, proxies, and feedback loops — that let bias enter a model, with detection code and real examples from every audit |
-| [What Is Data Leakage?](explainers/data-leakage.md) | Why a model that scores 99% on every test can still fail completely at deployment — and how to find the contamination before it ships |
-| [How Does AI Detect Patterns?](explainers/how-ai-detects-patterns.md) | How a Random Forest finds patterns through splits, aggregation, and feature importance — and why it can't tell a causal pattern from a discriminatory one |
+| [What Is Machine Learning Bias?](explainers/ml-bias.md) | The four entry points - training data, labels, proxies, and feedback loops - that let bias enter a model, with detection code and real examples from every audit |
+| [What Is Data Leakage?](explainers/data-leakage.md) | Why a model that scores 99% on every test can still fail completely at deployment - and how to find the contamination before it ships |
+| [How Does AI Detect Patterns?](explainers/how-ai-detects-patterns.md) | How a Random Forest finds patterns through splits, aggregation, and feature importance - and why it can't tell a causal pattern from a discriminatory one |
 | [What Is Distribution Shift?](explainers/distribution-shift.md) | Why a model that passes a bias audit at deployment can become biased again as the population it serves changes |
-| [The Biggest Myth About AI Objectivity](explainers/ai-objectivity-myth.md) | Why "it's just math" isn't a defense — models trained on biased history produce biased outcomes, and the math just makes them harder to challenge |
-| [What Is a Confounding Variable?](explainers/confounding-variable.md) | How a hidden third variable creates spurious correlations between a feature and an outcome — and why removing the protected attribute leaves the bias intact until the confounder is removed too |
+| [The Biggest Myth About AI Objectivity](explainers/ai-objectivity-myth.md) | Why "it's just math" isn't a defense - models trained on biased history produce biased outcomes, and the math just makes them harder to challenge |
+| [What Is a Confounding Variable?](explainers/confounding-variable.md) | How a hidden third variable creates spurious correlations between a feature and an outcome - and why removing the protected attribute leaves the bias intact until the confounder is removed too |
 
 ---
 
@@ -587,12 +587,12 @@ All projects use the same pipeline:
 
 | Component | Details |
 |-----------|---------|
-| **Model** | Random Forest Classifier (`sklearn.ensemble.RandomForestClassifier`, `n_estimators=100`) — chosen for resistance to overfitting, feature importance interpretability, and SHAP compatibility |
+| **Model** | Random Forest Classifier (`sklearn.ensemble.RandomForestClassifier`, `n_estimators=100`) - chosen for resistance to overfitting, feature importance interpretability, and SHAP compatibility |
 | **Split** | 80/20 train/test, `random_state=42` |
-| **Primary metric** | Demographic Parity — difference in positive prediction rates across demographic groups |
+| **Primary metric** | Demographic Parity - difference in positive prediction rates across demographic groups |
 | **Secondary metrics** | Equalized Odds (TPR + FPR parity), Disparate Impact Ratio (Four-Fifths Rule), SHAP feature attribution |
-| **Mitigation** | Pre-processing attribute removal — protected attributes and identified proxies are dropped before training |
-| **Proxy detection** | Chi-squared test (`scipy.stats.chi2_contingency`) — features with `p < 0.05` flagged as proxies. See [explainers/proxy-variables.md](explainers/proxy-variables.md) |
+| **Mitigation** | Pre-processing attribute removal - protected attributes and identified proxies are dropped before training |
+| **Proxy detection** | Chi-squared test (`scipy.stats.chi2_contingency`) - features with `p < 0.05` flagged as proxies. See [explainers/proxy-variables.md](explainers/proxy-variables.md) |
 
 ---
 
@@ -603,7 +603,7 @@ All projects use the same pipeline:
 - **1M+** people assessed by COMPAS-style tools annually
 - **0** states require the algorithm to be audited for bias
 
-These aren't edge cases or hypotheticals. Algorithms like COMPAS are deployed in courtrooms today. Hiring AIs filter your resume before a human ever reads it. Credit scoring models penalize young borrowers for not having lived long enough to build tenure. The bias in these systems is documented, measurable — and fixable.
+These aren't edge cases or hypotheticals. Algorithms like COMPAS are deployed in courtrooms today. Hiring AIs filter your resume before a human ever reads it. Credit scoring models penalize young borrowers for not having lived long enough to build tenure. The bias in these systems is documented, measurable - and fixable.
 
 ---
 
@@ -622,9 +622,9 @@ python COMPAS/unfair.py   # see the bias
 python COMPAS/fair.py     # see the fix
 ```
 
-Each script resolves its dataset relative to its own location, so it runs from anywhere — `cd COMPAS && python unfair.py` works too.
+Each script resolves its dataset relative to its own location, so it runs from anywhere - `cd COMPAS && python unfair.py` works too.
 
-The same pattern applies to all six projects — swap `COMPAS` for `"AI Fair Recruitment"`, `"German Credit Lending"`, `"Insurance Denial"`, `"Benefits Denial"`, or `"Healthcare Readmission"`.
+The same pattern applies to all six projects - swap `COMPAS` for `"AI Fair Recruitment"`, `"German Credit Lending"`, `"Insurance Denial"`, `"Benefits Denial"`, or `"Healthcare Readmission"`.
 
 Run the notebooks:
 
@@ -640,19 +640,19 @@ Or open any `.ipynb` directly in VS Code, JupyterLab, or Google Colab.
 ## Open Dataset Profiler
 
 The six audits above measure bias in a **model**. The **Open Dataset Profiler** works one step
-upstream — it audits the **dataset itself** for demographic representation *before* any model is
+upstream - it audits the **dataset itself** for demographic representation *before* any model is
 trained: under-represented or missing subgroups, skewed age/sex distributions, geographic
-under-sampling, and intersectional gaps. It is **diagnostic**, not predictive — there is no model,
+under-sampling, and intersectional gaps. It is **diagnostic**, not predictive - there is no model,
 no train/test split, no proxy removal.
 
 It ships in two forms that share one analysis spec ([faircode/SPEC.md](faircode/SPEC.md)), so the
 same CSV produces the same numbers in both:
 
-**Web — drop in a CSV, audit it in your browser.** Open **[profiler.html](profiler.html)** (linked
+**Web - drop in a CSV, audit it in your browser.** Open **[profiler.html](profiler.html)** (linked
 from the site nav, live at [fair-code-five.vercel.app](https://fair-code-five.vercel.app)). All
-analysis runs client-side — **your file never leaves your browser**, which matters for health data.
+analysis runs client-side - **your file never leaves your browser**, which matters for health data.
 
-**CLI — `faircode`.**
+**CLI - `faircode`.**
 
 ```bash
 pip install -e .                                   # installs the faircode console script
@@ -661,7 +661,7 @@ faircode profile data.csv --json                   # machine-readable
 faircode profile data.csv --html report.html       # standalone HTML report
 ```
 
-The engine is domain-agnostic — it works on any tabular CSV (health, hiring, lending, justice),
+The engine is domain-agnostic - it works on any tabular CSV (health, hiring, lending, justice),
 auto-detecting demographic columns (sex, race, age, geography) by name. It depends only on
 **pandas** (no `ydata-profiling`): that library is a heavy, general-purpose profiler, whereas the
 Profiler needs only a thin, fairness-specific slice, so we compute the representation metrics
@@ -675,7 +675,7 @@ directly. Run the tests with `pytest tests/`.
 |-----------|---------|
 | Language | Python 3 |
 | Libraries | `pandas`, `scikit-learn`, `fairlearn`, `shap`, `matplotlib`, `scipy` |
-| Notebooks | Jupyter (`.ipynb`) — one per audit, in `notebooks/` |
+| Notebooks | Jupyter (`.ipynb`) - one per audit, in `notebooks/` |
 | Profiler | `faircode/` CLI (pandas-only) + client-side `profiler.html` (vanilla JS); shared spec, no backend |
 | Website | Static HTML/CSS/JS, deployed on Vercel |
 | Datasets | ProPublica COMPAS (public domain), AI Fair Recruitment (Kaggle), UCI German Credit / Statlog (Kaggle), Insurance Claims (Kaggle), UCI Adult Census Income (Kaggle), Diabetes 130-US Hospitals (Kaggle) |
@@ -687,11 +687,11 @@ directly. Run the tests with `pytest tests/`.
 - [x] COMPAS Criminal Justice Bias
 - [x] AI Fair Recruitment Bias
 - [x] German Credit Lending Bias
-- [x] Insurance Denial — Healthcare Bias
-- [x] Benefits Denial — Welfare Eligibility Bias
-- [x] Healthcare Readmission — Clinical Bias
+- [x] Insurance Denial - Healthcare Bias
+- [x] Benefits Denial - Welfare Eligibility Bias
+- [x] Healthcare Readmission - Clinical Bias
 - [x] Jupyter notebook walkthroughs for all five audits
-- [x] CI pipeline — all audit scripts run automatically on every push and PR
+- [x] CI pipeline - all audit scripts run automatically on every push and PR
 - [x] Explainer: Proxy Variables
 - [x] Explainer: Equalized Odds
 - [x] Explainer: Sampling Bias
@@ -720,7 +720,7 @@ directly. Run the tests with `pytest tests/`.
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
 - [ ] HMDA mortgage lending bias
 - [ ] LLM bias audit
-- [x] Fairness audit web dashboard — [Open Dataset Profiler](#open-dataset-profiler)
+- [x] Fairness audit web dashboard - [Open Dataset Profiler](#open-dataset-profiler)
 - [x] Bias detection utility library (`faircode/` module)
 
 Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -729,7 +729,7 @@ Want to contribute an audit or explainer? See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Roadmap
 
-The full public roadmap — with phases, completion status, and content schedule — is in [ROADMAP.md](ROADMAP.md).
+The full public roadmap - with phases, completion status, and content schedule - is in [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -760,7 +760,7 @@ See the full contributor list on [GitHub](https://github.com/yakew7/Fair-Code/gr
 
 ## Website
 
-The full project is at **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)** — everything in this repo presented visually, with before/after terminal outputs, bias bar charts, search and filter across all audits and explainers, copy buttons on every code block, share links per audit, and light/dark mode.
+The full project is at **[fair-code-five.vercel.app](https://fair-code-five.vercel.app)** - everything in this repo presented visually, with before/after terminal outputs, bias bar charts, search and filter across all audits and explainers, copy buttons on every code block, share links per audit, and light/dark mode.
 
 ---
 

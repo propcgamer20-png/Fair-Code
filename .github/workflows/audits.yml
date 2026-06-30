@@ -37,10 +37,10 @@ jobs:
       - name: Run ${{ matrix.audit }} audit scripts
         run: |
           set -e
-          echo "::group::${{ matrix.audit }} — unfair.py"
+          echo "::group::${{ matrix.audit }} - unfair.py"
           python "${{ matrix.audit }}/unfair.py"
           echo "::endgroup::"
-          echo "::group::${{ matrix.audit }} — fair.py"
+          echo "::group::${{ matrix.audit }} - fair.py"
           python "${{ matrix.audit }}/fair.py"
           echo "::endgroup::"
 

@@ -8,7 +8,7 @@
 
 ## Why It Matters
 
-A model trained with leakage passes every internal test. It fails at the moment it is deployed — when the future arrives and the borrowed information is no longer there. In high-stakes domains, that failure is not an accuracy metric. It is a parole decision that collapses under scrutiny, a credit denial that cannot survive an audit, a clinical flag that fires or fails at the wrong moment.
+A model trained with leakage passes every internal test. It fails at the moment it is deployed - when the future arrives and the borrowed information is no longer there. In high-stakes domains, that failure is not an accuracy metric. It is a parole decision that collapses under scrutiny, a credit denial that cannot survive an audit, a clinical flag that fires or fails at the wrong moment.
 
 Leakage is the most common reason a production model performs far worse than its validation numbers predicted. It is also one of the hardest failures to catch, because the model is telling you what you want to hear right up until the point it matters.
 
@@ -43,11 +43,11 @@ In both cases the model has indirect access to the test set during training. Its
 
 ## Concrete Example
 
-The COMPAS audit in this repository demonstrates a proxy form of target leakage. `CustodyStatus` — a feature describing whether a defendant is currently in custody — correlates with race at p < 0.001 and with the recidivism label at p < 0.001. It is not a neutral operational variable. It encodes the outcome of a prior criminal justice interaction, which itself encodes historical over-policing of Black communities. Including it in the model achieves an 86.77% Black/White fairness gap in positive prediction rates.
+The COMPAS audit in this repository demonstrates a proxy form of target leakage. `CustodyStatus` - a feature describing whether a defendant is currently in custody - correlates with race at p < 0.001 and with the recidivism label at p < 0.001. It is not a neutral operational variable. It encodes the outcome of a prior criminal justice interaction, which itself encodes historical over-policing of Black communities. Including it in the model achieves an 86.77% Black/White fairness gap in positive prediction rates.
 
 This is the structural form of leakage: a feature that looks like a legitimate input but whose predictive power comes from downstream effects of the very outcome being predicted.
 
-Removing `CustodyStatus` alongside the protected race attribute reduces the gap to 15.69% — a 71% reduction.
+Removing `CustodyStatus` alongside the protected race attribute reduces the gap to 15.69% - a 71% reduction.
 
 ```python
 import os
@@ -97,7 +97,7 @@ def detect_target_leakage(df: pd.DataFrame, target: str, threshold: float = 0.4)
     """
     Flags features with suspiciously high correlation with the target variable.
     Uses point-biserial correlation for continuous features and Cramér's V for
-    categorical ones. High correlation alone is not proof of leakage — use this
+    categorical ones. High correlation alone is not proof of leakage - use this
     as a shortlist for manual inspection.
     """
     results = []
@@ -141,7 +141,7 @@ def check_preprocessing_leakage(df: pd.DataFrame, target: str) -> None:
     Demonstrates the correct split-before-fit pattern and warns if a
     StandardScaler is fitted on the full dataset instead of train only.
     Prints a warning if the test-set mean deviates from the train-fitted mean
-    by more than one standard deviation — a sign of distribution mismatch that
+    by more than one standard deviation - a sign of distribution mismatch that
     a pre-split scaler would silently mask.
     """
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -153,7 +153,7 @@ def check_preprocessing_leakage(df: pd.DataFrame, target: str) -> None:
     X_train, X_test, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
-    scaler.fit(X_train)   # fit on train only — this is correct
+    scaler.fit(X_train)   # fit on train only - this is correct
 
     train_means = pd.Series(scaler.mean_, index=numeric_cols)
     test_means  = X_test.mean()
@@ -199,19 +199,19 @@ if __name__ == "__main__":
 
 ## Related Concepts
 
-- [What Is a Proxy Variable?](proxy-variables.md) — Features that correlate with a protected attribute after it is removed. Proxy leakage is the intersection of proxy contamination and temporal contamination.
-- [What Is Label Bias?](label-bias.md) — Labels that inherit human prejudice. When labels encode historical decisions, the target itself can be a source of leakage.
-- [What Is Sampling Bias?](sampling-bias.md) — How the training distribution misrepresents the deployment population. Leakage can mask sampling bias by inflating evaluation scores.
-- [What Is Machine Learning Bias?](ml-bias.md) — The four entry points through which bias enters a model, of which data pipeline contamination is one.
-- [Why AI Hallucinates](ai-hallucinations.md) — Overconfident predictions in sparse feature regions. Leakage and hallucination both produce models that are confidently wrong in structured ways.
+- [What Is a Proxy Variable?](proxy-variables.md) - Features that correlate with a protected attribute after it is removed. Proxy leakage is the intersection of proxy contamination and temporal contamination.
+- [What Is Label Bias?](label-bias.md) - Labels that inherit human prejudice. When labels encode historical decisions, the target itself can be a source of leakage.
+- [What Is Sampling Bias?](sampling-bias.md) - How the training distribution misrepresents the deployment population. Leakage can mask sampling bias by inflating evaluation scores.
+- [What Is Machine Learning Bias?](ml-bias.md) - The four entry points through which bias enters a model, of which data pipeline contamination is one.
+- [Why AI Hallucinates](ai-hallucinations.md) - Overconfident predictions in sparse feature regions. Leakage and hallucination both produce models that are confidently wrong in structured ways.
 
 ---
 
 ## Related Projects in This Repo
 
-- [COMPAS/](../COMPAS/) — `CustodyStatus` as a leaking proxy: encodes prior system contact, which encodes historical over-policing.
-- [Healthcare Readmission/](../Healthcare%20Readmission/) — `payer_code` and `discharge_disposition_id` as features collected after or conditional on system contact, not before the prediction decision.
-- [Benefits Denial/](../Benefits%20Denial/) — `relationship` and `marital.status` encode outcomes of social and economic structures that are themselves downstream of gender and race.
+- [COMPAS/](../COMPAS/) - `CustodyStatus` as a leaking proxy: encodes prior system contact, which encodes historical over-policing.
+- [Healthcare Readmission/](../Healthcare%20Readmission/) - `payer_code` and `discharge_disposition_id` as features collected after or conditional on system contact, not before the prediction decision.
+- [Benefits Denial/](../Benefits%20Denial/) - `relationship` and `marital.status` encode outcomes of social and economic structures that are themselves downstream of gender and race.
 
 ---
 
@@ -225,4 +225,4 @@ if __name__ == "__main__":
 
 ---
 
-*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) — exposing and fixing algorithmic bias with real data and open code.*
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*

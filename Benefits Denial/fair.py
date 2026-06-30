@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 
 # ============================================================
-# BENEFITS DENIAL BIAS AUDIT — FAIR MODEL
+# BENEFITS DENIAL BIAS AUDIT - FAIR MODEL
 # Dataset: UCI Adult Census Income
 # https://www.kaggle.com/datasets/wenruliu/adult-income-dataset
 #
@@ -21,7 +21,7 @@ from sklearn.metrics import accuracy_score
 #                    demographic weighting artefacts
 #
 # Retained: objective economic signals that benefits law
-# explicitly uses as eligibility criteria —
+# explicitly uses as eligibility criteria -
 #   workclass      → employment sector (government, private…)
 #   education /    → human capital: education level and years
 #   education.num
@@ -39,7 +39,7 @@ df['is_minority'] = (~df['race'].isin(['White', 'Asian-Pac-Islander'])).astype(i
 
 # ── PROXY VARIABLE ANALYSIS (retained for comparison) ────────
 print("=" * 62)
-print("PROXY VARIABLE ANALYSIS — WHY EACH FEATURE WAS DROPPED")
+print("PROXY VARIABLE ANALYSIS - WHY EACH FEATURE WAS DROPPED")
 print("=" * 62)
 
 print("""
@@ -57,7 +57,7 @@ print("""
 
   native.country → protected (national origin). Foreign-born
                    applicants are flagged ineligible at 4.8%
-                   lower rates in the biased model — not
+                   lower rates in the biased model - not
                    because of economic differences, but because
                    the country variable encodes labour market
                    discrimination into the prediction.
@@ -84,14 +84,14 @@ print("""
                    historical census methodology.
 """)
 
-# Encode categoricals — only neutral ones remain
+# Encode categoricals - only neutral ones remain
 cat_cols = ['workclass', 'education']
 le = LabelEncoder()
 df_enc = df.copy()
 for col in cat_cols:
     df_enc[col] = le.fit_transform(df_enc[col].astype(str))
 
-# ── FEATURES — FAIR (policy-defined eligibility signals only) ─
+# ── FEATURES - FAIR (policy-defined eligibility signals only) ─
 features = [
     # age            removed ✓ (protected attribute)
     'workclass',       # retained: sector of employment
@@ -135,7 +135,7 @@ age_flag  = results.groupby('is_elderly')['pred'].mean()
 race_flag = results.groupby('is_minority')['pred'].mean()
 
 print("=" * 62)
-print("FAIR MODEL — MITIGATED RESULTS")
+print("FAIR MODEL - MITIGATED RESULTS")
 print("=" * 62)
 print(f"\nModel Accuracy: {accuracy:.2%}\n")
 
@@ -178,18 +178,18 @@ THE FIX: Drop the protected attributes AND their proxies.
   relationship + marital.status → removed together. Either
     one alone lets the model reconstruct sex almost perfectly.
     Both had to go. This is the same logic as dropping both
-    'region' and 'office_type' — keeping one makes removing
+    'region' and 'office_type' - keeping one makes removing
     the other meaningless.
 
   hours.per.week → removed. The 6-hour weekly gap between
     women and men in this dataset is not a measure of economic
-    need — it is a measure of how caregiving responsibilities
+    need - it is a measure of how caregiving responsibilities
     are distributed by gender. A benefits model should assess
     financial need, not penalise unpaid domestic labour.
 
   occupation → removed. Racial occupational segregation is a
     product of discriminatory hiring, credentialing, and
-    labour market access — not of individual productivity or
+    labour market access - not of individual productivity or
     eligibility. Keeping it lets the model penalise the
     downstream effects of discrimination as if they were
     individual characteristics.
@@ -197,12 +197,12 @@ THE FIX: Drop the protected attributes AND their proxies.
   fnlwgt → removed. The census sampling weight has no causal
     relationship to an individual's benefit eligibility. Its
     only function in the model would be to absorb demographic
-    signal — encoding geographic and racial composition of
+    signal - encoding geographic and racial composition of
     census tracts through a numeric weight.
 
 Key Insight: Automated benefits systems don't need to name sex
 or race to discriminate by them. 'Husband', 'hours per week',
-and occupation are the 'documentation_score' of welfare AI —
+and occupation are the 'documentation_score' of welfare AI -
 features that sound economic but carry protected-class signal
 because of structural inequalities baked into how work,
 caregiving, and labour markets are organised.
