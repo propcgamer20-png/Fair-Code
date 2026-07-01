@@ -2501,10 +2501,29 @@
   });
 
   mobileNav.querySelectorAll('a').forEach(link => {
-    // Defer the close by a tick: closeMobileNav() sets `inert` on the drawer, and
-    // making a link's ancestor inert inside its own click handler cancels the link's
-    // default navigation on mobile. Deferring lets the browser navigate first.
-    link.addEventListener('click', () => setTimeout(closeMobileNav, 0));
+    // Drive navigation explicitly. closeMobileNav() sets `inert` on the drawer, and
+    // letting an anchor's *default* action run while an ancestor is inert cancels the
+    // navigation on mobile - which made every mobile link just close the drawer. So we
+    // prevent the default and perform the navigation ourselves.
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      e.preventDefault();
+      closeMobileNav();
+
+      if (link.target === '_blank') {
+        window.open(href, '_blank', 'noopener');
+      } else if (!href || href === '#') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (href.charAt(0) === '#') {
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+          history.replaceState(null, '', href);
+        }
+      } else {
+        window.location.href = href;
+      }
+    });
   });
 
   // Close mobile nav when tapping outside
