@@ -297,9 +297,15 @@
     border-bottom: 1px solid var(--border2);
     max-height: 0;
     overflow: hidden;
+    visibility: hidden;
+    transition: max-height 0.3s ease, visibility 0s linear 0.3s;
+  }
+  .mobile-nav.open {
+    max-height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    visibility: visible;
     transition: max-height 0.3s ease;
   }
-  .mobile-nav.open { max-height: calc(100vh - var(--nav-h)); overflow-y: auto; }
 
   .mobile-nav-inner {
     display: flex;
@@ -2482,48 +2488,27 @@
     hamburger.classList.add('open');
     hamburger.setAttribute('aria-expanded', 'true');
     mobileNav.classList.add('open');
-    mobileNav.removeAttribute('inert');
   }
 
   function closeMobileNav() {
     hamburger.classList.remove('open');
     hamburger.setAttribute('aria-expanded', 'false');
     mobileNav.classList.remove('open');
-    mobileNav.setAttribute('inert', '');
   }
 
-  // Set initial inert state
   hamburger.setAttribute('aria-expanded', 'false');
-  mobileNav.setAttribute('inert', '');
 
   hamburger.addEventListener('click', () => {
     mobileNav.classList.contains('open') ? closeMobileNav() : openMobileNav();
   });
 
   mobileNav.querySelectorAll('a').forEach(link => {
-    // Drive navigation explicitly. closeMobileNav() sets `inert` on the drawer, and
-    // letting an anchor's *default* action run while an ancestor is inert cancels the
-    // navigation on mobile - which made every mobile link just close the drawer. So we
-    // prevent the default and perform the navigation ourselves.
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      e.preventDefault();
-      closeMobileNav();
-
-      if (link.target === '_blank') {
-        window.open(href, '_blank', 'noopener');
-      } else if (!href || href === '#') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (href.charAt(0) === '#') {
-        const target = document.querySelector(href);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
-          history.replaceState(null, '', href);
-        }
-      } else {
-        window.location.href = href;
-      }
-    });
+    // Just close the drawer and let the browser perform the link's native navigation.
+    // We must NOT set `inert` on the drawer here: on iOS making a link's ancestor inert
+    // during its own tap cancels the navigation, which made every mobile link merely
+    // close the menu. The drawer's closed state is handled with `visibility` in CSS
+    // (keeps it out of tab/hit-testing) instead of `inert`, so navigation is untouched.
+    link.addEventListener('click', closeMobileNav);
   });
 
   // Close mobile nav when tapping outside
