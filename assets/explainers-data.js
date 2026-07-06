@@ -160,4 +160,11 @@ window.FAIR_CODE_EXPLAINERS = [
     summary: 'Learn how a third variable that independently causes both a feature and an outcome creates spurious correlations that survive protected-attribute removal. See why COMPAS stayed biased after race was dropped - until the confounder was removed too.',
     tags: ['detection', 'data'],
   },
+  {
+    slug: 'predictive-parity',
+    title: 'Predictive Parity',
+    subtitle: 'Equally trustworthy is not the same as equally fair',
+    summary: 'Learn why Positive Predictive Value equal across groups is a real fairness property, and why the 2016 ProPublica vs Northpointe COMPAS dispute shows it can hold while one group absorbs a much higher false-positive rate.',
+    tags: ['metrics', 'detection'],
+  },
 ];
