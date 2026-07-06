@@ -179,7 +179,8 @@ Fair-Code/
 │   ├── how-ai-detects-patterns.md
 │   ├── distribution-shift.md
 │   ├── ai-objectivity-myth.md
-│   └── confounding-variable.md
+│   ├── confounding-variable.md
+│   └── predictive-parity.md
 │
 ├── CHANGELOG.md
 ├── CITATION.cff
@@ -567,6 +568,7 @@ features = [
 | [What Is Distribution Shift?](explainers/distribution-shift.md) | Why a model that passes a bias audit at deployment can become biased again as the population it serves changes |
 | [The Biggest Myth About AI Objectivity](explainers/ai-objectivity-myth.md) | Why "it's just math" isn't a defense - models trained on biased history produce biased outcomes, and the math just makes them harder to challenge |
 | [What Is a Confounding Variable?](explainers/confounding-variable.md) | How a hidden third variable creates spurious correlations between a feature and an outcome - and why removing the protected attribute leaves the bias intact until the confounder is removed too |
+| [What Is Predictive Parity?](explainers/predictive-parity.md) | Why the ProPublica vs Northpointe COMPAS dispute was really two correct fairness checks that cannot both hold when base rates differ |
 
 ---
 
@@ -715,6 +717,7 @@ directly. Run the tests with `pytest tests/`.
 - [x] Explainer: What Is Distribution Shift
 - [x] Explainer: The Biggest Myth About AI Objectivity
 - [x] Explainer: What Is a Confounding Variable?
+- [x] Explainer: What Is Predictive Parity?
 - [ ] Explainer: Why Accuracy Is Not Enough in Healthcare AI
 - [ ] Explainer: False Positives and False Negatives in Medical Risk Models
 - [ ] Facial recognition accuracy gaps (MIT Gender Shades methodology)
