@@ -4,6 +4,21 @@ All notable changes to Fair Code are documented here.
 
 ---
 
+## [1.2.1] - 6 Jul 2026
+### Added
+- Explainer: Predictive Parity - `predictive-parity.md` created (contributed by @propcgamer20-png), added to `index.html`, `README.md`, and `CONTRIBUTING.md`
+  - Full explainer covering predictive parity as a sufficiency metric: Positive Predictive Value equal across groups, and why that is a fundamentally different fairness check than error-rate parity
+  - Comparison table across Demographic Parity, Equalized Odds, and Predictive Parity by what each conditions on
+  - Real-world proof anchored to Audit 01 (COMPAS): the 2016 ProPublica vs Northpointe dispute, where ProPublica's error-rate reading found a roughly 2x false-positive gap for Black defendants while Northpointe's predictive-parity reading found PPV close across race, and Chouldechova's proof for why both readings can be correct at once
+  - Detection code: `predictive_parity_gap()` and `base_rate_gap()` - pandas group-wise PPV and base-rate computation, paired to surface the Chouldechova trade-off signature
+  - Four numbered limitations (impossibility with Equalized Odds under unequal base rates, uneven harm despite equal PPV, small-subgroup PPV noise, threshold-tuning blind spot), cross-links to equalized-odds, demographic-parity, disparate-impact, and fairness-metric-conflicts, and three further reading citations (Angwin et al. 2016, Chouldechova 2017, Kleinberg et al. 2017)
+  - Nav dropdown (desktop + mobile), ticker strips, and roadmap updated on website
+### Changed
+- `README.md`: `predictive-parity.md` added to explainers table, repository structure tree, and What's Next checklist
+- `CONTRIBUTING.md`: `predictive-parity.md` added to existing explainers table
+
+---
+
 ## [1.2.0] - "Open Tools & Causal Foundations" - 30 Jun 2026
 
 First release since **v1.1.0** (9 Jun 2026). The headline is the **Open Dataset Profiler** - Fair Code's first interactive, bring-your-own-data tool, turning the project from a showcase of six fixed audits into something visitors run on their own CSVs. This release also bundles the six explainers shipped between v1.1.0 and now, which deepen the causal and statistical foundations behind the audits.
