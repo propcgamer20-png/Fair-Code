@@ -226,6 +226,7 @@ in Python, `profile(table, overrides, opts)` in JS, and `--min-share` / `--inter
 | `PSI_MODERATE`         | 0.10    | PSI ≥ this → moderate drift (§8) |
 | `PSI_SIGNIFICANT`      | 0.25    | PSI ≥ this → significant drift (§8) |
 | `SCORE_DROP_FLAG`      | 5       | overall-score drop flagged (§8)  |
+| `MISSING_DRIFT_FLAG`   | 0.05    | missing_pct jump flagged (§8)    |
 
 ---
 
@@ -253,11 +254,18 @@ For a shared dimension, take the **union** of group labels. Each label has `shar
 - Per group: `share_a`, `share_b`, `share_delta = share_b − share_a`, and a `status` of
   `appeared` (`a = 0, b > 0`), `disappeared` (`a > 0, b = 0`), or `shifted`. Groups are ordered by
   **descending `|share_delta|`**, then label ascending (deterministic tie-break, both engines agree).
+- **missing_pct_a**, **missing_pct_b**, **missing_pct_delta** = `missing_pct_b − missing_pct_a` -
+  each side's `missing_pct` (§7), diffed independently of the non-null-share PSI/TVD calculation
+  above. A column collapsing to mostly-missing between A and B can leave the surviving non-null
+  rows' group split unchanged (PSI 0, `drift_level: "none"`) while still being the loudest real
+  signal in the comparison - this catches that case. Computed (and flagged) even for a
+  `kind_mismatch` dimension, since `missing_pct` doesn't depend on kind classification.
 
 Top level: `score_delta = overall_score_b − overall_score_a` when both scores are measured, and
 `null` otherwise. `flags` is assembled from: an
-overall-score drop of `≥ SCORE_DROP_FLAG` points, every dimension whose `drift_level ≠ none`, every
-`appeared`/`disappeared` group, and every added/removed dimension.
+overall-score drop of `≥ SCORE_DROP_FLAG` points, every dimension whose `|missing_pct_delta| ≥
+MISSING_DRIFT_FLAG`, every dimension whose `drift_level ≠ none`, every `appeared`/`disappeared`
+group, and every added/removed dimension.
 
 ### Result shape
 
@@ -274,7 +282,8 @@ overall-score drop of `≥ SCORE_DROP_FLAG` points, every dimension whose `drift
       "groups": [
         { "label": "White", "share_a": 0.60, "share_b": 0.81, "share_delta": 0.21, "status": "shifted" },
         { "label": "Asian", "share_a": 0.10, "share_b": 0.0,  "share_delta": -0.10, "status": "disappeared" }
-      ]
+      ],
+      "missing_pct_a": 0.0, "missing_pct_b": 0.0, "missing_pct_delta": 0.0
     }
   ],
   "added_dimensions": ["income_bracket"],
@@ -284,7 +293,9 @@ overall-score drop of `≥ SCORE_DROP_FLAG` points, every dimension whose `drift
 ```
 
 Rounding uses the same half-up helper as the rest of the spec (`Math.round` / `floor(x·f + 0.5)`):
-`psi`, `tvd`, and the share fields to 4 dp; score deltas are integers.
+`psi`, `tvd`, the share fields, and `missing_pct_delta` to 4 dp (`missing_pct_a`/`missing_pct_b`
+are already-rounded `missing_pct` values straight from each side's own profile); score deltas are
+integers.
 
 ---
 

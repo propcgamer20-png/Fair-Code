@@ -48,6 +48,7 @@
   }
   // Comparison / drift (SPEC section 8)
   var PSI_EPSILON = 0.0001;
+  var MISSING_DRIFT_FLAG = 0.05;
   var PSI_MODERATE = 0.10;
   var PSI_SIGNIFICANT = 0.25;
   var SCORE_DROP_FLAG = 5;
@@ -870,6 +871,13 @@
   }
 
   function compareDimension(dimA, dimB) {
+    // missing_pct is computed independently of kind/group classification,
+    // so it's comparable even when the group-share PSI comparison below is
+    // skipped for a kind mismatch - a column collapsing to mostly-missing
+    // is real drift the non-null-share PSI calculation alone can't see (#461).
+    var missingA = dimA.missing_pct, missingB = dimB.missing_pct;
+    var missingDelta = round(missingB - missingA, 4);
+
     if (dimA.kind !== dimB.kind || ageBandingMismatch(dimA, dimB)) {
       // See faircode/compare.py's _compare_dimension() for why a kind
       // mismatch skips the comparison instead of reporting a PSI that
@@ -880,7 +888,8 @@
         dimension_score_a: dimA.dimension_score,
         dimension_score_b: dimB.dimension_score,
         dimension_score_delta: dimB.dimension_score - dimA.dimension_score,
-        psi: 0, tvd: 0, drift_level: 'none', groups: []
+        psi: 0, tvd: 0, drift_level: 'none', groups: [],
+        missing_pct_a: missingA, missing_pct_b: missingB, missing_pct_delta: missingDelta
       };
     }
     var sa = shareMap(dimA), sb = shareMap(dimB);
@@ -912,7 +921,8 @@
       dimension_score_b: dimB.dimension_score,
       dimension_score_delta: dimB.dimension_score - dimA.dimension_score,
       psi: round(psiTotal, 4), tvd: round(0.5 * tvdTotal, 4),
-      drift_level: driftLevel(psiTotal), groups: groups
+      drift_level: driftLevel(psiTotal), groups: groups,
+      missing_pct_a: missingA, missing_pct_b: missingB, missing_pct_delta: missingDelta
     };
   }
 
@@ -941,6 +951,11 @@
                  ' points (' + resultA.overall_score + ' → ' + resultB.overall_score + ')');
     }
     dimensions.forEach(function (cd) {
+      if (Math.abs(cd.missing_pct_delta) >= MISSING_DRIFT_FLAG) {
+        flags.push(cd.name + ': missing-data share shifted ' +
+                   (cd.missing_pct_a * 100).toFixed(1) + '% → ' +
+                   (cd.missing_pct_b * 100).toFixed(1) + '%');
+      }
       if (cd.kind_mismatch) {
         if (cd.kind_a !== cd.kind_b) {
           flags.push(cd.name + ': detected as different kinds in ' + nameA +

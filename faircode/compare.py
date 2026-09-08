@@ -23,6 +23,7 @@ PSI_EPSILON = 0.0001      # share floor so appeared/disappeared groups stay fini
 PSI_MODERATE = 0.10       # PSI >= this: moderate drift
 PSI_SIGNIFICANT = 0.25    # PSI >= this: significant drift
 SCORE_DROP_FLAG = 5       # overall-score drop (points) worth flagging
+MISSING_DRIFT_FLAG = 0.05 # missing_pct jump (either direction) worth flagging
 
 
 def _share_map(dimension: dict) -> dict:
@@ -59,6 +60,15 @@ def _age_banding_mismatch(dim_a: dict, dim_b: dict) -> bool:
 
 
 def _compare_dimension(dim_a: dict, dim_b: dict) -> dict:
+    # missing_pct is computed independently of kind/group classification
+    # (null_count / n_total, see SPEC section 7), so it's comparable even
+    # when the group-share PSI comparison below is skipped for a kind
+    # mismatch - a column collapsing to mostly-missing is real drift the
+    # non-null-share PSI calculation alone can't see (#461).
+    missing_a = dim_a["missing_pct"]
+    missing_b = dim_b["missing_pct"]
+    missing_delta = _r(missing_b - missing_a, 4)
+
     kind_mismatch = dim_a["kind"] != dim_b["kind"] or _age_banding_mismatch(dim_a, dim_b)
     if kind_mismatch:
         # A dimension auto-detected to different kinds in A vs B (e.g. one
@@ -81,6 +91,9 @@ def _compare_dimension(dim_a: dict, dim_b: dict) -> dict:
             "tvd": 0.0,
             "drift_level": "none",
             "groups": [],
+            "missing_pct_a": missing_a,
+            "missing_pct_b": missing_b,
+            "missing_pct_delta": missing_delta,
         }
 
     sa = _share_map(dim_a)
@@ -124,6 +137,9 @@ def _compare_dimension(dim_a: dict, dim_b: dict) -> dict:
         "tvd": _r(0.5 * tvd_total, 4),
         "drift_level": _drift_level(psi_total),
         "groups": groups,
+        "missing_pct_a": missing_a,
+        "missing_pct_b": missing_b,
+        "missing_pct_delta": missing_delta,
     }
 
 
@@ -137,6 +153,11 @@ def _build_flags(result_a: dict, result_b: dict, score_delta: int | None,
             f"({result_a['overall_score']} → {result_b['overall_score']})"
         )
     for cd in dimensions:
+        if abs(cd["missing_pct_delta"]) >= MISSING_DRIFT_FLAG:
+            flags.append(
+                f"{cd['name']}: missing-data share shifted "
+                f"{cd['missing_pct_a'] * 100:.1f}% → {cd['missing_pct_b'] * 100:.1f}%"
+            )
         if cd["kind_mismatch"]:
             if cd["kind_a"] != cd["kind_b"]:
                 flags.append(
