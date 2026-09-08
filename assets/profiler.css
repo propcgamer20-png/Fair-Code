@@ -106,6 +106,8 @@
   background: var(--bias-track-bg); padding: 1px 5px; border-radius: 4px;
 }
 .sample-btn {
+  display: block;
+  margin: 0 auto 20px;
   font-family: var(--mono);
   font-size: 13px;
   background: var(--accent);

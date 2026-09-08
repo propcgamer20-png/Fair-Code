@@ -82,9 +82,6 @@
   // ── Event wiring ─────────────────────────────────────────────────────────
   dropzone.addEventListener('click', function () { fileInput.click(); });
   dropzone.addEventListener('keydown', function (e) {
-    // Ignore keydowns bubbling up from the nested "sample" button - otherwise
-    // pressing Enter/Space to activate it also re-triggers the file picker.
-    if (e.target !== dropzone) return;
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
   });
   fileInput.addEventListener('change', function (e) {
@@ -109,8 +106,7 @@
     var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) readFile(f);
   });
-  sampleBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
+  sampleBtn.addEventListener('click', function () {
     runText(buildSampleCSV(), 'sample-health-data.csv');
   });
   downloadHtmlBtn.addEventListener('click', downloadHtmlReport);
