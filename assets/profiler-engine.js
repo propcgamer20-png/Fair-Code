@@ -921,7 +921,9 @@
       dimension_score_b: dimB.dimension_score,
       dimension_score_delta: dimB.dimension_score - dimA.dimension_score,
       psi: round(psiTotal, 4), tvd: round(0.5 * tvdTotal, 4),
-      drift_level: driftLevel(psiTotal), groups: groups,
+      // classify on the same rounded value that's displayed, matching
+      // faircode/compare.py - see #462.
+      drift_level: driftLevel(round(psiTotal, 4)), groups: groups,
       missing_pct_a: missingA, missing_pct_b: missingB, missing_pct_delta: missingDelta
     };
   }

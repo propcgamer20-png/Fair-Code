@@ -248,7 +248,9 @@ For a shared dimension, take the **union** of group labels. Each label has `shar
   `PSI = Σ (b_i − a_i) · ln(b_i / a_i)`, where `a_i = max(share_a_i, PSI_EPSILON)` and
   `b_i = max(share_b_i, PSI_EPSILON)`. The epsilon floor keeps appeared/disappeared groups finite.
   PSI ≥ 0; larger = more drift.
-- **drift_level** from PSI: `none` (`< 0.10`), `moderate` (`0.10 ≤ PSI < 0.25`), `significant` (`≥ 0.25`).
+- **drift_level** from the same **rounded** PSI shown as `psi` below (not the unrounded float) - so
+  the label can never contradict the displayed number at a rounding boundary: `none` (`< 0.10`),
+  `moderate` (`0.10 ≤ PSI < 0.25`), `significant` (`≥ 0.25`).
 - **TVD** (Total Variation Distance) - an easy-to-read companion: `0.5 · Σ |b_i − a_i|`, range `[0, 1]`.
 - **dimension_score_delta** = `dimension_score_b − dimension_score_a`.
 - Per group: `share_a`, `share_b`, `share_delta = share_b − share_a`, and a `status` of

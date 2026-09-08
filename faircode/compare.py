@@ -135,7 +135,11 @@ def _compare_dimension(dim_a: dict, dim_b: dict) -> dict:
         "dimension_score_delta": dim_b["dimension_score"] - dim_a["dimension_score"],
         "psi": _r(psi_total, 4),
         "tvd": _r(0.5 * tvd_total, 4),
-        "drift_level": _drift_level(psi_total),
+        # classify on the same rounded value that's displayed, so psi and
+        # drift_level never contradict each other at the rounding boundary
+        # (e.g. a true PSI of 0.09999... rounding to a displayed 0.1000
+        # while classifying as "none" against the unrounded float) - #462.
+        "drift_level": _drift_level(_r(psi_total, 4)),
         "groups": groups,
         "missing_pct_a": missing_a,
         "missing_pct_b": missing_b,
