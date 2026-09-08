@@ -267,7 +267,16 @@ Top level: `score_delta = overall_score_b − overall_score_a` when both scores 
 `null` otherwise. `flags` is assembled from: an
 overall-score drop of `≥ SCORE_DROP_FLAG` points, every dimension whose `|missing_pct_delta| ≥
 MISSING_DRIFT_FLAG`, every dimension whose `drift_level ≠ none`, every `appeared`/`disappeared`
-group, and every added/removed dimension.
+group, every added/removed dimension, **and** every `kind_mismatch` dimension's own
+"drift comparison skipped" notice - that last case is informational only (the comparison genuinely
+couldn't be measured, not evidence of drift), so it's the one category of `flags` entry
+**excluded** from `drift_detected`.
+
+`drift_detected` is a boolean - `true` iff at least one *real* drift signal fired (any of the first
+five categories above), `false` if `flags` is empty or contains only kind-mismatch notices. The CLI's
+`compare --fail-on-drift` checks `drift_detected`, not `bool(flags)`, so a schema change between two
+snapshots that makes a dimension unmeasurable (e.g. one side's ages banded, the other left raw)
+doesn't false-positive as "drift detected" in a CI gate (see issue #472).
 
 ### Result shape
 
@@ -290,7 +299,8 @@ group, and every added/removed dimension.
   ],
   "added_dimensions": ["income_bracket"],
   "removed_dimensions": [],
-  "flags": [ "race: significant representation drift (PSI 0.34)", "race: 'Asian' disappeared (10.0% → 0.0%)" ]
+  "flags": [ "race: significant representation drift (PSI 0.34)", "race: 'Asian' disappeared (10.0% → 0.0%)" ],
+  "drift_detected": true
 }
 ```
 

@@ -149,19 +149,32 @@ def _compare_dimension(dim_a: dict, dim_b: dict) -> dict:
 
 def _build_flags(result_a: dict, result_b: dict, score_delta: int | None,
                  dimensions: list, added: list, removed: list,
-                 name_a: str, name_b: str) -> list:
+                 name_a: str, name_b: str) -> tuple[list, bool]:
+    """Returns (flags, drift_detected). `flags` is every human-readable
+    notice, including a kind-mismatch dimension's "drift comparison
+    skipped" message - informational, since the underlying comparison
+    genuinely could not be measured (psi/drift_level are already zeroed
+    for exactly this dimension in _compare_dimension()). `drift_detected`
+    is the narrower, structural signal of whether any *real* representation
+    drift was measured - CLI's --fail-on-drift checks this instead of
+    `bool(flags)`, so a schema change that made a comparison unmeasurable
+    (e.g. one side's ages banded, the other raw) doesn't false-positive as
+    "drift detected" the way any flags existing at all would (#472)."""
     flags: list[str] = []
+    drift_detected = False
     if score_delta is not None and score_delta <= -SCORE_DROP_FLAG:
         flags.append(
             f"overall representation score dropped {abs(score_delta)} points "
             f"({result_a['overall_score']} → {result_b['overall_score']})"
         )
+        drift_detected = True
     for cd in dimensions:
         if abs(cd["missing_pct_delta"]) >= MISSING_DRIFT_FLAG:
             flags.append(
                 f"{cd['name']}: missing-data share shifted "
                 f"{cd['missing_pct_a'] * 100:.1f}% → {cd['missing_pct_b'] * 100:.1f}%"
             )
+            drift_detected = True
         if cd["kind_mismatch"]:
             if cd["kind_a"] != cd["kind_b"]:
                 flags.append(
@@ -181,22 +194,27 @@ def _build_flags(result_a: dict, result_b: dict, score_delta: int | None,
                 f"{cd['name']}: {cd['drift_level']} representation drift "
                 f"(PSI {cd['psi']:.2f})"
             )
+            drift_detected = True
         for g in cd["groups"]:
             if g["status"] == "appeared":
                 flags.append(
                     f"{cd['name']}: '{g['label']}' appeared "
                     f"({g['share_a'] * 100:.1f}% → {g['share_b'] * 100:.1f}%)"
                 )
+                drift_detected = True
             elif g["status"] == "disappeared":
                 flags.append(
                     f"{cd['name']}: '{g['label']}' disappeared "
                     f"({g['share_a'] * 100:.1f}% → {g['share_b'] * 100:.1f}%)"
                 )
+                drift_detected = True
     for n in added:
         flags.append(f"dimension '{n}' is present only in {name_b}")
+        drift_detected = True
     for n in removed:
         flags.append(f"dimension '{n}' is present only in {name_a}")
-    return flags
+        drift_detected = True
+    return flags, drift_detected
 
 
 def compare(result_a: dict, result_b: dict, name_a="A", name_b="B") -> dict:
@@ -211,8 +229,8 @@ def compare(result_a: dict, result_b: dict, name_a="A", name_b="B") -> dict:
     dimensions = [_compare_dimension(dims_a[n], dims_b[n]) for n in shared]
     scores = (result_a["overall_score"], result_b["overall_score"])
     score_delta = scores[1] - scores[0] if None not in scores else None
-    flags = _build_flags(result_a, result_b, score_delta, dimensions,
-                         added, removed, name_a, name_b)
+    flags, drift_detected = _build_flags(result_a, result_b, score_delta, dimensions,
+                                        added, removed, name_a, name_b)
 
     return {
         "a": {"name": name_a, "n_rows": result_a["n_rows"],
@@ -228,4 +246,5 @@ def compare(result_a: dict, result_b: dict, name_a="A", name_b="B") -> dict:
         "added_dimensions": added,
         "removed_dimensions": removed,
         "flags": flags,
+        "drift_detected": drift_detected,
     }

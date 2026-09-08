@@ -947,16 +947,25 @@
     var scoreDelta = (resultA.overall_score === null || resultB.overall_score === null)
       ? null : resultB.overall_score - resultA.overall_score;
 
-    var flags = [];
+    // flags is every human-readable notice, including a kind-mismatch
+    // dimension's "drift comparison skipped" message - informational, since
+    // the comparison genuinely could not be measured. driftDetected is the
+    // narrower, structural signal of whether any *real* drift was measured -
+    // matches faircode/compare.py's _build_flags() so a CLI-equivalent
+    // consumer wouldn't false-positive on a skipped/unmeasurable comparison
+    // the way checking flags.length alone would (#472).
+    var flags = [], driftDetected = false;
     if (scoreDelta !== null && scoreDelta <= -SCORE_DROP_FLAG) {
       flags.push('overall representation score dropped ' + Math.abs(scoreDelta) +
                  ' points (' + resultA.overall_score + ' → ' + resultB.overall_score + ')');
+      driftDetected = true;
     }
     dimensions.forEach(function (cd) {
       if (Math.abs(cd.missing_pct_delta) >= MISSING_DRIFT_FLAG) {
         flags.push(cd.name + ': missing-data share shifted ' +
                    (cd.missing_pct_a * 100).toFixed(1) + '% → ' +
                    (cd.missing_pct_b * 100).toFixed(1) + '%');
+        driftDetected = true;
       }
       if (cd.kind_mismatch) {
         if (cd.kind_a !== cd.kind_b) {
@@ -973,21 +982,24 @@
       if (cd.drift_level !== 'none') {
         flags.push(cd.name + ': ' + cd.drift_level +
                    ' representation drift (PSI ' + cd.psi.toFixed(2) + ')');
+        driftDetected = true;
       }
       cd.groups.forEach(function (g) {
         if (g.status === 'appeared') {
           flags.push(cd.name + ": '" + g.label + "' appeared (" +
                      (g.share_a * 100).toFixed(1) + '% → ' +
                      (g.share_b * 100).toFixed(1) + '%)');
+          driftDetected = true;
         } else if (g.status === 'disappeared') {
           flags.push(cd.name + ": '" + g.label + "' disappeared (" +
                      (g.share_a * 100).toFixed(1) + '% → ' +
                      (g.share_b * 100).toFixed(1) + '%)');
+          driftDetected = true;
         }
       });
     });
-    added.forEach(function (n) { flags.push("dimension '" + n + "' is present only in " + nameB); });
-    removed.forEach(function (n) { flags.push("dimension '" + n + "' is present only in " + nameA); });
+    added.forEach(function (n) { flags.push("dimension '" + n + "' is present only in " + nameB); driftDetected = true; });
+    removed.forEach(function (n) { flags.push("dimension '" + n + "' is present only in " + nameA); driftDetected = true; });
 
     return {
       a: { name: nameA, n_rows: resultA.n_rows,
@@ -997,7 +1009,8 @@
            overall_score: resultB.overall_score, grade: resultB.grade,
            dimensions_detected: resultB.dimensions_detected, note: resultB.note },
       score_delta: scoreDelta, dimensions: dimensions,
-      added_dimensions: added, removed_dimensions: removed, flags: flags
+      added_dimensions: added, removed_dimensions: removed, flags: flags,
+      drift_detected: driftDetected
     };
   }
 

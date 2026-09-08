@@ -364,7 +364,7 @@ def main(argv: list[str] | None = None) -> int:
             print(to_json(result, provenance=provenance))
         else:
             print(compare_to_terminal(result))
-        if args.fail_on_drift and result["flags"]:
+        if args.fail_on_drift and result["drift_detected"]:
             print(
                 f"error: representation drift detected ({len(result['flags'])} flag(s)) "
                 f"with --fail-on-drift set",
