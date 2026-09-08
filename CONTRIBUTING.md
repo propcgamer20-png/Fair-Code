@@ -363,6 +363,8 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `lime.md` | A local, approximate surrogate model - the other major way to explain one prediction, alongside SHAP |
 | `mitigation-strategies.md` | Where in the pipeline you intervene - pre-, in-, or post-processing - changes what a fairness fix can and can't do |
 | `multiple-comparisons.md` | Why running dozens of p-values per audit inflates the odds of a false "significant," and how Bonferroni, Holm, and Benjamini-Hochberg FDR each answer that differently on a real 90-p-value COMPAS slice |
+| `fairness-accuracy-tradeoff.md` | Why closing a fairness gap often costs predictive accuracy, and why the two aren't always improved together, with a real S0-S4 fairness-vs-accuracy table from the COMPAS audit |
+| `treatment-equality.md` | Why two groups with matching TPR/FPR gaps can still have opposite-skewed error types underneath, with a real 0.13-vs-31.0 FN:FP ratio split from the COMPAS audit |
 
 ### A good explainer should include
 

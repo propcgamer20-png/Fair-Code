@@ -9,8 +9,9 @@ is a weekly log full of legitimate historical counts (e.g. "explainer count
 `39 -> 44`" from an old week); matching those against today's count would be
 a false positive worse than the drift this script is meant to catch. Each
 regex below targets one specific line meant to state the current, live
-total - README.md has two independent ones (the "Show all N explainers"
-summary and the Traction table's "Explainers Published" row).
+total - README.md has three independent ones (the "Show all N explainers"
+summary, the Traction table's "Explainers Published" row, and the
+Explainers section's own "N short, plain-language write-ups" intro line).
 
 Run locally:
     python3 scripts/check_explainer_count.py          # check only
@@ -35,6 +36,7 @@ EXPLAINERS_DIR = ROOT / "explainers"
 CHECKS = [
     ("README.md", re.compile(r"Show all (\d+) explainers")),
     ("README.md", re.compile(r"Explainers Published \| (\d+)")),
+    ("README.md", re.compile(r"(\d+) short, plain-language write-ups")),
     ("CONTRIBUTORS.md", re.compile(r"the bulk of the (\d+) explainers")),
     ("METRICS.md", re.compile(r"Explainers-(\d+)-blueviolet")),
     ("ROADMAP.md", re.compile(r"(\d+) explainers published")),
