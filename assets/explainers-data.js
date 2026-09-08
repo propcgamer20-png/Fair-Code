@@ -557,6 +557,15 @@ window.FAIR_CODE_EXPLAINERS = [
     "tags": [
       "metrics",
       "data"
+      ]
+  },
+  {
+    "slug": "treatment-equality",
+    "title": "What Is Treatment Equality?",
+    "subtitle": "Equal error rates across groups can still hide opposite-skewed error types within each group.",
+    "summary": "Learn why Treatment Equality checks the ratio of false negatives to false positives within each group, not the individual rates Equalized Odds already compares. Uses COMPAS's real (freshly computed, not frozen) confusion matrix: a 0.13 FN:FP ratio for African-American defendants against a 31.0 ratio for Caucasian defendants on the same baseline model.",
+    "tags": [
+      "metrics"
     ]
   }
 ];
