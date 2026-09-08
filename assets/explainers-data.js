@@ -557,7 +557,7 @@ window.FAIR_CODE_EXPLAINERS = [
     "tags": [
       "metrics",
       "data"
-      ]
+    ]
   },
   {
     "slug": "treatment-equality",

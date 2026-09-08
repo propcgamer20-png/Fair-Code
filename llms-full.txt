@@ -11206,6 +11206,47 @@ def fairness_accuracy_tradeoff(fairness_df, performance_df, audit, fairness_metr
 # print(fairness_accuracy_tradeoff(
 #     fairness, performance, "compas", "demographic_parity_diff", "race",
 # ))
+```
+
+## Limitations
+
+### 1. The trade-off isn't fixed, universal, or always present
+
+As S2 shows above, a fairness gain can arrive at essentially no accuracy cost. The trade-off is a common empirical pattern on this benchmark, not a law - never assume a fairness fix must cost accuracy without checking, and never assume a specific ratio (e.g. "1 fairness point costs 0.1 accuracy points") transfers from one audit or metric to another.
+
+### 2. "Accuracy" is itself only one performance metric, and can hide its own asymmetry
+
+A dropped-accuracy number doesn't say *which* predictions got worse. `faircode/benchmark.py` also computes AUC and F1 alongside accuracy for exactly this reason - a strategy that trades away F1 while accuracy looks stable is a different trade than one that drops all three metrics together. See [What Is Accuracy Equality?](accuracy-equality.md) for the parallel problem on the fairness side: a single blended number can hide two very different underlying stories.
+
+### 3. The Pareto frontier is estimated from a specific dataset and split
+
+The exact numbers above hold for the COMPAS audit's baseline logistic regression model and 80/20 stratified split (`random_state=42`) - a different model family, a different dataset, or a different split can land at a different point on the frontier. Treat the *pattern* (check both numbers, expect some cost, don't assume it's linear) as the transferable lesson, not the specific -8.2/-11.4/-9.7 point figures.
+
+### 4. A statistically insignificant fairness gap is not the same as "fixed"
+
+S3's -1.4-point gap and S4's 2.3-point gap both have confidence intervals crossing zero (see [What Is a Bootstrap Confidence Interval?](bootstrap-confidence-intervals.md)) - "not statistically significant on this test set" is weaker evidence than "the disparity is gone," and shouldn't be reported as though the accuracy cost bought a fully solved fairness problem.
+
+## Related Concepts
+
+* [What Are Pre-, In-, and Post-Processing Fairness Mitigations?](mitigation-strategies.md) - the fairness-only half of the exact same S0-S4 progression used here.
+* [What Is Accuracy Equality?](accuracy-equality.md) - a fairness metric built on accuracy itself, and the parallel reminder that one blended accuracy number can hide asymmetry underneath it.
+* [What Is Bias-Variance Trade-off?](bias-variance-tradeoff.md) - a different, model-internal trade-off; useful for not confusing "the model overfit" with "the model traded accuracy for fairness."
+
+## Related Projects in This Repo
+
+* [`COMPAS/`](../COMPAS/) - the audit above, where S3 buys the best fairness number at the worst accuracy.
+* [`faircode/benchmark.py`](../faircode/benchmark.py) - runs every strategy/model/metric combination in one uniform pipeline, producing both `results_fairness.csv` and `results_performance.csv` from the exact same train/test split so the two are directly comparable, strategy for strategy.
+
+## Further Reading
+
+* [Agarwal, A. et al. (2018): A Reductions Approach to Fair Classification](https://arxiv.org/abs/1803.02453) - the `ExponentiatedGradient` method behind this repo's S3 in-processing strategy, framed explicitly as a constrained optimization trading accuracy against a fairness constraint.
+* [Hardt, M., Price, E., Srebro, N. (2016): Equality of Opportunity in Supervised Learning](https://arxiv.org/abs/1610.02413) - the `ThresholdOptimizer`-style post-processing method behind this repo's S4 strategy.
+* [Corbett-Davies, S., Goel, S. (2018): The Measure and Mismeasure of Fairness](https://arxiv.org/abs/1808.00023) - a critical look at the assumptions underlying fairness-accuracy trade-off framings, including when the "trade-off" itself is an artifact of a poorly-chosen decision threshold rather than an unavoidable cost.
+
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
+
+---
+
 # What Is Treatment Equality?
 URL: https://www.thefaircode.xyz/explainers/treatment-equality.html
 Summary: Learn why Treatment Equality checks the ratio of false negatives to false positives within each group, not the individual rates Equalized Odds already compares. Uses COMPAS's real (freshly computed, not frozen) confusion matrix: a 0.13 FN:FP ratio for African-American defendants against a 31.0 ratio for Caucasian defendants on the same baseline model.
@@ -11293,38 +11334,6 @@ def treatment_equality(y_true, y_pred, group, disadvantaged, advantaged):
 
 ## Limitations
 
-### 1. The trade-off isn't fixed, universal, or always present
-
-As S2 shows above, a fairness gain can arrive at essentially no accuracy cost. The trade-off is a common empirical pattern on this benchmark, not a law - never assume a fairness fix must cost accuracy without checking, and never assume a specific ratio (e.g. "1 fairness point costs 0.1 accuracy points") transfers from one audit or metric to another.
-
-### 2. "Accuracy" is itself only one performance metric, and can hide its own asymmetry
-
-A dropped-accuracy number doesn't say *which* predictions got worse. `faircode/benchmark.py` also computes AUC and F1 alongside accuracy for exactly this reason - a strategy that trades away F1 while accuracy looks stable is a different trade than one that drops all three metrics together. See [What Is Accuracy Equality?](accuracy-equality.md) for the parallel problem on the fairness side: a single blended number can hide two very different underlying stories.
-
-### 3. The Pareto frontier is estimated from a specific dataset and split
-
-The exact numbers above hold for the COMPAS audit's baseline logistic regression model and 80/20 stratified split (`random_state=42`) - a different model family, a different dataset, or a different split can land at a different point on the frontier. Treat the *pattern* (check both numbers, expect some cost, don't assume it's linear) as the transferable lesson, not the specific -8.2/-11.4/-9.7 point figures.
-
-### 4. A statistically insignificant fairness gap is not the same as "fixed"
-
-S3's -1.4-point gap and S4's 2.3-point gap both have confidence intervals crossing zero (see [What Is a Bootstrap Confidence Interval?](bootstrap-confidence-intervals.md)) - "not statistically significant on this test set" is weaker evidence than "the disparity is gone," and shouldn't be reported as though the accuracy cost bought a fully solved fairness problem.
-
-## Related Concepts
-
-* [What Are Pre-, In-, and Post-Processing Fairness Mitigations?](mitigation-strategies.md) - the fairness-only half of the exact same S0-S4 progression used here.
-* [What Is Accuracy Equality?](accuracy-equality.md) - a fairness metric built on accuracy itself, and the parallel reminder that one blended accuracy number can hide asymmetry underneath it.
-* [What Is Bias-Variance Trade-off?](bias-variance-tradeoff.md) - a different, model-internal trade-off; useful for not confusing "the model overfit" with "the model traded accuracy for fairness."
-
-## Related Projects in This Repo
-
-* [`COMPAS/`](../COMPAS/) - the audit above, where S3 buys the best fairness number at the worst accuracy.
-* [`faircode/benchmark.py`](../faircode/benchmark.py) - runs every strategy/model/metric combination in one uniform pipeline, producing both `results_fairness.csv` and `results_performance.csv` from the exact same train/test split so the two are directly comparable, strategy for strategy.
-
-## Further Reading
-
-* [Agarwal, A. et al. (2018): A Reductions Approach to Fair Classification](https://arxiv.org/abs/1803.02453) - the `ExponentiatedGradient` method behind this repo's S3 in-processing strategy, framed explicitly as a constrained optimization trading accuracy against a fairness constraint.
-* [Hardt, M., Price, E., Srebro, N. (2016): Equality of Opportunity in Supervised Learning](https://arxiv.org/abs/1610.02413) - the `ThresholdOptimizer`-style post-processing method behind this repo's S4 strategy.
-* [Corbett-Davies, S., Goel, S. (2018): The Measure and Mismeasure of Fairness](https://arxiv.org/abs/1808.00023) - a critical look at the assumptions underlying fairness-accuracy trade-off framings, including when the "trade-off" itself is an artifact of a poorly-chosen decision threshold rather than an unavoidable cost.
 ### 1. It says nothing about the overall error rate
 
 Two groups can have an identical FN:FP ratio while one group is simply wrong far more often overall. Treatment Equality checks the *balance* of errors, not their *volume* - pair it with [Accuracy Equality](accuracy-equality.md) or [Equalized Odds](equalized-odds.md) to see both.
