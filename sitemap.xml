@@ -6,7 +6,7 @@
   </url>
   <url>
     <loc>https://www.thefaircode.xyz/profiler.html</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-08</lastmod>
   </url>
   <url>
     <loc>https://www.thefaircode.xyz/explainers/proxy-variables.html</loc>
@@ -222,6 +222,10 @@
   </url>
   <url>
     <loc>https://www.thefaircode.xyz/explainers/multiple-comparisons.html</loc>
+    <lastmod>2026-09-08</lastmod>
+  </url>
+  <url>
+    <loc>https://www.thefaircode.xyz/explainers/fairness-accuracy-tradeoff.html</loc>
     <lastmod>2026-09-08</lastmod>
   </url>
 </urlset>

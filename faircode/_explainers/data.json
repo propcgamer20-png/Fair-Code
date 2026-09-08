@@ -376,6 +376,13 @@
     "subtitle": "Run enough p-values at 0.05 and some will read \"significant\" by chance alone.",
     "summary": "Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo's own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS's real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which \"significant\" findings survive correction and which don't.",
     "tags": ["metrics", "detection"]
+  },
+  {
+    "slug": "fairness-accuracy-tradeoff",
+    "title": "What Is the Fairness-Accuracy Trade-off?",
+    "subtitle": "Closing a fairness gap is rarely free, and the cost isn't always the same size.",
+    "summary": "Learn why fairness-mitigation strategies that shrink a demographic parity gap often also reduce model accuracy, using COMPAS's real frozen numbers across all five strategies (accuracy falling from 65.3% to as low as 53.9% as the demographic parity gap closes from 85.5% toward roughly zero) - and why the trade-off isn't a fixed, linear cost.",
+    "tags": ["metrics", "data"]
   }
 ]
 
