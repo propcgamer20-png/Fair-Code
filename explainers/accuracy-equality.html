@@ -190,17 +190,17 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>A model can be almost exactly as accurate for one group as another and still be dramatically unfair - overall accuracy hides which kind of mistake a model makes, and to whom.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Accuracy Equality</strong> requires a model&#x27;s overall accuracy - the fraction of predictions it gets right, correct or incorrect, in either direction - to be equal across protected groups; unlike <a href="equalized-odds.html">Equalized Odds</a> or <a href="equal-opportunity.html">Equal Opportunity</a>, it never looks at <em>which</em> predictions were wrong, only how many.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Accuracy is the metric everyone already checks, so it&#x27;s tempting to treat &quot;equal accuracy across groups&quot; as good enough evidence a model is fair. It isn&#x27;t. Two groups can land on the same accuracy number through completely different error profiles: one group&#x27;s mistakes can be almost entirely false positives, the other&#x27;s almost entirely false negatives, and the two error rates can net out to the same overall score.</p>
 <p>That distinction matters because false positives and false negatives are rarely equally costly. A false positive in a recidivism-risk tool means someone is wrongly flagged as high-risk; a false negative means someone who reoffends was scored as low-risk. Accuracy Equality would call a model &quot;fair&quot; even if it systematically makes the costlier error type against one specific group - which is exactly the blind spot <a href="equalized-odds.html">Equalized Odds</a> and <a href="equal-opportunity.html">Equal Opportunity</a> are built to catch, at the cost of a stricter, harder-to-satisfy requirement.</p>
 <p>Accuracy Equality is one of the six fairness metrics this repo&#x27;s benchmark harness actually computes (<code>accuracy_equality_diff</code> in <code>faircode/metrics.py</code>) - not a theoretical add-on, but a real number sitting next to the other five for every audit, strategy, and model in <code>paper/results-frozen/results_fairness.csv</code>.</p>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>The baseline logistic regression model on race (disadvantaged: African-American defendants; advantaged: Caucasian defendants) is a case where accuracy is nearly equal but the underlying errors are not, using the frozen numbers exactly as <code>faircode/benchmark.py</code> computed them:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Metric</th><th>Value</th><th>95% CI</th><th>p-value</th><th>n (disadv. / adv.)</th></tr></thead><tbody><tr><td>Accuracy Equality Diff</td><td>-0.035</td><td>[-0.070, -0.003]</td><td>0.0395</td><td>1,788 / 1,466</td></tr><tr><td>Equalized Odds Diff</td><td>0.926</td><td>[0.909, 0.942]</td><td>0.0</td><td>1,048 / 467</td></tr></tbody></table></div>
 <p>A 3.5-point accuracy gap (African-American defendants scored slightly <em>less</em> accurately overall) looks like a minor, borderline-significant footnote. It sits right next to a 92.6-point Equalized Odds gap on the exact same model and dataset - <code>faircode/metrics.py</code>&#x27;s own <code>note</code> field for that row reads <code>driven_by_tpr_gap</code>, meaning the true-positive-rate gap between the two groups is enormous. Reporting only Accuracy Equality here would describe this model as nearly fair. It is not: African-American defendants who did not reoffend were flagged as high-risk at a far higher rate than Caucasian defendants who did not reoffend, a disparity Accuracy Equality&#x27;s single blended number cannot see because the two error types are canceling each other out in the total.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>Computes Accuracy Equality alongside Equalized Odds so a hidden gap can&#x27;t cancel out unnoticed.</p>
 <pre><code class="language-python">import numpy as np
 import pandas as pd
@@ -256,20 +256,20 @@ def accuracy_equality_and_equalized_odds(y_true, y_pred, group, disadvantaged, a
 # print(result)
 # A small accuracy_equality_gap next to a large equalized_odds_gap means the
 # errors are canceling out in the total, not actually balanced.</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-a-near-zero-gap-can-hide-a-large-offsetting-error-type-gap">1. A near-zero gap can hide a large, offsetting error-type gap</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-a-near-zero-gap-can-hide-a-large-offsetting-error-type-gap">1. A near-zero gap can hide a large, offsetting error-type gap</h4>
 <p>As COMPAS shows above, a small Accuracy Equality gap is fully compatible with a huge Equalized Odds gap on the same model. Never report Accuracy Equality as the only fairness check - pair it with a metric that conditions on the true label, like Equalized Odds or Equal Opportunity.</p>
-<h3 id="2-it-s-the-metric-most-likely-to-be-reported-alone-by-default">2. It&#x27;s the metric most likely to be reported alone, by default</h3>
+<h4 id="2-it-s-the-metric-most-likely-to-be-reported-alone-by-default">2. It&#x27;s the metric most likely to be reported alone, by default</h4>
 <p>Because overall accuracy is already the standard model-evaluation metric, it&#x27;s the easiest one to slice by group and call a fairness check, without anyone deciding to do that deliberately. That makes Accuracy Equality a metric that tends to get checked <em>instead of</em> the others, not <em>alongside</em> them, unless a team&#x27;s fairness process explicitly requires more.</p>
-<h3 id="3-it-still-depends-on-a-clean-ground-truth-label">3. It still depends on a clean ground-truth label</h3>
+<h4 id="3-it-still-depends-on-a-clean-ground-truth-label">3. It still depends on a clean ground-truth label</h4>
 <p>Like every metric that uses <code>y_true</code>, Accuracy Equality is only as trustworthy as the label it&#x27;s measured against. See <a href="label-bias.html">What Is Label Bias?</a>.</p>
-<h3 id="4-small-subgroups-make-the-gap-noisy">4. Small subgroups make the gap noisy</h3>
+<h4 id="4-small-subgroups-make-the-gap-noisy">4. Small subgroups make the gap noisy</h4>
 <p><code>faircode/significance.py</code>&#x27;s bootstrap CI on the COMPAS example above already spans from -7.0 to -0.3 points - a real range, not a single fixed number. See <a href="bootstrap-confidence-intervals.html">What Is a Bootstrap Confidence Interval?</a> for why that range matters more than the point estimate alone.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="equalized-odds.html">What Is Equalized Odds?</a> - the metric that catches the error-type imbalance Accuracy Equality&#x27;s blended number can hide.</li><li><a href="equal-opportunity.html">What Is Equal Opportunity?</a> - the relaxed half of Equalized Odds, still stricter than Accuracy Equality since it conditions on the true label.</li><li><a href="confusion-matrix.html">What Is a Confusion Matrix?</a> - the four-way breakdown (true/false positive/negative) that Accuracy Equality collapses into one number.</li><li><a href="false-positives-vs-false-negatives.html">False Positives vs. False Negatives in Medical Risk Models</a> - why the two error types Accuracy Equality can&#x27;t distinguish are rarely equally costly.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the audit above, where a 3.5-point accuracy gap sits next to a 92.6-point Equalized Odds gap on the same model.</li><li><a href="../faircode/metrics.py"><code>faircode/metrics.py</code></a> - <code>accuracy_equality_diff</code>&#x27;s actual implementation, computed alongside the other five fairness metrics for every audit in this repo&#x27;s benchmark harness.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1610.02413" target="_blank" rel="noreferrer noopener">Hardt, M., Price, E., Srebro, N. (2016): Equality of Opportunity in Supervised Learning</a> - situates accuracy-based fairness against the true-positive/false-positive-rate criteria it doesn&#x27;t capture.</li><li><a href="https://arxiv.org/abs/1703.09207" target="_blank" rel="noreferrer noopener">Berk, R. et al. (2018): Fairness in Criminal Justice Risk Assessments</a> - surveys the family of statistical fairness criteria, including accuracy-based ones, and the trade-offs between them.</li><li><a href="https://fairmlbook.org/classification.html" target="_blank" rel="noreferrer noopener">Barocas, S., Hardt, M., Narayanan, A. (2019): <em>Fairness and Machine Learning</em></a> - the standard reference for how classification-based fairness criteria relate to and contradict each other.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

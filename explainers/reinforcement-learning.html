@@ -189,26 +189,26 @@
       <p class="explainer-lede">Learn how RL-style systems can reinforce unfair incentives in recommendation, pricing, and risk scoring.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-reinforcement-learning">Explainer: What Is Reinforcement Learning?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-reinforcement-learning">Explainer: What Is Reinforcement Learning?</h2>
 <blockquote><p><em>The reason an algorithm can lock someone up longer, flood your feed with outrage, and never once be told it did anything wrong.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Reinforcement learning</strong> is a training approach where an agent learns to make decisions by receiving numerical rewards or penalties based on the outcomes of its actions, rather than from labelled examples - and in high-stakes domains, whoever defines the reward function decides whose outcomes count.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most ML explainers treat reinforcement learning as a curiosity: robots learning to walk, agents beating chess engines. That framing misses where RL is actually deployed.</p>
 <p>Parole boards use risk-score systems that function like RL policies - they encode a learned mapping from defendant profile to release/hold decision, shaped by feedback from observed reoffense rates. Content recommendation engines on platforms serving billions of users are trained with RL, optimising watch time as the reward signal. Credit and insurance pricing increasingly uses RL-style optimisation to set individualised rates based on behavioural feedback.</p>
 <p>In every one of these cases, the reward function was written by a person who had to decide what &quot;good&quot; means. That decision is not technical. It is political. And once the reward function is fixed, the agent will do whatever it takes to maximise it - including exploiting demographic proxies, amplifying historical patterns, and hacking the metric in ways the designer never anticipated.</p>
 <p>You can&#x27;t audit what you don&#x27;t understand. This explainer is the mechanics.</p>
 <hr>
-<h2 id="the-three-part-loop-every-rl-system-runs">The Three-Part Loop Every RL System Runs</h2>
+<h3 id="the-three-part-loop-every-rl-system-runs">The Three-Part Loop Every RL System Runs</h3>
 <p>Every reinforcement learning system - from a toy grid-world to a production-scale parole risk model - runs the same fundamental loop:</p>
 <pre><code>Observe state  →  Take action  →  Receive reward  →  Update policy</code></pre>
 <p>Repeat this across thousands or millions of interactions, and the agent learns a <strong>policy</strong>: a mapping from states to actions that maximises cumulative reward. The tragedy is that &quot;maximises reward&quot; means &quot;maximises the specific scalar you defined&quot; - not fairness, not accuracy, not justice.</p>
 <hr>
-<h2 id="part-1-state-action-and-policy">Part 1: State, Action, and Policy</h2>
+<h3 id="part-1-state-action-and-policy">Part 1: State, Action, and Policy</h3>
 <p>The agent observes the world as a <strong>state</strong>, chooses an <strong>action</strong>, and updates its <strong>policy</strong> - the internal rulebook that maps states to actions.</p>
-<h3 id="what-these-look-like-in-practice">What These Look Like in Practice</h3>
+<h4 id="what-these-look-like-in-practice">What These Look Like in Practice</h4>
 <pre><code class="language-python">import numpy as np
 
 # In a parole decision system:
@@ -237,7 +237,7 @@ def policy(state, weights):
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))</code></pre>
 <p>The weights are everything. A high weight on <code>custody_status</code> means the agent has learned that pretrial detention predicts its reward signal - not because custody status is a fair input, but because it correlates with reoffense rates that were themselves shaped by selective policing.</p>
-<h3 id="the-policy-update">The Policy Update</h3>
+<h4 id="the-policy-update">The Policy Update</h4>
 <p>After each interaction, the agent adjusts its weights in the direction that increases expected future reward. The most common update rule is a variant of gradient ascent on the expected return:</p>
 <pre><code class="language-python">def policy_gradient_step(weights, log_prob_gradient, reward, baseline, learning_rate=0.01):
     &quot;&quot;&quot;
@@ -252,7 +252,7 @@ def sigmoid(z):
     return weights + learning_rate * log_prob_gradient * advantage</code></pre>
 <p>If &quot;no reoffense in 6 months&quot; is the reward and a particular demographic profile correlates historically with that outcome, the agent will learn to treat that profile as high-value - regardless of whether the correlation is causal or merely a product of who gets monitored and who does not.</p>
 <hr>
-<h2 id="part-2-the-reward-function">Part 2: The Reward Function</h2>
+<h3 id="part-2-the-reward-function">Part 2: The Reward Function</h3>
 <p>The reward function is the most consequential design decision in any RL system. It is also the most politically loaded.</p>
 <pre><code class="language-python">def parole_reward(action, outcome):
     &quot;&quot;&quot;
@@ -271,7 +271,7 @@ def sigmoid(z):
     # It encodes the judgment that wrongful incarceration costs five times
     # less than a reoffense - a value choice, not a mathematical truth.</code></pre>
 <p>This asymmetry has a direct consequence: the agent will hold defendants at the margin more aggressively, because the penalty for a missed reoffense is ten times the penalty for a wrongful hold. Who lives &quot;at the margin&quot;? Whoever the state already treated as high-risk. The reward function launders that judgment as optimisation.</p>
-<h3 id="reward-hacking">Reward Hacking</h3>
+<h4 id="reward-hacking">Reward Hacking</h4>
 <p>Agents optimise the specified reward signal, not the intended objective. When these diverge, the result is <strong>reward hacking</strong>.</p>
 <pre><code class="language-python"># Intended objective:
 # Accurately predict who will reoffend, regardless of demographics.
@@ -288,7 +288,7 @@ def sigmoid(z):
 # The agent achieves high reward. The objective is not met.
 # The bias is not a bug. It is the correct solution to the wrong problem.</code></pre>
 <hr>
-<h2 id="part-3-the-credit-assignment-problem">Part 3: The Credit Assignment Problem</h2>
+<h3 id="part-3-the-credit-assignment-problem">Part 3: The Credit Assignment Problem</h3>
 <p>RL&#x27;s hardest technical challenge is also its deepest fairness problem: how do you attribute an outcome to the decision that caused it when the outcome arrives much later?</p>
 <pre><code class="language-python">def discounted_return(rewards, gamma=0.95):
     &quot;&quot;&quot;
@@ -313,7 +313,7 @@ def sigmoid(z):
 # resources. It can only see what arrived in its reward window.</code></pre>
 <p>Delayed harms - a wrongful denial that destroyed a family, a year of incarceration for someone who would not have reoffended - may never be attributed to the decision that caused them. The agent never receives the negative reward. The policy is never corrected.</p>
 <hr>
-<h2 id="real-world-case-compas-as-an-rl-adjacent-system">Real-World Case: COMPAS as an RL-Adjacent System</h2>
+<h3 id="real-world-case-compas-as-an-rl-adjacent-system">Real-World Case: COMPAS as an RL-Adjacent System</h3>
 <p>COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) is deployed in 46 US states to produce risk scores used in bail, sentencing, and parole decisions. While it was trained with supervised methods, it exhibits the structural features of an RL policy: it maps defendant profiles to risk scores (actions) that determine release or detention (consequences), and it was calibrated on historical reoffense data (rewards) generated by a selectively enforcing system.</p>
 <p>ProPublica&#x27;s 2016 analysis of the COMPAS dataset demonstrates what a biased reward signal produces:</p>
 <pre><code class="language-python">import pandas as pd
@@ -354,8 +354,8 @@ for group in [&quot;African-American&quot;, &quot;Caucasian&quot;]:
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>High-Risk Flag Rate</th></tr></thead><tbody><tr><td>Black defendants</td><td>87.16%</td></tr><tr><td>White defendants</td><td>0.40%</td></tr><tr><td><strong>Fairness gap</strong></td><td><strong>86.77%</strong></td></tr></tbody></table></div>
 <p>The policy did not contain a rule that said &quot;flag Black defendants.&quot; It learned from historical reoffense records in which policing patterns, pretrial detention rates, and charge severity were all racially stratified. The reward signal encoded that stratification. The policy reproduced it.</p>
 <hr>
-<h2 id="how-to-detect-when-an-rl-adjacent-policy-is-biased">How to Detect When an RL-Adjacent Policy Is Biased</h2>
-<h3 id="step-1-measure-demographic-parity">Step 1 - Measure Demographic Parity</h3>
+<h3 id="how-to-detect-when-an-rl-adjacent-policy-is-biased">How to Detect When an RL-Adjacent Policy Is Biased</h3>
+<h4 id="step-1-measure-demographic-parity">Step 1 - Measure Demographic Parity</h4>
 <pre><code class="language-python">def fairness_gap(model, X_test, df_test, protected_col, group_a, group_b):
     &quot;&quot;&quot;
     Measure the difference in positive prediction rates between two groups.
@@ -376,7 +376,7 @@ gap, rate_black, rate_white = fairness_gap(
     &quot;race&quot;, &quot;African-American&quot;, &quot;Caucasian&quot;
 )
 print(f&quot;Fairness gap: {gap * 100:.2f}%&quot;)</code></pre>
-<h3 id="step-2-audit-the-state-representation-for-proxy-variables">Step 2 - Audit the State Representation for Proxy Variables</h3>
+<h4 id="step-2-audit-the-state-representation-for-proxy-variables">Step 2 - Audit the State Representation for Proxy Variables</h4>
 <pre><code class="language-python">import scipy.stats as stats
 
 def proxy_check(df, feature, protected_attribute):
@@ -393,7 +393,7 @@ def proxy_check(df, feature, protected_attribute):
 chi2, p = proxy_check(df, &quot;custody_status&quot;, &quot;race&quot;)
 print(f&quot;custody_status ~ race: chi2={chi2:.2f}, p={p:.4f}&quot;)
 # If p &lt; 0.05, custody_status carries racial signal → remove it</code></pre>
-<h3 id="step-3-remove-proxies-and-retrain">Step 3 - Remove Proxies and Retrain</h3>
+<h4 id="step-3-remove-proxies-and-retrain">Step 3 - Remove Proxies and Retrain</h4>
 <pre><code class="language-python">features_fair = [
     # race removed ✓
     &quot;age&quot;,
@@ -414,7 +414,7 @@ model_fair.fit(X_train_f, y_train_f)</code></pre>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Approach</th><th>Fairness Gap</th><th>Reduction</th></tr></thead><tbody><tr><td>Biased policy</td><td>86.77%</td><td>-</td></tr><tr><td>Remove race only</td><td>~60%</td><td>Partial</td></tr><tr><td>Remove race + custody_status</td><td>15.69%</td><td><strong>71%</strong></td></tr></tbody></table></div>
 <p>The policy architecture did not change. The training procedure did not change. Only the state representation changed - and most of the discriminatory behaviour disappeared.</p>
 <hr>
-<h2 id="second-case-recommendation-systems-and-feedback-loops">Second Case: Recommendation Systems and Feedback Loops</h2>
+<h3 id="second-case-recommendation-systems-and-feedback-loops">Second Case: Recommendation Systems and Feedback Loops</h3>
 <p>YouTube&#x27;s recommendation engine, documented in a 2019 Mozilla Foundation report on algorithmic amplification, is trained with RL using watch time as the primary reward signal. This creates a well-documented dynamic:</p>
 <pre><code class="language-python"># Simplified RL recommendation loop
 
@@ -441,17 +441,17 @@ def recommendation_reward(user_action, content_type):
 # The agent has no fairness objective. It has one objective: watch time.</code></pre>
 <p>The demographic consequences of this reward function are asymmetric: recommendation systems trained on majority-population watch time data produce policies that systematically underserve minority groups, niche language communities, and anyone whose engagement patterns deviate from the majority distribution. The agent never receives a signal that anything went wrong.</p>
 <hr>
-<h2 id="limitations">Limitations</h2>
+<h3 id="limitations">Limitations</h3>
 <p><strong>RL is rarely deployed explicitly in high-stakes settings.</strong> The COMPAS case is RL-adjacent, not pure RL. The patterns - reward misspecification, credit assignment failure, proxy exploitation - appear in supervised systems too. The explainer uses the RL frame because it makes these failure modes most legible, not because RL is uniquely responsible.</p>
 <p><strong>Removing proxies reduces but does not eliminate the gap.</strong> The 71% reduction in the COMPAS case leaves a 15.69-point fairness gap. Remaining disparity reflects features that correlate with race for legitimate predictive reasons (prior arrests reflect real behaviour differences produced by structural conditions) or proxies not yet identified. Proxy removal is necessary but not sufficient.</p>
 <p><strong>Defining the reward function is unavoidably political.</strong> There is no neutral reward signal for a parole decision. Choosing to penalise false releases more than wrongful holds is a value judgment about whose safety matters more. This explainer cannot resolve that question. It can only make it visible.</p>
 <p><strong>Credit assignment failure is not fully solvable.</strong> No discounting scheme correctly attributes a 6-month outcome to the exact decision that caused it when hundreds of intervening variables - housing, employment, family, neighbourhood - all contribute. This is a fundamental limit of sequential decision-making under delayed feedback, not an implementation flaw.</p>
 <p><strong>Watch time as a proxy for value is increasingly contested.</strong> Platforms have introduced secondary signals (surveys, explicit ratings) to supplement watch time. Whether these corrections are sufficient, or whether they introduce new biases, is an open empirical question.</p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="feedback-loop-bias.html"><code>feedback-loop-bias.md</code></a> - How retraining on RL-generated decisions amplifies bias across cycles</li><li><a href="proxy-variables.html"><code>proxy-variables.md</code></a> - Why the state representation is where most RL bias enters</li><li><a href="label-bias.html"><code>label-bias.md</code></a> - How the reward signal inherits bias from historical outcomes</li><li><a href="neural-networks.html"><code>neural-networks.md</code></a> - How the policy function learns from state-reward pairs</li><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - Full audit of the COMPAS dataset: 71% gap reduction after removing race + custody_status proxy</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.science.org/doi/10.1126/sciadv.aao5580" target="_blank" rel="noreferrer noopener">Dressel &amp; Farid: The Accuracy, Fairness, and Limits of Predicting Recidivism (Science Advances, 2018)</a> - the peer-reviewed analysis showing COMPAS performs no better than untrained humans and exhibits racial disparities</li><li><a href="http://incompleteideas.net/book/the-book-2nd.html" target="_blank" rel="noreferrer noopener">Sutton &amp; Barto: Reinforcement Learning: An Introduction (MIT Press, 2nd ed., 2018)</a> - the canonical RL textbook, free online; Chapter 1 covers the core loop; Chapter 17 covers applications</li><li><a href="https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/" target="_blank" rel="noreferrer noopener">Krakovna et al.: Specification Gaming: The Flip Side of AI Ingenuity (DeepMind, 2020)</a> - the canonical catalogue of reward hacking cases, from simulated robots to production systems</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

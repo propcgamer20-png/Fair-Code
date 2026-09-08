@@ -189,31 +189,31 @@
       <p class="explainer-lede">Learn how ignoring base rates leads to high false-alarm rates in screening algorithms, and why differing base rates across demographic groups make predictive parity and equalized odds mathematically incompatible. Covers Bayes&#x27; Theorem, PPV under low prevalence, the Chouldechova trade-off identity, and COMPAS audit detection code.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="what-is-the-base-rate-fallacy">What Is the Base Rate Fallacy?</h1>
+    <article class="explainer-content"><h2 id="what-is-the-base-rate-fallacy">What Is the Base Rate Fallacy?</h2>
 <blockquote><p><em>A screening tool with 90% accuracy and 90% sensitivity can still be wrong 80% of the time when it flags a positive case - because when the baseline prevalence of an event is low, most positive signals are false alarms. And when base rates differ across demographic groups, no model can satisfy both equalized odds and predictive parity at the same time.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>The base rate fallacy</strong> is a cognitive and statistical error where conditional probabilities (such as the likelihood of a positive test given that an individual is affected) are evaluated without accounting for the prior probability - the background prevalence or &quot;base rate&quot; - of the condition in the overall population.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>High-stakes decision systems in medical diagnosis, criminal justice recidivism scoring, fraud detection, and credit underwriting rely heavily on binary flags (&quot;high risk&quot;, &quot;positive&quot;). When evaluating these tools, decision-makers often look at sensitivity (true positive rate) or overall accuracy and assume a positive flag is overwhelmingly reliable.</p>
 <p>When the underlying condition is rare, however, Bayes&#x27; theorem reveals a startling counter-intuitive reality: even a highly accurate model produces far more false alarms than true positives. A screening tool with a 95% true positive rate and a 5% false positive rate applied to a condition present in 1% of the population will be wrong roughly 84% of the time when it alerts.</p>
 <p>In algorithmic fairness, the base rate fallacy takes on an even more critical role. Demographic groups frequently present different baseline outcome rates, P(Y = 1 | Group = A), due to historical, environmental, or structural factors. When base rates differ across groups, a fundamental mathematical impossibility theorem emerges: a risk scoring model <strong>cannot</strong> achieve both equalized odds (equal true and false positive rates) and predictive parity (equal positive predictive value) simultaneously. Ignoring base rates leads practitioners to treat these conflicting fairness definitions as interchangeable, when in fact they trade off directly against one another once base rates diverge.</p>
-<h2 id="the-mathematics-of-the-base-rate-fallacy">The Mathematics of the Base Rate Fallacy</h2>
+<h3 id="the-mathematics-of-the-base-rate-fallacy">The Mathematics of the Base Rate Fallacy</h3>
 <p>The base rate fallacy occurs when one confuses P(Signal | Condition) with P(Condition | Signal). The relationship between them is governed by Bayes&#x27; Theorem.</p>
 <p>Let Y represent the true binary outcome (0 or 1), and Ŷ represent the model&#x27;s prediction (0 or 1). Define:</p>
 <ul><li>Base Rate (Prevalence), p = P(Y = 1)</li><li>True Positive Rate (Sensitivity), TPR = P(Ŷ = 1 | Y = 1)</li><li>False Positive Rate (1 - Specificity), FPR = P(Ŷ = 1 | Y = 0)</li></ul>
 <p>The Positive Predictive Value (PPV), which measures the proportion of positive predictions that are actual positive cases, is calculated as:</p>
 <pre><code>PPV = P(Y = 1 | Ŷ = 1) = (TPR * p) / (TPR * p + FPR * (1 - p))</code></pre>
-<h3 id="prevalence-impact-on-reliability">Prevalence Impact on Reliability</h3>
+<h4 id="prevalence-impact-on-reliability">Prevalence Impact on Reliability</h4>
 <p>To see how background prevalence dictates prediction reliability, consider a screening model with fixed TPR = 0.90 and FPR = 0.10 evaluated across varying base rates (p):</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Base Rate (p)</th><th>True Positives (TPR * p)</th><th>False Positives (FPR * (1 - p))</th><th>PPV (P(Y = 1 \</th><th>Ŷ = 1))</th><th>False Discovery Rate (1 - PPV)</th></tr></thead><tbody><tr><td><strong>1%</strong></td><td>0.0090</td><td>0.0990</td><td><strong>8.33%</strong></td><td><strong>91.67%</strong></td></tr><tr><td><strong>5%</strong></td><td>0.0450</td><td>0.0950</td><td><strong>32.14%</strong></td><td><strong>67.86%</strong></td></tr><tr><td><strong>10%</strong></td><td>0.0900</td><td>0.0900</td><td><strong>50.00%</strong></td><td><strong>50.00%</strong></td></tr><tr><td><strong>30%</strong></td><td>0.2700</td><td>0.0700</td><td><strong>79.41%</strong></td><td><strong>20.59%</strong></td></tr><tr><td><strong>50%</strong></td><td>0.4500</td><td>0.0500</td><td><strong>90.00%</strong></td><td><strong>10.00%</strong></td></tr></tbody></table></div>
 <p>At a 1% base rate, <strong>over 91% of flagged individuals are false alarms</strong>, despite the model having 90% sensitivity and 90% specificity.</p>
-<h3 id="the-chouldechova-impossibility-identity">The Chouldechova Impossibility Identity</h3>
+<h4 id="the-chouldechova-impossibility-identity">The Chouldechova Impossibility Identity</h4>
 <p>When evaluating models across demographic groups A and B, Chouldechova (2017) demonstrated that the false positive rate (FPR), false negative rate (FNR), positive predictive value (PPV), and base rate (p) are linked by a strict identity:</p>
 <pre><code>FPR = (p / (1 - p)) * ((1 - PPV) / PPV) * (1 - FNR)</code></pre>
 <p>If a model satisfies <strong>predictive parity</strong> (PPV_A = PPV_B) and has equal false negative rates (FNR_A = FNR_B), but the base rates differ (p_A != p_B), then:</p>
 <pre><code>p_A / (1 - p_A) != p_B / (1 - p_B)  =&gt;  FPR_A != FPR_B</code></pre>
 <p>The false positive rates <strong>must</strong> differ between the groups. Equalizing predictive parity across groups with unequal base rates mathematically guarantees an unequal distribution of false alarms.</p>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>The COMPAS recidivism audit in this repository (<code>COMPAS/</code>) uses the ProPublica two-year recidivism dataset, evaluating predictions across racial groups.</p>
 <p>In the dataset, the observed two-year recidivism base rates differ significantly by race:</p>
 <ul><li><strong>Black defendants</strong>: ~51.4% base rate</li><li><strong>White defendants</strong>: ~39.4% base rate</li></ul>
@@ -226,7 +226,7 @@ print(&quot;Recidivism Base Rates by Group:&quot;)
 print(base_rates)
 
 # Black: 0.514, White: 0.394 -&gt; Base Rate Gap: 12.0%</code></pre>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>The following Python module computes group-level base rates, PPV, FPR, and FNR, and quantifies the Chouldechova trade-off gap to detect when base rate disparities are driving fairness metric conflicts.</p>
 <pre><code class="language-python">import numpy as np
 import pandas as pd
@@ -329,20 +329,20 @@ def print_chouldechova_audit_summary(
 
 # Usage example:
 # print_chouldechova_audit_summary(compas_df, &quot;two_year_recid&quot;, &quot;high_risk_flag&quot;, &quot;race&quot;)</code></pre>
-<h2 id="limitations-and-trade-offs">Limitations and Trade-offs</h2>
-<h3 id="1-observed-base-rates-may-reflect-label-bias">1. Observed Base Rates May Reflect Label Bias</h3>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-observed-base-rates-may-reflect-label-bias">1. Observed Base Rates May Reflect Label Bias</h4>
 <p>The statistical base rate P(Y = 1) is computed from ground-truth labels in the dataset. However, ground-truth labels are frequently corrupted by historical bias or selective enforcement (e.g., arrest records track policing patterns rather than underlying criminal activity). An apparent base rate difference between groups may reflect differential observation rather than true prevalence differences (see <a href="label-bias.html">Label Bias</a> and <a href="underdiagnosis-bias.html">Underdiagnosis Bias</a>).</p>
-<h3 id="2-base-rate-awareness-cannot-resolve-policy-conflicts">2. Base Rate Awareness Cannot Resolve Policy Conflicts</h3>
+<h4 id="2-base-rate-awareness-cannot-resolve-policy-conflicts">2. Base Rate Awareness Cannot Resolve Policy Conflicts</h4>
 <p>Math reveals why metrics conflict, but it cannot decide which metric a legal or institutional policy should enforce. Prioritizing predictive parity protects the decision-maker&#x27;s confidence in positive flags, while prioritizing equalized odds protects individuals from unequal exposure to false accusations. The choice is normative, not mathematical.</p>
-<h3 id="3-small-subgroup-estimates-are-volatile">3. Small Subgroup Estimates Are Volatile</h3>
+<h4 id="3-small-subgroup-estimates-are-volatile">3. Small Subgroup Estimates Are Volatile</h4>
 <p>When estimating base rates and PPV for small demographic subgroups or intersectional populations, small sample sizes introduce high variance. A small subgroup with few positive predictions will produce noisy PPV estimates that fluctuate wildly across dataset splits.</p>
-<h3 id="4-threshold-adjustments-cannot-reconcile-structural-imbalances">4. Threshold Adjustments Cannot Reconcile Structural Imbalances</h3>
+<h4 id="4-threshold-adjustments-cannot-reconcile-structural-imbalances">4. Threshold Adjustments Cannot Reconcile Structural Imbalances</h4>
 <p>Attempting to force equal false positive rates by adjusting decision thresholds separately per group shifts the operational point along each group&#x27;s ROC curve, but it necessarily breaks predictive parity or calibration. Threshold tuning alters how errors are allocated; it does not eliminate the fundamental constraint imposed by unequal base rates.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="predictive-parity.html">What Is Predictive Parity?</a> - the sufficiency metric requiring equal PPV across groups.</li><li><a href="equalized-odds.html">What Is Equalized Odds?</a> - the separation metric requiring equal TPR and FPR across groups.</li><li><a href="fairness-metric-conflicts.html">Why Fairness Metrics Conflict</a> - the complete mathematical overview of fairness impossibility theorems.</li><li><a href="calibration.html">What Is Calibration?</a> - score-level probability agreement across groups, which also conflicts with equalized odds when base rates differ.</li><li><a href="false-positives-vs-false-negatives.html">False Positives vs. False Negatives in Medical Risk Models</a> - how error asymmetry compounds under low base rates.</li><li><a href="label-bias.html">What Is Label Bias?</a> - how biased observation distorts the measured base rate.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - recidivism risk scoring audit demonstrating the real-world clash between predictive parity and equalized odds driven by racial base rate differences.</li><li><a href="../index.html#project-readmission"><code>Healthcare Readmission/</code></a> - clinical readmission model where base rate differences in hospital access corrupt risk predictions across insurance types.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.researchgate.net/publication/223684493_The_base-rate_fallacy_in_probability_judgments" target="_blank" rel="noreferrer noopener">Bar-Hillel, M. (1980): The Base-Rate Fallacy in Probability Judgments, <em>Acta Psychologica</em>, 44(3), 211-233</a> - the foundational cognitive psychology paper establishing how humans ignore prior probabilities.</li><li><a href="https://arxiv.org/abs/1610.07524" target="_blank" rel="noreferrer noopener">Chouldechova, A. (2017): Fair Prediction with Disparate Impact</a> - the formal proof establishing the mathematical impossibility of satisfying predictive parity and equalized odds under unequal base rates.</li><li><a href="https://arxiv.org/abs/1609.05807" target="_blank" rel="noreferrer noopener">Kleinberg, J., Mullainathan, S., Raghavan, M. (2017): Inherent Trade-Offs in the Fair Determination of Risk Scores</a> - independent proof of the impossibility theorem for calibrated continuous scores.</li><li><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noreferrer noopener">Angwin, J. et al. (2016): Machine Bias</a> - ProPublica&#x27;s seminal investigation into COMPAS error-rate disparities.</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

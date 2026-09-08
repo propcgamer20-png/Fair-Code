@@ -189,35 +189,35 @@
       <p class="explainer-lede">Measure whether a model or policy produces unequal results across groups, even when the protected attribute is hidden.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-disparate-impact-the-80-rule">Explainer: What is Disparate Impact (The 80% Rule)?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-disparate-impact-the-80-rule">Explainer: What is Disparate Impact (The 80% Rule)?</h2>
 <blockquote><p><em>The legal test that has decided employment discrimination cases in US courtrooms since 1971 - and the simplest fairness check you can run on any hiring model.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Disparate Impact</strong> is a legal and statistical test that flags a selection process as discriminatory when the selection rate for a protected group (women, racial minorities, applicants over 40, etc.) is <strong>less than 80% of the selection rate for the most-selected group</strong>.</p>
 <p>That 80% threshold is called the <strong>Four-Fifths Rule</strong> - codified in the U.S. Equal Employment Opportunity Commission&#x27;s <a href="https://www.ecfr.gov/current/title-29/subtitle-B/chapter-XIV/part-1607" target="_blank" rel="noreferrer noopener">Uniform Guidelines on Employee Selection Procedures (1978), 29 CFR §1607.4(D)</a>.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most fairness metrics are abstract. The 80% rule is not. It is the actual threshold the EEOC, federal courts, and the Department of Labor use to decide whether to investigate an employer for discriminatory hiring, promotion, or firing.</p>
 <p>If your model selects men at 80% and women at 60%, the ratio is 60 / 80 = <strong>0.75</strong>. Below 0.80. The selection process can be challenged as discriminatory under <em>Griggs v. Duke Power Co.</em>, 401 U.S. 424 (1971) - the Supreme Court case that established the disparate-impact doctrine even when there is <strong>no proof of intent</strong> to discriminate.</p>
 <p>This is the rule that matters in practice:</p>
 <ul><li>HR teams use it to screen vendor hiring tools before deployment</li><li>Auditors use it to flag protected-class disparities for further investigation</li><li>Plaintiffs use it as the <em>prima facie</em> evidence threshold in Title VII employment-discrimination lawsuits</li><li>Procurement teams use it as a contractual acceptance criterion for AI screening products</li></ul>
 <p>A model can have 95% accuracy and still fail the 80% rule. Accuracy says nothing about who is being filtered out at the gate.</p>
 <hr>
-<h2 id="real-world-proof-ai-fair-recruitment-audit">Real-World Proof: AI Fair Recruitment Audit</h2>
+<h3 id="real-world-proof-ai-fair-recruitment-audit">Real-World Proof: AI Fair Recruitment Audit</h3>
 <p>The <a href="../index.html#project-hiring"><code>AI Fair Recruitment</code></a> audit in this repo trains a Random Forest classifier on a recruitment dataset with gender, age, experience, and technical test scores. Apply the 80% rule directly to its outputs:</p>
-<h3 id="biased-model-unfair-py-ai-20fair-20recruitment-unfair-py">Biased Model - <a href="../AI%20Fair%20Recruitment/unfair.py"><code>unfair.py</code></a></h3>
+<h4 id="biased-model-unfair-py-ai-20fair-20recruitment-unfair-py">Biased Model - <a href="../AI%20Fair%20Recruitment/unfair.py"><code>unfair.py</code></a></h4>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Hire Rate</th></tr></thead><tbody><tr><td>Men</td><td>21.62%</td></tr><tr><td>Women</td><td>17.10%</td></tr></tbody></table></div>
 <p><strong>Disparate Impact Ratio = 17.10 / 21.62 = 0.791</strong></p>
 <p><strong>0.791 &lt; 0.80 → FAILS the Four-Fifths Rule.</strong></p>
 <p>A real EEOC complaint filed against this model would survive the <em>prima facie</em> stage. The employer would then bear the burden of proving the selection process is &quot;job-related and consistent with business necessity&quot; - the legal standard set in <em>Griggs</em> and codified in 42 U.S.C. §2000e-2(k).</p>
-<h3 id="mitigated-model-fair-py-ai-20fair-20recruitment-fair-py">Mitigated Model - <a href="../AI%20Fair%20Recruitment/fair.py"><code>fair.py</code></a></h3>
+<h4 id="mitigated-model-fair-py-ai-20fair-20recruitment-fair-py">Mitigated Model - <a href="../AI%20Fair%20Recruitment/fair.py"><code>fair.py</code></a></h4>
 <p>After dropping <code>Gender</code> and <code>Age</code> and retraining on <code>Experience_Years</code> and <code>Technical_Test_Score</code> only:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Hire Rate</th></tr></thead><tbody><tr><td>Men</td><td>11.48%</td></tr><tr><td>Women</td><td>11.35%</td></tr></tbody></table></div>
 <p><strong>Disparate Impact Ratio = 11.35 / 11.48 = 0.989</strong></p>
 <p><strong>0.989 ≥ 0.80 → PASSES the Four-Fifths Rule.</strong></p>
 <p>The legal exposure is gone, and the model is selecting candidates on demonstrated ability rather than inferred demographic signal.</p>
 <hr>
-<h2 id="how-to-calculate-it-in-python">How to Calculate It in Python</h2>
+<h3 id="how-to-calculate-it-in-python">How to Calculate It in Python</h3>
 <p>The 80% rule is one of the cheapest fairness checks you can run. No external library required.</p>
 <pre><code class="language-python">import pandas as pd
 
@@ -246,7 +246,7 @@ def disparate_impact_ratio(df, prediction_col, group_col, positive_label=1):
         &quot;disparate_impact_ratio&quot;: round(ratio, 3),
         &quot;passes_four_fifths_rule&quot;: bool(passes),
     }</code></pre>
-<h3 id="applying-it-to-the-hiring-audit">Applying it to the hiring audit</h3>
+<h4 id="applying-it-to-the-hiring-audit">Applying it to the hiring audit</h4>
 <p>Drop this into <code>AI Fair Recruitment/unfair.py</code> right after the predictions are generated:</p>
 <pre><code class="language-python">test_results[&quot;Gender&quot;] = df.loc[X_test.index, &quot;Gender&quot;].values
 
@@ -264,7 +264,7 @@ print(result)
 #   &#x27;passes_four_fifths_rule&#x27;: False
 # }</code></pre>
 <p>Run the same snippet against <code>fair.py</code> and the ratio climbs to <strong>0.989</strong> - passing.</p>
-<h3 id="using-fairlearn">Using Fairlearn</h3>
+<h4 id="using-fairlearn">Using Fairlearn</h4>
 <p>The same metric is available out-of-the-box in <a href="https://fairlearn.org/" target="_blank" rel="noreferrer noopener">Fairlearn</a>:</p>
 <pre><code class="language-python">from fairlearn.metrics import demographic_parity_ratio
 
@@ -277,7 +277,7 @@ ratio = demographic_parity_ratio(
 print(f&quot;DI ratio: {ratio:.3f}  |  passes 80% rule: {ratio &gt;= 0.80}&quot;)</code></pre>
 <p><code>demographic_parity_ratio</code> is mathematically identical to the Four-Fifths Rule ratio - <code>min(rate) / max(rate)</code> across groups.</p>
 <hr>
-<h2 id="the-math">The Math</h2>
+<h3 id="the-math">The Math</h3>
 <p>For a protected attribute <code>A</code> taking values <code>a</code> (disadvantaged) and <code>b</code> (advantaged):</p>
 <p><strong>Selection rate for group g:</strong></p>
 <p>P(Ŷ = 1 | A = g)</p>
@@ -290,38 +290,38 @@ print(f&quot;DI ratio: {ratio:.3f}  |  passes 80% rule: {ratio &gt;= 0.80}&quot;
 <ul><li>Ŷ = model decision (hire / no hire, approve / deny, etc.)</li><li>A = protected attribute (gender, race, age class, etc.)</li></ul>
 <p>The rule is symmetric - you always divide the smaller rate by the larger rate, so the ratio sits in [0, 1].</p>
 <hr>
-<h2 id="limitations-trade-offs">Limitations / Trade-offs</h2>
+<h3 id="limitations-trade-offs">Limitations / Trade-offs</h3>
 <p>The 80% rule is a legal screen, not a complete fairness audit. Treat it as a floor, not a ceiling.</p>
-<h3 id="it-is-a-threshold-not-a-guarantee">It is a threshold, not a guarantee</h3>
+<h4 id="it-is-a-threshold-not-a-guarantee">It is a threshold, not a guarantee</h4>
 <p>A model with a ratio of 0.81 passes the rule and a model at 0.79 fails it, but the real-world disparity is essentially identical. Courts treat the 80% line as a heuristic for triggering further investigation, not as a bright-line proof of fairness. The EEOC&#x27;s own guidelines warn that &quot;smaller differences in selection rate may nevertheless constitute adverse impact&quot; when the sample size is large.</p>
-<h3 id="it-ignores-error-types">It ignores error types</h3>
+<h4 id="it-ignores-error-types">It ignores error types</h4>
 <p>Disparate Impact only measures <em>who gets selected</em>. It says nothing about <em>who got selected wrongly</em>. A model that hires equal proportions of men and women - but among those rejected, disproportionately rejects qualified women - passes the 80% rule and still discriminates. <a href="equalized-odds.html">Equalized Odds</a> is the metric that catches that.</p>
-<h3 id="it-is-satisfiable-by-lowering-the-bar">It is satisfiable by lowering the bar</h3>
+<h4 id="it-is-satisfiable-by-lowering-the-bar">It is satisfiable by lowering the bar</h4>
 <p>You can pass the 80% rule by hiring everyone, or by hiring no one. Neither is fairness. The rule must be paired with a job-relatedness analysis: the selection process must still be predictive of actual performance. <em>Griggs v. Duke Power</em> and §2000e-2(k) both require this - passing the 80% rule does not exempt the employer from showing the process is &quot;job-related and consistent with business necessity.&quot;</p>
-<h3 id="it-conflicts-with-equalized-odds-when-base-rates-differ">It conflicts with Equalized Odds when base rates differ</h3>
+<h4 id="it-conflicts-with-equalized-odds-when-base-rates-differ">It conflicts with Equalized Odds when base rates differ</h4>
 <p>If qualification rates genuinely differ across groups in the underlying population, enforcing equal selection rates can require selecting unqualified members of the lower-rate group - or rejecting qualified members of the higher-rate group. This is the same impossibility result that governs Equalized Odds and calibration: when base rates differ, no model can satisfy every fairness definition at once. See <a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova (2017)</a>.</p>
-<h3 id="proxy-variables-defeat-it">Proxy variables defeat it</h3>
+<h4 id="proxy-variables-defeat-it">Proxy variables defeat it</h4>
 <p>Dropping the protected attribute is not enough. If <code>zip_code</code>, <code>employment_tenure</code>, or <code>CustodyStatus</code> correlate with the protected attribute, the model will reconstruct the bias from those proxies and the disparate-impact ratio will stay below 0.80. The Four-Fifths Rule tells you the model is biased; it does not tell you <em>which feature</em> is causing it. See the <a href="proxy-variables.html">proxy variables explainer</a>.</p>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>The 80% rule is one of the few places where civil-rights law, statistics, and machine learning all agree on the same number. It was written in 1978 for paper-and-pen hiring tests; it applies word-for-word to a Random Forest classifier in 2026.</p>
 <p>That is what makes it useful as a deployment check: it is not a research metric. It is the metric that triggers an EEOC investigation, that survives the motion-to-dismiss stage of a Title VII lawsuit, and that procurement teams put in vendor contracts. If your hiring model fails it, you do not need a fairness expert to explain why that is a problem - the law has already explained it for you.</p>
 <p><strong>Run the 80% rule against every classifier that decides who gets a job, a loan, a lease, or an insurance policy. If it fails, you have a legal problem before you have a technical one.</strong></p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
-<h3 id="demographic-parity">Demographic Parity</h3>
+<h3 id="related-concepts">Related Concepts</h3>
+<h4 id="demographic-parity">Demographic Parity</h4>
 <p>Demographic Parity is the academic name for the same idea: equal positive prediction rates across groups. The 80% rule is its legal-threshold version. A model that achieves Demographic Parity automatically passes the Four-Fifths Rule. The reverse is not true - a model can pass the 80% rule with a ratio of 0.81 and still have a real disparity worth fixing.</p>
-<h3 id="equalized-odds">Equalized Odds</h3>
+<h4 id="equalized-odds">Equalized Odds</h4>
 <p>Equalized Odds checks equal <em>error rates</em> - true positives and false positives - across groups. Disparate Impact checks equal <em>selection rates</em>. These are different metrics and can conflict. A model can pass one and fail the other. See the <a href="equalized-odds.html">equalized-odds explainer</a>.</p>
-<h3 id="proxy-variables">Proxy Variables</h3>
+<h4 id="proxy-variables">Proxy Variables</h4>
 <p>Removing the protected attribute does not automatically fix disparate impact. Features that correlate with the protected attribute will reconstruct the bias. The COMPAS audit&#x27;s <code>CustodyStatus</code> and the German Credit audit&#x27;s <code>employment</code> tenure are both worked examples. See the <a href="proxy-variables.html">proxy-variables explainer</a>.</p>
-<h3 id="business-necessity-defense">Business Necessity Defense</h3>
+<h4 id="business-necessity-defense">Business Necessity Defense</h4>
 <p>Under Title VII, an employer that fails the 80% rule can still defend its selection process by proving it is &quot;job-related and consistent with business necessity.&quot; This is the legal counterweight to the Four-Fifths Rule and the reason the rule alone is not a complete fairness standard - courts weigh the disparity against the predictive validity of the selection process.</p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - the hiring audit this explainer is grounded in. Biased model fails the 80% rule (0.791); mitigated model passes (0.989).</li><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - same rule applied to criminal risk scoring. The biased COMPAS model has a Black-vs-White high-risk-flag ratio of 0.40 / 87.16 ≈ 0.005 - a catastrophic Four-Fifths Rule failure.</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - same rule applied to credit decisions. Useful contrast: the gap is smaller (7.16 pp) but still legally relevant under the Equal Credit Opportunity Act, which adopts a similar disparate-impact analysis.</li><li><a href="equalized-odds.html"><code>explainers/equalized-odds.md</code></a> - the error-rate counterpart to selection-rate fairness</li><li><a href="proxy-variables.html"><code>explainers/proxy-variables.md</code></a> - why models keep failing the 80% rule even after you drop the protected attribute</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.ecfr.gov/current/title-29/subtitle-B/chapter-XIV/part-1607" target="_blank" rel="noreferrer noopener">EEOC Uniform Guidelines on Employee Selection Procedures, 29 CFR Part 1607</a> - the source text of the Four-Fifths Rule (§1607.4(D))</li><li><a href="https://supreme.justia.com/cases/federal/us/401/424/" target="_blank" rel="noreferrer noopener"><em>Griggs v. Duke Power Co.</em>, 401 U.S. 424 (1971)</a> - the Supreme Court case establishing the disparate-impact doctrine</li><li><a href="https://www.californialawreview.org/print/2-big-datas-disparate-impact" target="_blank" rel="noreferrer noopener">Barocas &amp; Selbst (2016): <em>Big Data&#x27;s Disparate Impact</em>, 104 Calif. L. Rev. 671</a> - how the Four-Fifths Rule applies to algorithmic decision-making</li><li><a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova (2017): <em>Fair Prediction with Disparate Impact</em></a> - the impossibility result connecting disparate impact, calibration, and equalized odds</li><li><a href="https://fairlearn.org/main/user_guide/assessment/common_fairness_metrics.html" target="_blank" rel="noreferrer noopener">Fairlearn: <code>demographic_parity_ratio</code></a> - the library implementation used in the code snippet above</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

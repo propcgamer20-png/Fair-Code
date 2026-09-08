@@ -189,21 +189,21 @@
       <p class="explainer-lede">Understand the promise and difficulty of fairness definitions that focus on person-by-person consistency.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-individual-fairness">Explainer: What is Individual Fairness?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-individual-fairness">Explainer: What is Individual Fairness?</h2>
 <blockquote><p><em>Group fairness says the model treats groups equally. Individual fairness asks something harder: does it treat similar people similarly - regardless of which group they belong to?</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Individual Fairness</strong> is a fairness criterion that requires a model to produce similar predictions for individuals who are similar with respect to the task at hand - so that two people who are equally qualified, equally risky, or equally creditworthy receive equally favourable outcomes, regardless of demographic group membership.</p>
 <p>It was formalised by Dwork et al. (2012) as: <em>&quot;similar individuals should be treated similarly.&quot;</em></p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Every other fairness metric in this series - Demographic Parity, Equalized Odds, Disparate Impact - is a <em>group-level</em> measure. It asks whether two demographic populations receive equal treatment in aggregate. A model can pass every group-level fairness check and still discriminate against a specific individual, so long as that discrimination is consistent enough not to shift the group averages.</p>
 <p>Consider two candidates for the same role:</p>
 <ul><li><strong>Candidate A:</strong> 9 years of experience, technical test score 88 - rejected</li><li><strong>Candidate B:</strong> 9 years of experience, technical test score 88 - hired</li></ul>
 <p>The only meaningful difference is demographic group membership. Group-level metrics will not catch this. If the pattern is consistent - women with score 88 rejected, men with score 88 hired - the Demographic Parity ratio might still hover near 0.80 and pass the Four-Fifths Rule. The individual is still harmed.</p>
 <p>This is the gap individual fairness is designed to close: it operates at the level of the person, not the population.</p>
 <hr>
-<h2 id="the-formal-definition">The Formal Definition</h2>
+<h3 id="the-formal-definition">The Formal Definition</h3>
 <p>Dwork et al. formalise individual fairness using a <strong>task-specific similarity metric</strong> <code>d(x, y)</code> over individuals, and a <strong>distance metric</strong> <code>D(f(x), f(y))</code> over model outputs. The requirement is:</p>
 <pre><code>For any two individuals x and y:
 D(f(x), f(y)) ≤ L · d(x, y)</code></pre>
@@ -212,7 +212,7 @@ D(f(x), f(y)) ≤ L · d(x, y)</code></pre>
 <p>Plain English: if two people are close in the space of features that matter for the task, the model&#x27;s decisions about them should also be close. Demographic group membership - being in <code>d(x, y)</code> - should not expand the decision gap beyond what the task-relevant distance justifies.</p>
 <p>The key term is <strong>task-relevant</strong>. Individual fairness does not require treating everyone identically. It requires that differences in outcomes be proportional to differences in merit, risk, or qualification - and not inflated by demographic proxies.</p>
 <hr>
-<h2 id="concrete-example-ai-fair-recruitment">Concrete Example: AI Fair Recruitment</h2>
+<h3 id="concrete-example-ai-fair-recruitment">Concrete Example: AI Fair Recruitment</h3>
 <p>The <a href="../index.html#project-hiring"><code>AI Fair Recruitment</code></a> audit in this repo is a direct worked example of an individual fairness violation that group metrics partially miss.</p>
 <p>Two candidates matched on the merit features the fair model retains:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Feature</th><th>Candidate A (Female)</th><th>Candidate B (Male)</th></tr></thead><tbody><tr><td>Experience Years</td><td>8</td><td>8</td></tr><tr><td>Technical Test Score</td><td>84</td><td>84</td></tr><tr><td><strong>Biased model prediction</strong></td><td><strong>0 - rejected</strong></td><td><strong>1 - hired</strong></td></tr></tbody></table></div>
@@ -266,9 +266,9 @@ print(f&quot;Violation rate: {len(violations)/len(matched)*100:.1f}%&quot;)
 # Individual fairness violations: 31
 # Violation rate: 21.8% - over 1 in 5 identical profiles, different outcomes</code></pre>
 <hr>
-<h2 id="how-to-measure-it-in-python">How to Measure It in Python</h2>
+<h3 id="how-to-measure-it-in-python">How to Measure It in Python</h3>
 <p>Individual fairness has no single universal metric - it requires defining what &quot;similar&quot; means for the task. The three practical approaches are: matched-pair testing, Lipschitz testing, and consistency scoring.</p>
-<h3 id="1-matched-pair-consistency-test">1. Matched-pair consistency test</h3>
+<h4 id="1-matched-pair-consistency-test">1. Matched-pair consistency test</h4>
 <p>The most interpretable approach: find pairs of individuals who are identical (or very close) on task-relevant features and measure how often the model gives them different predictions.</p>
 <pre><code class="language-python">import pandas as pd
 from sklearn.metrics.pairwise import euclidean_distances
@@ -324,7 +324,7 @@ def individual_fairness_audit(
         &#x27;violation_rate&#x27;: round(len(violations) / total_similar_pairs, 3) if total_similar_pairs &gt; 0 else None,
         &#x27;examples&#x27;: violations[:5],  # first 5 for inspection
     }</code></pre>
-<h3 id="2-lipschitz-consistency-score-counterfactual-perturbation">2. Lipschitz consistency score (counterfactual perturbation)</h3>
+<h4 id="2-lipschitz-consistency-score-counterfactual-perturbation">2. Lipschitz consistency score (counterfactual perturbation)</h4>
 <p>This approach measures how much the model&#x27;s output changes when you make small, demographic-only changes to an individual&#x27;s record - keeping all task-relevant features fixed.</p>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
@@ -369,7 +369,7 @@ def lipschitz_consistency_score(model, X_test, group_col, other_group_val, featu
             &#x27;Acceptable individual fairness - predictions stable across group flip&#x27;
         ),
     }</code></pre>
-<h3 id="3-consistency-metric-zemel-et-al">3. Consistency metric (Zemel et al.)</h3>
+<h4 id="3-consistency-metric-zemel-et-al">3. Consistency metric (Zemel et al.)</h4>
 <p>The consistency metric from Zemel et al. (2013) formalises the matched-pair idea as a single number: for each individual, find their <em>k</em> nearest neighbours on task-relevant features and measure how often the model agrees with itself across the neighbourhood.</p>
 <pre><code class="language-python">import numpy as np
 from sklearn.neighbors import NearestNeighbors
@@ -416,13 +416,13 @@ def consistency_score(X, y_pred, feature_cols, k=5):
         ),
     }</code></pre>
 <hr>
-<h2 id="individual-fairness-vs-group-fairness">Individual Fairness vs. Group Fairness</h2>
+<h3 id="individual-fairness-vs-group-fairness">Individual Fairness vs. Group Fairness</h3>
 <p>The two families of fairness criteria are not alternatives - they are different questions with different failure modes.</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th></th><th><strong>Group Fairness</strong></th><th><strong>Individual Fairness</strong></th></tr></thead><tbody><tr><td><strong>Unit of analysis</strong></td><td>Demographic population</td><td>Specific individual</td></tr><tr><td><strong>Question</strong></td><td>Are outcomes equal across groups?</td><td>Are similar people treated similarly?</td></tr><tr><td><strong>Can be satisfied without the other?</strong></td><td>Yes</td><td>Yes</td></tr><tr><td><strong>Legal grounding</strong></td><td>Disparate Impact (Title VII)</td><td>Intentional discrimination, due process</td></tr><tr><td><strong>What it catches</strong></td><td>Systematic demographic gaps</td><td>Within-group and cross-group inconsistency</td></tr><tr><td><strong>What it misses</strong></td><td>Harm to specific individuals inside a passing aggregate</td><td>Whether the task-relevant similarity metric is itself fair</td></tr><tr><td><strong>Typical detection method</strong></td><td>Fairness ratio, MetricFrame</td><td>Matched-pair tests, consistency score, counterfactual probing</td></tr><tr><td><strong>Repair strategy</strong></td><td>Resampling, reweighting, post-processing constraints</td><td>Regularisation, fairness-aware representation learning</td></tr></tbody></table></div>
 <p>A model can pass Demographic Parity - equal hire rates across genders - while still systematically giving inconsistent decisions to matched pairs across groups. Equally, a model can achieve high individual consistency while producing aggregate outcome gaps if one group contains fewer high-merit individuals in the dataset (which may itself reflect historical bias, not ability).</p>
 <p>The two are complementary, not competing. A complete fairness audit runs both.</p>
 <hr>
-<h2 id="the-similarity-metric-problem">The Similarity Metric Problem</h2>
+<h3 id="the-similarity-metric-problem">The Similarity Metric Problem</h3>
 <p>Individual fairness has one foundational difficulty: the framework requires a <strong>task-specific similarity metric</strong> <code>d(x, y)</code>, and defining a fair one is not a technical problem - it is a normative one.</p>
 <p>Who decides that two people are &quot;similar enough&quot; to deserve similar treatment? The features included in <code>d</code> define what the task considers relevant. If the definition embeds a biased standard - for example, treating years-at-current-employer as a task-relevant merit signal when it structurally disadvantages career-changers and parents returning from leave - the individual fairness framework will certify those decisions as consistent, even though the similarity metric itself was discriminatory.</p>
 <pre><code class="language-python"># Similarity metric embeds the bias
@@ -439,40 +439,40 @@ d_fair = [&#x27;experience_years&#x27;, &#x27;technical_test_score&#x27;]
 # artifacts of a biased distance function.</code></pre>
 <p>This is not a flaw to be patched - it is the central normative question that individual fairness makes explicit: <em>what does it mean to be equally qualified for this task?</em> The answer requires domain expertise, stakeholder input, and legal grounding. It cannot be solved by optimising a loss function.</p>
 <hr>
-<h2 id="limitations-trade-offs">Limitations / Trade-offs</h2>
-<h3 id="defining-the-similarity-metric-requires-external-judgment">Defining the similarity metric requires external judgment</h3>
+<h3 id="limitations-trade-offs">Limitations / Trade-offs</h3>
+<h4 id="defining-the-similarity-metric-requires-external-judgment">Defining the similarity metric requires external judgment</h4>
 <p>The framework is only as fair as the task-relevant distance function. A biased similarity metric produces certified-consistent discrimination. There is no purely technical solution - the metric requires normative input from domain experts, affected communities, and legal frameworks.</p>
-<h3 id="it-can-conflict-with-group-fairness-when-base-rates-differ">It can conflict with group fairness when base rates differ</h3>
+<h4 id="it-can-conflict-with-group-fairness-when-base-rates-differ">It can conflict with group fairness when base rates differ</h4>
 <p>If the underlying population has different distributions of task-relevant features across groups - not because of bias, but because of genuine variation - strict individual fairness can produce demographic outcome gaps, and strict group fairness can require treating dissimilar individuals as similar. These are the same impossibility constraints documented in Chouldechova (2017) and Kleinberg et al. (2016). No single metric resolves them. See the <a href="fairness-metric-conflicts.html">fairness metric conflicts explainer</a>.</p>
-<h3 id="computational-cost-scales-with-dataset-size">Computational cost scales with dataset size</h3>
+<h4 id="computational-cost-scales-with-dataset-size">Computational cost scales with dataset size</h4>
 <p>The matched-pair audit and consistency score both require pairwise distance computation. On large datasets this becomes expensive. Approximate nearest-neighbour search (<code>sklearn.neighbors.NearestNeighbors</code> with <code>algorithm=&#x27;ball_tree&#x27;</code>) mitigates this at scale; exact exhaustive search is impractical above ~50,000 records.</p>
-<h3 id="consistency-does-not-imply-correctness">Consistency does not imply correctness</h3>
+<h4 id="consistency-does-not-imply-correctness">Consistency does not imply correctness</h4>
 <p>A model that rejects every applicant is perfectly consistent. A model that applies the same wrong standard uniformly satisfies individual fairness. Consistency is a necessary condition for fairness, not a sufficient one. It must be paired with accuracy, calibration, and group-level audits.</p>
-<h3 id="it-provides-weaker-legal-protection-than-group-metrics">It provides weaker legal protection than group metrics</h3>
+<h4 id="it-provides-weaker-legal-protection-than-group-metrics">It provides weaker legal protection than group metrics</h4>
 <p>Disparate Impact under Title VII and the EEOC&#x27;s Four-Fifths Rule are legally enforceable in the United States. Individual fairness as a technical criterion has no direct legal analogue - courts assess discrimination through statistical patterns across groups and through specific instances of disparate treatment. Individual fairness violation evidence can support a disparate treatment claim, but it does not automatically constitute one.</p>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>Group fairness and individual fairness are not rival frameworks. They are different lenses on the same underlying problem: a decision system that uses demographic signal - directly or through proxies - to produce unequal outcomes for people who deserve equal ones.</p>
 <p>Group metrics tell you that something is wrong at the population level. Individual fairness tells you exactly what that looks like for a specific person: they submitted the same credentials as someone else, and they received the opposite verdict.</p>
 <p>The combination is also what turns a bias audit into evidence. A Demographic Parity gap tells you there is a problem. Matched-pair violations tell you the mechanism. A defendant flagged as high-risk by COMPAS, whose criminal history profile is identical to a defendant flagged as low-risk, is not a statistical artifact - that is a person who can point to a specific instance of unequal treatment. Individual fairness makes that visible in the data.</p>
 <p><strong>The goal is not a model that treats groups equally in the aggregate. The goal is a model that gives the same answer to the same person regardless of which group that person belongs to. Group fairness is the aggregate consequence. Individual fairness is the standard.</strong></p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
-<h3 id="demographic-parity">Demographic Parity</h3>
+<h3 id="related-concepts">Related Concepts</h3>
+<h4 id="demographic-parity">Demographic Parity</h4>
 <p>Demographic Parity is the group-level counterpart: equal positive prediction rates across demographic groups. A model can satisfy Demographic Parity while failing individual fairness, and vice versa. The two are complementary, not interchangeable. See the <a href="demographic-parity.html">demographic parity explainer</a>.</p>
-<h3 id="disparate-treatment">Disparate Treatment</h3>
+<h4 id="disparate-treatment">Disparate Treatment</h4>
 <p>Disparate Treatment occurs when a protected attribute is a direct model input. Every instance of disparate treatment produces individual fairness violations - but individual fairness violations can occur even when the protected attribute is not in the feature set, if proxy variables reconstruct the same signal. See the <a href="disparate-treatment.html">disparate treatment explainer</a>.</p>
-<h3 id="proxy-variables">Proxy Variables</h3>
+<h4 id="proxy-variables">Proxy Variables</h4>
 <p>Proxy variables are the mechanism that produces individual fairness violations in models where the protected attribute itself has been removed. Two people identical on merit features may receive different outcomes because a correlated proxy carries the demographic signal through. See the <a href="proxy-variables.html">proxy variables explainer</a>.</p>
-<h3 id="fairness-metric-conflicts">Fairness Metric Conflicts</h3>
+<h4 id="fairness-metric-conflicts">Fairness Metric Conflicts</h4>
 <p>When base rates differ across demographic groups, there are provable mathematical incompatibilities between group-level and individual-level fairness criteria. Satisfying one can require violating another. See the <a href="fairness-metric-conflicts.html">fairness metric conflicts explainer</a>.</p>
-<h3 id="counterfactual-fairness">Counterfactual Fairness</h3>
+<h4 id="counterfactual-fairness">Counterfactual Fairness</h4>
 <p>Counterfactual fairness (Kusner et al., 2017) is a closely related criterion: a model is counterfactually fair if its predictions would be the same had the individual belonged to a different demographic group, holding all causally independent factors constant. Individual fairness asks whether similar people receive similar treatment in the observed data; counterfactual fairness asks whether the same person would receive the same treatment in a counterfactual world where they belong to a different group. The two are complementary; individual fairness is easier to measure empirically, counterfactual fairness requires a causal graph.</p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - the clearest worked example: the biased model produces matched-pair violations at a rate of ~21% across identical merit profiles. The fair model collapses this to near zero.</li><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - individual fairness violations are embedded in the dataset: defendants with identical prior-record profiles receive different risk scores depending on race. The 86.77pp group gap is the aggregate signature of those individual violations.</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - age used as a direct feature produces individual fairness violations for young applicants whose credit profiles are identical to older applicants rated good.</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1104.3913" target="_blank" rel="noreferrer noopener">Dwork et al. (2012): <em>Fairness Through Awareness</em>, ITCS 2012</a> - the paper that formalised individual fairness and introduced the Lipschitz condition</li><li><a href="https://proceedings.mlr.press/v28/zemel13.html" target="_blank" rel="noreferrer noopener">Zemel et al. (2013): <em>Learning Fair Representations</em>, ICML 2013</a> - introduces the consistency metric used in the detection code above</li><li><a href="https://arxiv.org/abs/1703.06856" target="_blank" rel="noreferrer noopener">Kusner et al. (2017): <em>Counterfactual Fairness</em>, NeurIPS 2017</a> - counterfactual fairness as an individual-level causal complement to the Dwork framework</li><li><a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova (2017): <em>Fair Prediction with Disparate Impact</em></a> - the impossibility result showing where individual and group fairness conflict when base rates differ</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

@@ -190,21 +190,21 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>A model can rank a random high-risk person above a random low-risk one about 68 times out of 100 - a perfectly ordinary score by the usual benchmark - and still send the wrong people to jail, and do it unevenly across race. AUC measures the ranking. It says nothing about where you draw the line, or who pays when the line is in the wrong place.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>A ROC curve</strong> plots a binary classifier&#x27;s true positive rate against its false positive rate at every possible decision threshold, and <strong>AUC</strong> - the area under that curve - collapses the whole curve into one number: the probability that the model gives a randomly chosen positive case a higher score than a randomly chosen negative one. It is a threshold-free measure of <em>ranking</em> quality, which is exactly why it can look reassuring while hiding the two things fairness depends on - where you set the threshold, and whether the ranking is equally good for every group.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>AUC is the single number that ends up on the model card, in the paper&#x27;s abstract, and in the slide that gets the project approved. It earns that spot honestly: it does not depend on an arbitrary threshold, it is not fooled by class imbalance the way raw accuracy is, and it summarizes performance across every operating point at once. For comparing two models in the abstract, it is a reasonable first pass.</p>
 <p>For deciding whether a model is <em>fair</em>, it is close to useless on its own, for three reasons.</p>
 <p>First, AUC is <strong>aggregate over the whole population</strong>. It is a single average of ranking quality, and an average can stay high while a minority subgroup&#x27;s ranking quality is much worse. A model with an overall AUC of 0.85 can quietly be a 0.87 ranker for the majority group and a 0.68 ranker for a smaller one - and nobody deploying on the headline number would ever know.</p>
 <p>Second, AUC is <strong>threshold-free, but harm is not</strong>. Real systems do not deploy a curve; they deploy a single threshold, and every actual decision - bail granted, claim denied, patient flagged - happens at that one point. Two models with identical AUC can behave completely differently at the threshold you ship, one spreading its false positives evenly and the other concentrating them in one group. AUC integrates over all thresholds precisely so it can ignore the one you chose.</p>
 <p>Third, AUC <strong>ignores calibration</strong>. It only cares about the <em>order</em> of the scores, not their values. A model can rank cases perfectly and still assign scores that mean different things for different groups - see <a href="calibration.html">Calibration</a> - and AUC will happily report a high number either way.</p>
-<h2 id="reading-a-roc-curve">Reading a ROC Curve</h2>
+<h3 id="reading-a-roc-curve">Reading a ROC Curve</h3>
 <p>Every point on a ROC curve is one threshold. As you sweep the threshold from strict to lenient, you trace the curve from the bottom-left to the top-right:</p>
 <ul><li>The <strong>y-axis is the true positive rate</strong> (sensitivity, recall) - of the people who really are positive, what fraction did the model catch.</li><li>The <strong>x-axis is the false positive rate</strong> (1 - specificity) - of the people who really are negative, what fraction did the model wrongly flag.</li><li>The <strong>diagonal line</strong> from corner to corner is a coin flip: AUC 0.5, no ranking ability at all.</li><li>The <strong>top-left corner</strong> is a perfect classifier: every positive caught, no negatives flagged, AUC 1.0.</li></ul>
 <p>A curve that bows toward the top-left is a better ranker. The area underneath it is the AUC.</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>AUC</th><th>Rough interpretation</th></tr></thead><tbody><tr><td>0.5</td><td>No better than random guessing</td></tr><tr><td>0.6 - 0.7</td><td>Weak - only slightly better than a coin flip</td></tr><tr><td>0.7 - 0.8</td><td>Acceptable for many applied settings</td></tr><tr><td>0.8 - 0.9</td><td>Strong ranking ability</td></tr><tr><td>&gt; 0.9</td><td>Excellent - or a sign of data leakage, worth checking</td></tr></tbody></table></div>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>What AUC tells you</th><th>What AUC does not tell you</th></tr></thead><tbody><tr><td>How well the model <em>orders</em> cases by risk</td><td>Where you should set the decision threshold</td></tr><tr><td>A threshold-independent summary of ranking</td><td>How the model behaves at the threshold you deploy</td></tr><tr><td>One number to compare models at a glance</td><td>Whether ranking quality is equal across groups</td></tr><tr><td>Robustness to class imbalance</td><td>Whether the scores are calibrated or comparable between groups</td></tr></tbody></table></div>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>Audit 01 in this repo reproduces the COMPAS recidivism model on the ProPublica dataset (3,254 test records), with race as the protected attribute. Its baseline models are ordinary, unremarkable rankers: the logistic-regression baseline lands at an <strong>AUC of 0.68</strong>, and the random forest at <strong>0.69</strong> (frozen figures from <code>paper/results-frozen/summary.csv</code> and <code>results_performance.csv</code>).</p>
 <p>That number sits squarely in the &quot;weak&quot; band - the model barely out-ranks a coin flip. But the documented harm in COMPAS was never really about <em>overall</em> ranking quality. It was about what happened at the operating threshold: Black defendants who did not go on to reoffend were labeled high-risk at nearly twice the rate of comparable white defendants. That is a false-positive-rate gap - a single point on the ROC curve, read separately for each group - and the aggregate AUC of 0.68 averages straight over it.</p>
 <p>Plot a separate ROC curve for each group and the story changes. The two curves can diverge, and even when their <em>areas</em> are similar, the groups can sit at very different points along their own curves at one shared threshold. Neither of those facts is visible in a single pooled AUC:</p>
@@ -215,7 +215,7 @@
 # Black  0.66  1454
 # gap    0.03   NaN</code></pre>
 <p>This is illustrative output, not a published result of Audit 01, but it shows the trap: a small AUC gap (here 3 points) can look benign while a large false-positive-rate gap hides underneath it at the deployed threshold. AUC is the wrong instrument for that question - you need a per-group, per-threshold view, which is what <a href="equalized-odds.html">Equalized Odds</a> formalizes.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>Computes AUC within each group (so a low-AUC subgroup cannot hide inside a high overall number), and returns the per-group ROC points so you can overlay the curves and see where they diverge.</p>
 <pre><code class="language-python">import numpy as np
 import pandas as pd
@@ -268,20 +268,20 @@ def group_roc_points(df, y_true_col, y_score_col, group_col):
 # Usage example
 # gaps = per_group_auc(compas_df, &quot;two_year_recid&quot;, &quot;risk_score&quot;, &quot;race&quot;)
 # curves = group_roc_points(compas_df, &quot;two_year_recid&quot;, &quot;risk_score&quot;, &quot;race&quot;)</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-auc-is-threshold-free-but-every-deployed-decision-is-not">1. AUC is threshold-free, but every deployed decision is not</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-auc-is-threshold-free-but-every-deployed-decision-is-not">1. AUC is threshold-free, but every deployed decision is not</h4>
 <p>AUC deliberately averages over all thresholds. The moment you ship a model you pick exactly one, and all real harm accrues there. Report the false positive and false negative rates <em>at your operating threshold</em>, by group, alongside any AUC - never instead of it.</p>
-<h3 id="2-a-high-overall-auc-can-hide-a-low-subgroup-auc">2. A high overall AUC can hide a low subgroup AUC</h3>
+<h4 id="2-a-high-overall-auc-can-hide-a-low-subgroup-auc">2. A high overall AUC can hide a low subgroup AUC</h4>
 <p>A pooled AUC is a population average weighted by group size, so a small group with poor ranking quality barely moves it. Always compute AUC within each group, and treat a wide per-group gap as a signal to investigate, not a rounding error.</p>
-<h3 id="3-small-groups-make-per-group-auc-noisy">3. Small groups make per-group AUC noisy</h3>
+<h4 id="3-small-groups-make-per-group-auc-noisy">3. Small groups make per-group AUC noisy</h4>
 <p>An AUC computed on a few hundred cases has a wide confidence interval, and a group with only one class present has no AUC at all. Report subgroup sizes next to the rates, and bootstrap a confidence interval before calling a gap real.</p>
-<h3 id="4-equal-auc-across-groups-is-not-fairness">4. Equal AUC across groups is not fairness</h3>
+<h4 id="4-equal-auc-across-groups-is-not-fairness">4. Equal AUC across groups is not fairness</h4>
 <p>Two groups can have identical AUCs and still be treated unequally: same ranking quality, but a single threshold lands at a high-false-positive point for one group and a low one for the other. Equal ranking quality does not imply equal errors, equal calibration, or equal outcomes.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="false-positives-vs-false-negatives.html">False Positives vs. False Negatives in Medical Risk Models</a> - what actually happens at the single threshold AUC averages over, and why the two error types are rarely equally costly.</li><li><a href="equalized-odds.html">Equalized Odds</a> - the fairness metric that reads the ROC curve per group, requiring equal true positive <em>and</em> false positive rates instead of just equal area.</li><li><a href="calibration.html">Calibration</a> - why AUC&#x27;s blindness to the actual score values lets a well-ranked model still mean different things for different groups.</li><li><a href="predictive-parity.html">What Is Predictive Parity?</a> - the COMPAS dispute in full, where two defensible error-based definitions of fairness could not both hold at once.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the recidivism audit behind the concrete example above, where a middling AUC coexisted with a large racial false-positive gap.</li><li><a href="../index.html#project-insurance"><code>Insurance Denial/</code></a> - a health-adjacent audit where the threshold you pick on the ROC curve decides who gets a claim wrongly denied versus wrongly paid.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.sciencedirect.com/science/article/abs/pii/S016786550500303X" target="_blank" rel="noreferrer noopener">Fawcett, T. (2006): An Introduction to ROC Analysis</a> - the standard practical reference for reading ROC curves and the exact meaning of AUC.</li><li><a href="https://pubs.rsna.org/doi/10.1148/radiology.143.1.7063747" target="_blank" rel="noreferrer noopener">Hanley, J.A., McNeil, B.J. (1982): The Meaning and Use of the Area Under a ROC Curve</a> - the paper that established AUC&#x27;s probabilistic interpretation as the ranking probability.</li><li><a href="https://fairmlbook.org/classification.html" target="_blank" rel="noreferrer noopener">Barocas, S., Hardt, M., Narayanan, A. (2019): <em>Fairness and Machine Learning</em></a> - the classification chapter connects ROC geometry directly to group fairness criteria, showing why a single threshold on one shared curve cannot satisfy them all when base rates differ.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

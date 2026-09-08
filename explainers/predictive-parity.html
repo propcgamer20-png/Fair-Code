@@ -189,21 +189,21 @@
       <p class="explainer-lede">Learn why Positive Predictive Value equal across groups is a real fairness property, and why the 2016 ProPublica vs Northpointe COMPAS dispute shows it can hold while one group absorbs a much higher false-positive rate.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="what-is-predictive-parity">What Is Predictive Parity?</h1>
+    <article class="explainer-content"><h2 id="what-is-predictive-parity">What Is Predictive Parity?</h2>
 <blockquote><p><em>COMPAS&#x27;s defenders and its critics ran fairness checks on the same defendants and reached opposite verdicts - because predictive parity and equalized odds are both legitimate, and when base rates differ, they mathematically cannot both hold.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Predictive parity</strong> is satisfied when the Positive Predictive Value, the share of positively-flagged cases that are actually positive, is equal across groups, so a &quot;high risk&quot; label carries the same real-world meaning no matter who receives it.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Algorithmic risk scores decide who gets held before trial, whose insurance claim gets flagged for review, and whose loan application gets extra scrutiny. Over 1M+ people are assessed by COMPAS-style recidivism tools every year, and 46 US states have used one in criminal sentencing. When a vendor says a &quot;high risk&quot; flag is trustworthy, predictive parity is usually the claim being made: given the flag, the predicted outcome holds up at the same rate for every group.</p>
 <p>The non-obvious part is that &quot;trustworthy for everyone&quot; is not the same fairness property as &quot;fair to everyone.&quot; A score can satisfy predictive parity perfectly and still send one group to jail on false pretenses far more often than another. Which group bears that cost depends on the false positive rate, a completely different metric, and the two cannot both be balanced unless the underlying base rates already match.</p>
-<h2 id="predictive-parity-vs-equalized-odds">Predictive Parity vs Equalized Odds</h2>
+<h3 id="predictive-parity-vs-equalized-odds">Predictive Parity vs Equalized Odds</h3>
 <p>Predictive parity is a <strong>sufficiency</strong> metric: it conditions on the <em>prediction</em> and asks whether that prediction means the same thing across groups. Equalized Odds (see <a href="equalized-odds.html">explainers/equalized-odds.md</a>) is a <strong>separation</strong> metric: it conditions on the <em>true outcome</em> and asks whether error rates match.</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Metric</th><th>Conditions on</th><th>Question it asks</th></tr></thead><tbody><tr><td>Demographic Parity</td><td>nothing (prior)</td><td>Are positive predictions handed out at the same rate?</td></tr><tr><td>Equalized Odds</td><td>true label</td><td>Given the actual outcome, are error rates equal?</td></tr><tr><td>Predictive Parity</td><td>predicted label</td><td>Given a positive prediction, is it equally trustworthy?</td></tr></tbody></table></div>
 <pre><code>PPV(group) = TP(group) / (TP(group) + FP(group))
 
 Predictive Parity holds when:  PPV(group a) ≈ PPV(group b)</code></pre>
 <p>Chouldechova (2017) proved the mechanism algebraically: if predictive parity holds but the base rate of the outcome differs between two groups, the false positive rate and false negative rate cannot be equal across those same groups. It is not a modeling flaw. It is an identity that follows directly from the definitions once base rates diverge.</p>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>The <a href="../index.html#project-compas">COMPAS</a> audit in this repo uses the same ProPublica recidivism dataset at the center of the 2016 &quot;Machine Bias&quot; investigation, where race is the protected attribute and the target is two-year re-offense.</p>
 <p>ProPublica and Northpointe (COMPAS&#x27;s vendor) checked different fairness criteria on that dataset and both were internally correct. ProPublica&#x27;s reading, an error-rate check, found the false positive rate for Black defendants was roughly double that of white defendants: Black defendants who did not reoffend were flagged high-risk far more often. Northpointe&#x27;s reading, a predictive-parity check, found PPV was close across race: a &quot;high risk&quot; label corresponded to actual reoffending at a similar rate for both groups. Northpointe presented that second result as proof the tool was not biased.</p>
 <pre><code class="language-python"># Approximating each side&#x27;s check on a COMPAS-style dataframe
@@ -213,7 +213,7 @@ ppv_by_race, gap = predictive_parity_gap(
     compas, y_true=&quot;two_year_recid&quot;, y_pred=&quot;flagged_high_risk&quot;, group_col=&quot;race&quot;
 )</code></pre>
 <p>Both readings are correct and both cannot hold simultaneously once the two racial groups in the dataset have different recidivism base rates, which they do. Satisfying predictive parity here did nothing to close the false-positive gap ProPublica measured; the two metrics were trading off against each other the entire time, exactly as Chouldechova&#x27;s proof predicts.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>Compute Positive Predictive Value per group, then pair it with a base-rate check, since a small PPV gap next to a large base-rate gap is the signature Chouldechova identified.</p>
 <pre><code class="language-python">import pandas as pd
 
@@ -267,20 +267,20 @@ def base_rate_gap(df: pd.DataFrame, y_true: str, group_col: str):
 # Usage example
 # predictive_parity_gap(compas_df, y_true=&quot;two_year_recid&quot;, y_pred=&quot;flagged_high_risk&quot;, group_col=&quot;race&quot;)
 # base_rate_gap(compas_df, y_true=&quot;two_year_recid&quot;, group_col=&quot;race&quot;)</code></pre>
-<h2 id="limitations-and-trade-offs">Limitations and Trade-offs</h2>
-<h3 id="1-it-cannot-be-satisfied-alongside-equalized-odds-when-base-rates-differ">1. It cannot be satisfied alongside Equalized Odds when base rates differ</h3>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-it-cannot-be-satisfied-alongside-equalized-odds-when-base-rates-differ">1. It cannot be satisfied alongside Equalized Odds when base rates differ</h4>
 <p>This is not a modeling choice, it is Chouldechova&#x27;s impossibility result. If your domain has meaningfully different base rates across groups, you have to pick which metric to optimize for and be explicit about why.</p>
-<h3 id="2-a-close-ppv-does-not-mean-the-harm-is-evenly-distributed">2. A close PPV does not mean the harm is evenly distributed</h3>
+<h4 id="2-a-close-ppv-does-not-mean-the-harm-is-evenly-distributed">2. A close PPV does not mean the harm is evenly distributed</h4>
 <p>As the COMPAS case shows, predictive parity can hold while one group absorbs a much larger false-positive rate. Reporting PPV alone, without the accompanying false-positive and false-negative rates, can make a system look fairer than the people affected by it actually experience.</p>
-<h3 id="3-small-subgroups-produce-noisy-ppv-estimates">3. Small subgroups produce noisy PPV estimates</h3>
+<h4 id="3-small-subgroups-produce-noisy-ppv-estimates">3. Small subgroups produce noisy PPV estimates</h4>
 <p>PPV is computed only over the positively-predicted subset. If a group is small or rarely flagged positive, the denominator shrinks and the estimate becomes unstable. A large-looking gap in a small subgroup may be sampling noise rather than a real disparity, and a small gap can hide real disparity in a subgroup too small to measure reliably.</p>
-<h3 id="4-it-says-nothing-about-where-the-threshold-is-set">4. It says nothing about where the threshold is set</h3>
+<h4 id="4-it-says-nothing-about-where-the-threshold-is-set">4. It says nothing about where the threshold is set</h4>
 <p>Predictive parity is a property of the decision threshold that produced the predictions, not a property of the underlying score. Moving the threshold up or down can shift PPV without changing whether the underlying risk score itself is fair, so a system can be re-tuned to pass a predictive-parity check without addressing the base-rate disparity driving it.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="equalized-odds.html">What is Equalized Odds?</a> - the error-rate metric predictive parity trades off against once base rates diverge.</li><li><a href="demographic-parity.html">What is Demographic Parity?</a> - the simpler, prior-only metric that ignores ground truth entirely, unlike predictive parity&#x27;s reliance on it.</li><li><a href="fairness-metric-conflicts.html">Why Fairness Metrics Conflict</a> - the full impossibility-theorem write-up that this explainer&#x27;s COMPAS case is a worked instance of.</li><li><a href="disparate-impact.html">What is Disparate Impact?</a> - a rate-based legal threshold that, like predictive parity, can be satisfied while a different fairness property is violated.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the audit built on the same ProPublica dataset behind the real-world predictive-parity dispute described above.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noreferrer noopener">Angwin, J. et al. (2016): Machine Bias</a> - the original ProPublica investigation that surfaced the COMPAS false-positive disparity.</li><li><a href="https://arxiv.org/abs/1610.07524" target="_blank" rel="noreferrer noopener">Chouldechova, A. (2017): Fair Prediction with Disparate Impact</a> - the algebraic proof that predictive parity and error-rate balance conflict when base rates differ.</li><li><a href="https://arxiv.org/pdf/1609.05807" target="_blank" rel="noreferrer noopener">Kleinberg, J., Mullainathan, S., Raghavan, M. (2017): Inherent Trade-Offs in the Fair Determination of Risk Scores, ITCS 2017</a> - an independent impossibility result reaching the same conclusion via a different route.</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

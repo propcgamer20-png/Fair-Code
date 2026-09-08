@@ -190,23 +190,23 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>A model can pass Equal Opportunity - catching qualified people from every group at the same rate - while still falsely flagging one group&#x27;s innocent members far more often than another&#x27;s. Equal Opportunity only checks half of what Equalized Odds checks, and which half turns out to matter a lot.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Equal Opportunity</strong> requires a model&#x27;s true positive rate - among people who actually belong to the positive class, the fraction it correctly flags - to be equal across protected groups, and nothing more; it is the deliberately relaxed half of <a href="equalized-odds.html">Equalized Odds</a>, which requires that <em>and</em> an equal false positive rate.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Equal Opportunity was introduced by Hardt, Price, and Srebro (2016) as a practical compromise: full Equalized Odds can be hard to satisfy exactly, and in settings where missing a qualified person is the harm that matters most - a denied loan to someone who would have repaid it, a screened-out tenant who would have been a good renter - checking only the true positive rate targets that harm directly.</p>
 <p>The trade-off is exactly what it sounds like: Equal Opportunity says nothing about false positives. A model can hit identical true positive rates across groups while flagging one group&#x27;s <em>qualified-to-reject</em> members - people who genuinely wouldn&#x27;t repay, wouldn&#x27;t reoffend, wouldn&#x27;t default - at a much higher rate than another&#x27;s. Equal Opportunity would call that model fair. Equalized Odds would not.</p>
 <p>Because Equalized Odds is defined as whichever gap (true positive rate or false positive rate) is larger, it is mathematically never smaller than Equal Opportunity&#x27;s gap - it can only be equal to it or bigger. Equal Opportunity is a floor, not a ceiling: passing it tells you the true-positive-rate gap is small, but tells you nothing about how large the false-positive-rate gap might be hiding underneath.</p>
-<h2 id="concrete-example">Concrete Example</h2>
+<h3 id="concrete-example">Concrete Example</h3>
 <p>Both real audits below use <code>equal_opportunity_diff</code> and <code>equalized_odds_diff</code> exactly as computed by this repo&#x27;s frozen benchmark harness (<code>paper/results-frozen/results_fairness.csv</code>), baseline model, no mitigation applied.</p>
-<h3 id="when-they-coincide-compas-audit-01">When They Coincide: COMPAS - Audit 01</h3>
+<h4 id="when-they-coincide-compas-audit-01">When They Coincide: COMPAS - Audit 01</h4>
 <p>For the logistic regression baseline on race (disadvantaged: African-American defendants, n=1,048; advantaged: Caucasian defendants, n=467):</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Metric</th><th>Value</th><th>95% CI</th><th>p-value</th></tr></thead><tbody><tr><td>Equal Opportunity Diff</td><td>0.926</td><td>[0.909, 0.942]</td><td>0.0</td></tr><tr><td>Equalized Odds Diff</td><td>0.926</td><td>[0.909, 0.942]</td><td>0.0</td></tr></tbody></table></div>
 <p>The two numbers are identical here, and the frozen results record exactly why: <code>equalized_odds_diff</code>&#x27;s own definition is <code>max(|TPR gap|, |FPR gap|)</code>, and its <code>note</code> field for this row reads <code>driven_by_tpr_gap</code> - meaning the true-positive-rate gap (what Equal Opportunity measures) was the larger of the two, so Equalized Odds simply inherited it. Nothing was hidden in the false-positive-rate gap this time.</p>
-<h3 id="when-they-diverge-tenant-screening-audit-07">When They Diverge: Tenant Screening - Audit 07</h3>
+<h4 id="when-they-diverge-tenant-screening-audit-07">When They Diverge: Tenant Screening - Audit 07</h4>
 <p>For the same baseline model on race (disadvantaged: Black applicants; advantaged: White applicants):</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Metric</th><th>Value</th><th>95% CI</th><th>p-value</th><th>Driven by</th></tr></thead><tbody><tr><td>Equal Opportunity Diff</td><td>0.047</td><td>[0.018, 0.077]</td><td>0.0025</td><td>-</td></tr><tr><td>Equalized Odds Diff</td><td>0.068</td><td>[0.023, 0.111]</td><td>0.0025</td><td>false positive rate</td></tr></tbody></table></div>
 <p>Here they disagree. A screening process relying only on Equal Opportunity would report a modest 4.7-point gap and move on. The real, larger disparity - a 6.8-point false-positive-rate gap, meaning qualified-to-reject Black applicants are screened out at a meaningfully higher excess rate than qualified-to-reject White applicants - only shows up once Equalized Odds is checked. This is the exact failure mode Equal Opportunity&#x27;s relaxation accepts: it was never designed to catch it.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>Computes both metrics side by side so a gap between them is visible immediately, rather than computing Equal Opportunity alone and never finding out what it left unchecked.</p>
 <pre><code class="language-python">import numpy as np
 import pandas as pd
@@ -258,20 +258,20 @@ def equal_opportunity_and_equalized_odds(y_true, y_pred, group, disadvantaged, a
 #     y_true, y_pred, df[&quot;race&quot;], disadvantaged=&quot;Black&quot;, advantaged=&quot;White&quot;,
 # )
 # print(result)</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-a-close-to-zero-equal-opportunity-gap-proves-nothing-about-false-positives">1. A close-to-zero Equal Opportunity gap proves nothing about false positives</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-a-close-to-zero-equal-opportunity-gap-proves-nothing-about-false-positives">1. A close-to-zero Equal Opportunity gap proves nothing about false positives</h4>
 <p>As Tenant Screening shows above, a small true-positive-rate gap can sit right next to a meaningfully larger false-positive-rate gap. Report both numbers, or report Equalized Odds directly, rather than Equal Opportunity alone.</p>
-<h3 id="2-it-still-depends-on-a-clean-ground-truth-label">2. It still depends on a clean ground-truth label</h3>
+<h4 id="2-it-still-depends-on-a-clean-ground-truth-label">2. It still depends on a clean ground-truth label</h4>
 <p>Equal Opportunity, like Equalized Odds, is computed against <code>y_true</code> - if the label itself encodes historical bias (a past lending decision, a past arrest), the &quot;true positive rate&quot; it equalizes is a rate against a biased target, not against who genuinely deserved the outcome. See <a href="label-bias.html">What Is Label Bias?</a>.</p>
-<h3 id="3-choosing-equal-opportunity-over-equalized-odds-is-a-values-decision-not-a-technical-one">3. Choosing Equal Opportunity over Equalized Odds is a values decision, not a technical one</h3>
+<h4 id="3-choosing-equal-opportunity-over-equalized-odds-is-a-values-decision-not-a-technical-one">3. Choosing Equal Opportunity over Equalized Odds is a values decision, not a technical one</h4>
 <p>Relaxing the false-positive-rate requirement is only defensible when false negatives are agreed to be the more serious harm for that specific system. That is not universally true - a wrongly denied benefits claim (false negative) and a wrongly approved fraudulent one (false positive) do not carry the same weight in every domain, and the choice of which fairness definition to enforce should be made explicitly, not by default.</p>
-<h3 id="4-small-subgroups-make-both-gaps-noisy">4. Small subgroups make both gaps noisy</h3>
+<h4 id="4-small-subgroups-make-both-gaps-noisy">4. Small subgroups make both gaps noisy</h4>
 <p>The true-positive-rate gap is estimated only from rows where <code>y_true == 1</code>; for a rare positive class in a small subgroup, that can be a handful of rows. Always report the underlying <code>n</code> per group alongside the gap, and bootstrap a confidence interval before treating a difference as real.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="equalized-odds.html">What Is Equalized Odds?</a> - the stricter metric Equal Opportunity relaxes, and the one that catches what Equal Opportunity alone cannot.</li><li><a href="false-positives-vs-false-negatives.html">False Positives vs. False Negatives in Medical Risk Models</a> - the per-threshold trade-off between the two error types Equal Opportunity and Equalized Odds split apart.</li><li><a href="demographic-parity.html">What Is Demographic Parity?</a> - a fairness definition that ignores ground truth entirely, unlike Equal Opportunity and Equalized Odds which both condition on it.</li><li><a href="label-bias.html">What Is Label Bias?</a> - why the &quot;true&quot; in true positive rate is only as trustworthy as the label it&#x27;s measured against.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the audit where Equal Opportunity and Equalized Odds coincide, because the true-positive-rate gap dominates.</li><li><a href="../index.html#project-tenant"><code>Tenant Screening/</code></a> - the audit where they diverge, because the false-positive-rate gap is actually the larger one.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1610.02413" target="_blank" rel="noreferrer noopener">Hardt, M., Price, E., Srebro, N. (2016): Equality of Opportunity in Supervised Learning</a> - the paper that introduced Equal Opportunity as a relaxation of Equalized Odds.</li><li><a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova, A. (2017): Fair Prediction with Disparate Impact</a> - the impossibility result underlying why relaxations like Equal Opportunity exist in the first place.</li><li><a href="https://fairmlbook.org/classification.html" target="_blank" rel="noreferrer noopener">Barocas, S., Hardt, M., Narayanan, A. (2019): <em>Fairness and Machine Learning</em></a> - situates Equal Opportunity among the full family of classification-based fairness criteria.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

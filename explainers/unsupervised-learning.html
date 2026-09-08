@@ -190,15 +190,15 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>Nobody told the algorithm to sort people by sex. It found the split on its own, because the split was already sitting in the data.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Unsupervised learning</strong> finds structure, clusters, patterns, or compressed representations, in unlabelled data, letting the algorithm organise it without being told what to look for.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Every audit elsewhere in this repo starts from a label: hired or not, good credit or bad, high-risk or low-risk. Unsupervised learning removes that label entirely. There is no ground truth to check the output against, no <code>y</code> to hold out and score against. That absence is exactly what makes it risky in a fairness context: a clustering algorithm cannot discriminate against a group &quot;on purpose,&quot; because it has no concept of groups to begin with, yet it can still sort people along demographic lines as a side effect of sorting them by whatever features it was given. The insurance industry&#x27;s use of ZIP-code clustering for pricing is the standard real-world case: nobody fed the model race, but ZIP code carries enough historical residential-segregation signal that the resulting clusters tracked race anyway, a pattern examined in ProPublica&#x27;s investigative reporting and by state insurance regulators.</p>
 <p>The non-obvious part is that this happens even when the fields most obviously tied to a protected attribute are excluded. Clustering only needs <em>some</em> subset of features to correlate with a protected group, not all of them, for the resulting structure to double as a demographic split.</p>
-<h2 id="how-it-works">How It Works</h2>
-<h3 id="structure-without-a-target">Structure Without a Target</h3>
+<h3 id="how-it-works">How It Works</h3>
+<h4 id="structure-without-a-target">Structure Without a Target</h4>
 <p>A supervised model is handed <code>(features, label)</code> pairs and learns a function from one to the other. An unsupervised model is handed features only. K-means, the clustering algorithm used below, works by placing <code>k</code> centroids in feature space and iteratively assigning each row to its nearest centroid, then moving each centroid to the mean of the rows assigned to it, repeating until assignments stop changing. Nothing in that loop references sex, race, or any other protected attribute. It only minimises distance in whatever feature space it was given.</p>
-<h3 id="walking-through-the-clustering-code">Walking Through the Clustering Code</h3>
+<h4 id="walking-through-the-clustering-code">Walking Through the Clustering Code</h4>
 <p>The Benefits Denial audit&#x27;s <code>unfair.py</code> already identified <code>relationship</code> and <code>marital.status</code> as near-perfect proxies for sex (<code>Husband</code> is 0% female, <code>Wife</code> is 0% male; married applicants skew heavily male). Running k-means on a feature set that includes those columns, but excludes <code>sex</code>, <code>race</code>, and <code>native.country</code> outright, shows the same proxy effect appearing without supervision:</p>
 <pre><code class="language-python">from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
@@ -212,12 +212,12 @@ Xs = StandardScaler().fit_transform(X)
 km = KMeans(n_clusters=2, random_state=42, n_init=10)
 df[&#x27;cluster&#x27;] = km.fit_predict(Xs)</code></pre>
 <p><code>sex</code>, <code>race</code>, and <code>native.country</code> never appear in <code>feature_cols</code>. The clustering step has no way to &quot;see&quot; them. Whatever split it produces has to come entirely from the other nine columns.</p>
-<h2 id="concrete-example-benefits-denial-audit-04">Concrete Example: Benefits Denial - Audit 04</h2>
+<h3 id="concrete-example-benefits-denial-audit-04">Concrete Example: Benefits Denial - Audit 04</h3>
 <p>Running the code above on the UCI Adult Census Income dataset (32,561 records, the same file the Benefits Denial audit trains on) produces two clusters of size 17,680 and 14,881. Neither <code>sex</code>, <code>race</code>, nor <code>native.country</code> was part of the clustering input, so the composition of each cluster along those attributes was checked after the fact, not fed in beforehand:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th></th><th>Cluster 0 (n=17,680)</th><th>Cluster 1 (n=14,881)</th></tr></thead><tbody><tr><td>Female</td><td>51.9%</td><td>10.7%</td></tr><tr><td>Male</td><td>48.1%</td><td>89.3%</td></tr><tr><td>Black</td><td>13.0%</td><td>5.6%</td></tr><tr><td>White</td><td>81.9%</td><td>89.6%</td></tr><tr><td>Foreign-born</td><td>10.2%</td><td>10.7%</td></tr></tbody></table></div>
 <p>Cluster 1 is 89.3% male against cluster 0&#x27;s near-even split, and Black applicants appear at more than double the rate in cluster 0 versus cluster 1. Nobody asked the algorithm to separate applicants by sex or race. It separated them by <code>relationship</code>, <code>marital.status</code>, <code>occupation</code>, and <code>hours.per.week</code>, and a sex and race split came out the other side as a side effect, exactly the mechanism <a href="proxy-variables.html">What Is a Proxy Variable?</a> describes for supervised models, now showing up with no label in sight.</p>
 <p>National origin is the counterexample worth keeping: foreign-born applicants land at essentially the same rate in both clusters (10.2% vs 10.7%). Not every protected attribute reappears in every clustering. Whether one does depends on how strongly it correlates with the specific features chosen and the number of clusters requested, which is precisely the fragility this explainer&#x27;s limitations section covers next.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <pre><code class="language-python">import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
@@ -272,20 +272,20 @@ def check_cluster_demographic_skew(df, cluster_labels, protected_col):
 #     n_clusters=2,
 # )
 # check_cluster_demographic_skew(df, clusters, &#x27;sex&#x27;)</code></pre>
-<h2 id="limitations-and-trade-offs">Limitations and Trade-offs</h2>
-<h3 id="1-there-is-no-ground-truth-to-evaluate-against">1. There Is No Ground Truth to Evaluate Against</h3>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-there-is-no-ground-truth-to-evaluate-against">1. There Is No Ground Truth to Evaluate Against</h4>
 <p>A supervised model&#x27;s error rate can be checked against held-out labels. A clustering has no equivalent: there is no &quot;correct&quot; set of clusters to compare to, only internal measures like silhouette score that describe how tight and separated the clusters are, not whether they mean anything. Whether a clustering is &quot;good&quot; is a judgment call made by whoever interprets it, which is a much softer check than a held-out accuracy score.</p>
-<h3 id="2-k-and-the-distance-metric-are-assumptions-not-discoveries">2. <code>k</code> and the Distance Metric Are Assumptions, Not Discoveries</h3>
+<h4 id="2-k-and-the-distance-metric-are-assumptions-not-discoveries">2. <code>k</code> and the Distance Metric Are Assumptions, Not Discoveries</h4>
 <p>Nothing about the data tells you the &quot;right&quot; number of clusters. Choosing <code>k=2</code> versus <code>k=4</code> above changes which features dominate the split and can change whether a demographic pattern shows up strongly, weakly, or not at all, before a single row is clustered. The same is true of the distance metric: Euclidean distance on standardised features treats every dimension as equally important, which is itself a modelling choice with fairness consequences.</p>
-<h3 id="3-disparate-impact-is-harder-to-audit-without-labels">3. Disparate Impact Is Harder to Audit Without Labels</h3>
+<h4 id="3-disparate-impact-is-harder-to-audit-without-labels">3. Disparate Impact Is Harder to Audit Without Labels</h4>
 <p>A supervised model&#x27;s fairness gap is a single number computed against a known outcome. A clustering that visibly sorts people along demographic lines still has to be judged case by case: is this clustering being used to set insurance prices, in which case the ZIP-code precedent applies directly, or to generate exploratory customer segments that never touch a real decision? The same statistical pattern carries very different real-world risk depending on what happens downstream of it.</p>
-<h3 id="4-dimensionality-reduction-can-erase-the-signal-you-re-trying-to-detect">4. Dimensionality Reduction Can Erase the Signal You&#x27;re Trying to Detect</h3>
+<h4 id="4-dimensionality-reduction-can-erase-the-signal-you-re-trying-to-detect">4. Dimensionality Reduction Can Erase the Signal You&#x27;re Trying to Detect</h4>
 <p>Real clustering pipelines often run PCA or UMAP before k-means to cut down feature count. Both techniques preserve the directions of highest variance, not the directions most correlated with a protected attribute, so a preprocessing step aimed purely at compression can silently discard the exact signal a fairness audit would need to catch downstream.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="proxy-variables.html">What Is a Proxy Variable?</a> - the mechanism (a feature correlating with a protected attribute) that this explainer shows operating without any label or supervision at all.</li><li><a href="proxy-entanglement.html">What Is Proxy Entanglement?</a> - why dropping one proxy at a time fails when several correlated features jointly encode the same protected signal, visible above in how much of the sex split rode on <code>relationship</code> and <code>marital.status</code> together.</li><li><a href="ml-bias.html">What Is Machine Learning Bias?</a> - places training data as one of the four entry points bias uses to reach a model; this explainer is what that entry point looks like with no label attached.</li><li><a href="supervised-learning.html">What Is Supervised Learning?</a> - the labeled counterpart to this explainer, where the model is explicitly shown the outcome it is reproducing rather than discovering structure on its own.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-benefits"><code>Benefits Denial/</code></a> - the anchor for this explainer: the same <code>adult.csv</code> file the audit&#x27;s supervised model trains on, clustered here with no label and no protected attribute in the feature set, and still recovering a strong sex split and a real, smaller race split.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.propublica.org/article/the-secret-bias-hidden-in-mortgage-approval-algorithms" target="_blank" rel="noreferrer noopener">ProPublica: The Secret Bias Hidden in Mortgage-Approval Algorithms</a> - documents ZIP-code and similar geographic clustering recovering protected-class structure in real lending and insurance pricing systems.</li><li><a href="https://papers.nips.cc/paper/2017/hash/978fce5bcc4eccc88ad48ce3914124a-Abstract.html" target="_blank" rel="noreferrer noopener">Chierichetti, Kumar, Lattanzi &amp; Vassilvitskii (2017): Fair Clustering Through Fairlets, NeurIPS</a> - the foundational paper formalising what it means for a clustering algorithm itself to be fair, and a concrete algorithm for enforcing it.</li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas, Hardt &amp; Narayanan: Fairness and Machine Learning</a> - covers unsupervised and representation-learning settings alongside the supervised case this repo&#x27;s audits focus on.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

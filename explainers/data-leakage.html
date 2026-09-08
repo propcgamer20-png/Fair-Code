@@ -190,24 +190,24 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>A model that scores 99% on every test you run is not a model you can trust. It has already seen the answer sheet.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Data leakage</strong> is the contamination of a model&#x27;s training signal with information that will not be available at prediction time, producing evaluation scores that overstate real-world performance.</p>
 <hr>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>A model trained with leakage passes every internal test. It fails at the moment it is deployed - when the future arrives and the borrowed information is no longer there. In high-stakes domains, that failure is not an accuracy metric. It is a parole decision that collapses under scrutiny, a credit denial that cannot survive an audit, a clinical flag that fires or fails at the wrong moment.</p>
 <p>Leakage is the most common reason a production model performs far worse than its validation numbers predicted. It is also one of the hardest failures to catch, because the model is telling you what you want to hear right up until the point it matters.</p>
 <hr>
-<h2 id="two-kinds-of-leakage">Two Kinds of Leakage</h2>
-<h3 id="target-leakage">Target Leakage</h3>
+<h3 id="two-kinds-of-leakage">Two Kinds of Leakage</h3>
+<h4 id="target-leakage">Target Leakage</h4>
 <p>Target leakage occurs when a feature used for training carries information that is only known <em>because</em> the outcome has already happened. The feature arrives after the label in the real world, but it is present in the training data alongside that label.</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Domain</th><th>Leaking Feature</th><th>Why It Is Leakage</th></tr></thead><tbody><tr><td>Credit default</td><td>Account closure flag</td><td>Account is closed <em>because</em> the borrower defaulted, not before</td></tr><tr><td>Healthcare readmission</td><td>Discharge prescription count</td><td>Prescribed on discharge, after the readmission decision would need to be made at admission</td></tr><tr><td>Criminal justice</td><td>Post-arrest charge count</td><td>Filed after the arrest the model is predicting</td></tr><tr><td>Insurance denial</td><td>Claim filed within 30 days</td><td>Claim exists because the denial outcome is already known</td></tr></tbody></table></div>
 <p>The model learns to predict the outcome by detecting its own effects. Remove those features at deployment and performance collapses.</p>
-<h3 id="train-test-contamination">Train-Test Contamination</h3>
+<h4 id="train-test-contamination">Train-Test Contamination</h4>
 <p>Train-test contamination occurs when information from the test set leaks into the training process before the model is evaluated. The most common forms:</p>
 <ul><li><strong>Preprocessing before splitting.</strong> Fitting a scaler, imputer, or encoder on the full dataset and then splitting. The test set&#x27;s distribution has already shaped the transformation.</li><li><strong>Feature selection before splitting.</strong> Selecting features by correlation with the target on the full dataset, then training on the selected subset. The test set voted on which features to keep.</li><li><strong>Aggregated statistics computed before splitting.</strong> Mean-encoding, count-encoding, or any group aggregation run on the full dataset embeds test-set information into every training row.</li></ul>
 <p>In both cases the model has indirect access to the test set during training. Its evaluation score reflects the combined distribution, not generalization.</p>
 <hr>
-<h2 id="concrete-example">Concrete Example</h2>
+<h3 id="concrete-example">Concrete Example</h3>
 <p>The COMPAS audit in this repository demonstrates a proxy form of target leakage. <code>CustodyStatus</code> - a feature describing whether a defendant is currently in custody - correlates with race at p &lt; 0.001 and with the recidivism label at p &lt; 0.001. It is not a neutral operational variable. It encodes the outcome of a prior criminal justice interaction, which itself encodes historical over-policing of Black communities. Including it in the model achieves an 86.77% Black/White fairness gap in positive prediction rates.</p>
 <p>This is the structural form of leakage: a feature that looks like a legitimate input but whose predictive power comes from downstream effects of the very outcome being predicted.</p>
 <p>Removing <code>CustodyStatus</code> alongside the protected race attribute reduces the gap to 15.69% - a 71% reduction.</p>
@@ -240,7 +240,7 @@ for label, X in [(&quot;With leakage&quot;, X_leak), (&quot;Without leakage&quot
     print(f&quot;{label}: test accuracy = {acc:.4f}&quot;)</code></pre>
 <p>The leaked model will report higher test accuracy. That accuracy will not survive deployment.</p>
 <hr>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
 from scipy.stats import pointbiserialr, chi2_contingency
@@ -335,20 +335,20 @@ if __name__ == &quot;__main__&quot;:
     print(&quot;\n=== Preprocessing Leakage Check ===&quot;)
     check_preprocessing_leakage(df, TARGET)</code></pre>
 <hr>
-<h2 id="limitations">Limitations</h2>
+<h3 id="limitations">Limitations</h3>
 <p>1. <strong>Correlation is not causation.</strong> <code>detect_target_leakage()</code> surfaces high-correlation features. Some of them are legitimately informative. Every flagged feature requires manual inspection of <em>when</em> it is collected in the real-world workflow. The function cannot make that judgment.</p>
 <p>2. <strong>Leakage can hide in aggregate features.</strong> A row-level feature may look clean while a group-level aggregate (mean income by zip code, claim rate by employer) was computed on the full dataset before splitting. The contamination is invisible at the row level.</p>
 <p>3. <strong>Time-series data requires temporal splitting.</strong> Random train/test splits on time-ordered data are always leaky. If your dataset has a time dimension, split by date, not by row index.</p>
 <p>4. <strong>Leakage detection does not fix class imbalance correctly.</strong> Techniques like SMOTE must be applied inside the training fold only, after splitting. Applying them before splitting leaks synthetic minority samples into the test set.</p>
 <p>5. <strong>A high test score is not sufficient evidence that leakage is absent.</strong> Models trained on genuinely hard problems can score high without leakage. And a model with subtle leakage may score only modestly higher than a clean model, making the contamination easy to miss.</p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="proxy-variables.html">What Is a Proxy Variable?</a> - Features that correlate with a protected attribute after it is removed. Proxy leakage is the intersection of proxy contamination and temporal contamination.</li><li><a href="label-bias.html">What Is Label Bias?</a> - Labels that inherit human prejudice. When labels encode historical decisions, the target itself can be a source of leakage.</li><li><a href="sampling-bias.html">What Is Sampling Bias?</a> - How the training distribution misrepresents the deployment population. Leakage can mask sampling bias by inflating evaluation scores.</li><li><a href="ml-bias.html">What Is Machine Learning Bias?</a> - The four entry points through which bias enters a model, of which data pipeline contamination is one.</li><li><a href="ai-hallucinations.html">Why AI Hallucinates</a> - Overconfident predictions in sparse feature regions. Leakage and hallucination both produce models that are confidently wrong in structured ways.</li></ul>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas">COMPAS/</a> - <code>CustodyStatus</code> as a leaking proxy: encodes prior system contact, which encodes historical over-policing.</li><li><a href="../index.html#project-readmission">Healthcare Readmission/</a> - <code>payer_code</code> and <code>discharge_disposition_id</code> as features collected after or conditional on system contact, not before the prediction decision.</li><li><a href="../index.html#project-benefits">Benefits Denial/</a> - <code>relationship</code> and <code>marital.status</code> encode outcomes of social and economic structures that are themselves downstream of gender and race.</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <p>1. Kaufman, S., Rosset, S., Perlich, C., &amp; Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. <em>ACM Transactions on Knowledge Discovery from Data, 6</em>(4), 1–21.</p>
 <p>2. Kapoor, S., &amp; Narayanan, A. (2023). Leakage and the reproducibility crisis in machine-learning-based science. <em>Patterns, 4</em>(9), 100804.</p>
 <p>3. Nisbet, R., Miner, G., &amp; Yale, K. (2018). <em>Handbook of Statistical Analysis and Data Mining Applications</em> (2nd ed.). Academic Press. Chapter 11: Data preparation and leakage prevention.</p>

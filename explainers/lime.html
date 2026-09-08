@@ -190,16 +190,16 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>Two explainability methods can look interchangeable from a comparison table row - LIME and SHAP answer the same question (&quot;why did the model do this?&quot;) through completely different mechanics, and the difference changes how much you should trust either one&#x27;s answer.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>LIME</strong> (Local Interpretable Model-agnostic Explanations) explains one prediction by perturbing the input slightly, seeing how the model&#x27;s output changes, and fitting a simple, interpretable model - usually linear - to that local neighborhood of perturbed points, then reading the surrogate&#x27;s coefficients as the explanation.</p>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p><a href="shap-values.html">SHAP Values</a> already covers the other major explainability technique used to inspect what actually drove a flagged decision. LIME shows up constantly alongside it - in papers, in tooling, in comparison tables - but &quot;another explainability method&quot; undersells what&#x27;s actually a fundamentally different approach with its own specific failure modes. A fairness audit that treats LIME&#x27;s output with the same confidence as SHAP&#x27;s is trusting a different, and generally weaker, kind of guarantee.</p>
 <p>That distinction matters in practice: if LIME says a flagged loan denial was driven mostly by income and a SHAP analysis of the same prediction says it was driven mostly by zip code, knowing <em>why</em> the two methods can disagree - not just that they did - is what tells you which one to trust for the decision in front of you.</p>
-<h2 id="core-concept-a-local-surrogate-not-a-global-explanation">Core Concept: A Local Surrogate, Not a Global Explanation</h2>
+<h3 id="core-concept-a-local-surrogate-not-a-global-explanation">Core Concept: A Local Surrogate, Not a Global Explanation</h3>
 <p>LIME works in four steps, for one single prediction at a time:</p>
 <p>1. Take the input you want to explain (one loan application, one recidivism score). 2. Generate a cloud of perturbed versions of it - slightly different feature values, sampled around the original. 3. Get the real model&#x27;s prediction for every perturbed point, weighting each one by how close it is to the original input. 4. Fit a simple, interpretable model (typically linear regression) to those weighted (perturbation, prediction) pairs. The surrogate&#x27;s coefficients become the explanation: how much each feature mattered <em>in this local neighborhood</em>.</p>
 <p>The key word is <strong>local</strong>. LIME never claims to explain the model&#x27;s global behavior - only what it&#x27;s doing in the small region around one specific input. This is also LIME&#x27;s central trade-off against SHAP: SHAP&#x27;s Shapley-value approach comes with mathematical guarantees (the contributions sum exactly to the prediction, and satisfy specific consistency properties from game theory); LIME&#x27;s surrogate model is only an <em>approximation</em> of the real model&#x27;s local behavior, and how good that approximation is depends entirely on how the perturbation sampling and neighborhood weighting were configured. Run LIME twice on the same prediction with different random perturbation samples, and the resulting feature-importance ranking can shift - a stability problem SHAP&#x27;s exact computation (for tree models) doesn&#x27;t share.</p>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>Applying LIME to a single high-risk COMPAS prediction, using the same biased feature set (race included) as <a href="shap-values.html">SHAP Values</a>&#x27;s own COMPAS example, illustrates what a local explanation looks like in practice:</p>
 <pre><code>--- LIME EXPLANATION FOR ONE PREDICTION (predicted: high risk) ---
 
@@ -211,7 +211,7 @@ Sex_Code_Text_Male              +0.09
 MaritalStatus_Single             +0.04
 Age                              -0.02  ← pushed slightly toward &quot;low risk&quot;</code></pre>
 <p>For this one individual, LIME&#x27;s local surrogate says race and custody status - a known proxy for race - together dominate the decision, consistent with what SHAP&#x27;s <em>aggregate</em> analysis found across many predictions in the SHAP explainer&#x27;s own example. That agreement is reassuring, but it&#x27;s also the exception worth watching for: LIME&#x27;s local weights are computed fresh for every single prediction, so a different individual&#x27;s flagged decision could show a completely different feature ranking even under the identical model, since each explanation only reflects the neighborhood immediately around that one input.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <pre><code class="language-python">import lime
 import lime.lime_tabular
 import pandas as pd
@@ -248,20 +248,20 @@ for feature, weight in explanation.as_list():
 # random_state on the explainer - if the top features reorder, the local
 # surrogate fit was unstable for this specific point, and the explanation
 # should not be trusted as strongly as a stable one.</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-it-s-an-approximation-not-an-exact-decomposition">1. It&#x27;s an approximation, not an exact decomposition</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-it-s-an-approximation-not-an-exact-decomposition">1. It&#x27;s an approximation, not an exact decomposition</h4>
 <p>Unlike SHAP&#x27;s Shapley-value guarantees, LIME&#x27;s surrogate is only as good as the local linear fit - a genuinely non-linear decision boundary in that neighborhood can produce a misleading local explanation even when the surrogate fits its own perturbed sample well.</p>
-<h3 id="2-explanations-can-be-unstable-across-repeated-runs">2. Explanations can be unstable across repeated runs</h3>
+<h4 id="2-explanations-can-be-unstable-across-repeated-runs">2. Explanations can be unstable across repeated runs</h4>
 <p>Because the perturbation sample is random, two runs on the identical input and model can rank features differently, particularly near a decision boundary where the model&#x27;s behavior changes quickly across small input changes.</p>
-<h3 id="3-it-s-genuinely-local-it-says-nothing-about-the-model-overall">3. It&#x27;s genuinely local - it says nothing about the model overall</h3>
+<h4 id="3-it-s-genuinely-local-it-says-nothing-about-the-model-overall">3. It&#x27;s genuinely local - it says nothing about the model overall</h4>
 <p>A LIME explanation for one denied application tells you nothing about whether the model is fair in aggregate. Global fairness metrics like <a href="demographic-parity.html">Demographic Parity</a> or <a href="equalized-odds.html">Equalized Odds</a> still require checking separately; LIME (and SHAP) explain individual decisions, not overall fairness.</p>
-<h3 id="4-the-perturbation-strategy-has-to-make-sense-for-the-data">4. The perturbation strategy has to make sense for the data</h3>
+<h4 id="4-the-perturbation-strategy-has-to-make-sense-for-the-data">4. The perturbation strategy has to make sense for the data</h4>
 <p>LIME&#x27;s default tabular perturbation (sampling from feature distributions) can generate combinations that don&#x27;t correspond to any realistic individual, producing an explanation grounded in inputs that could never actually occur.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="shap-values.html">What Are SHAP Values?</a> - the other major feature-attribution method, with exact (not approximate) local guarantees for tree models.</li><li><a href="confounding-variable.html">What Is a Confounding Variable?</a> - a reason two features can appear to &quot;matter&quot; in an explanation without either one being the true underlying cause.</li><li><a href="proxy-variables.html">Proxy Variables</a> - what a proxy feature (like custody status standing in for race) looks like when it surfaces inside a LIME or SHAP explanation.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the audit both this explainer and <a href="shap-values.html">SHAP Values</a> use to demonstrate feature-attribution output on the same biased model.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1602.04938" target="_blank" rel="noreferrer noopener">Ribeiro, M. T., Singh, S., Guestrin, C. (2016): &quot;Why Should I Trust You?&quot;: Explaining the Predictions of Any Classifier</a> - the original LIME paper.</li><li><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noreferrer noopener">Lundberg, S., Lee, S. (2017): A Unified Approach to Interpreting Model Predictions</a> - the SHAP paper, framing Shapley values as a unifying theory that LIME approximates a special case of.</li><li><a href="https://christophm.github.io/interpretable-ml-book/lime.html" target="_blank" rel="noreferrer noopener">Molnar, C.: <em>Interpretable Machine Learning</em></a> - a practical, freely available comparison of LIME against SHAP and other explanation methods.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

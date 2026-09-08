@@ -189,26 +189,26 @@
       <p class="explainer-lede">Learn when demographic parity is useful, where it breaks down, and why it can conflict with other fairness goals.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-demographic-parity">Explainer: What is Demographic Parity?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-demographic-parity">Explainer: What is Demographic Parity?</h2>
 <blockquote><p><em>Equal outcomes, not equal treatment - and that distinction is everything.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Demographic parity</strong> is a fairness metric that requires a model to produce positive predictions at equal rates across demographic groups - regardless of whether those groups have different underlying rates of the outcome being predicted.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Demographic parity is the most widely used fairness metric in practice. It underlies US employment discrimination law (the EEOC&#x27;s 80% rule), EU AI Act high-risk system audits, and most corporate fairness dashboards. When someone says an algorithm is &quot;biased,&quot; they are usually - whether they know it or not - pointing at a demographic parity violation.</p>
 <p>It matters because:</p>
 <ul><li>A model can be highly accurate overall and still produce systematically unequal outcomes for different groups - and demographic parity is the only metric that directly measures this</li><li>It is the legal threshold in hiring, lending, and admissions in most jurisdictions - violating it exposes organisations to disparate impact liability</li><li>It is the primary metric used throughout this repo - the fairness gaps in the COMPAS, Hiring, Credit, Insurance, and Benefits audits are all measured as demographic parity violations</li></ul>
 <p>But it also matters to understand what it <em>doesn&#x27;t</em> catch - because a model can satisfy demographic parity while still being deeply unfair in other ways. See the Limitations section.</p>
 <hr>
-<h2 id="the-formal-definition">The Formal Definition</h2>
+<h3 id="the-formal-definition">The Formal Definition</h3>
 <pre><code>P(Ŷ = 1 | Group = A) = P(Ŷ = 1 | Group = B)</code></pre>
 <p>The model&#x27;s positive prediction rate must be equal across groups. That&#x27;s it. The metric makes no claim about whether the predictions are correct - only that the <em>rate</em> of positive predictions is equalised.</p>
 <p>In practice, you rarely demand perfect equality. The EEOC&#x27;s <strong>four-fifths rule</strong> treats any selection rate below 80% of the highest group&#x27;s rate as evidence of adverse impact:</p>
 <pre><code>P(Ŷ = 1 | Group = B) / P(Ŷ = 1 | Group = A) ≥ 0.80</code></pre>
 <p>A ratio below 0.80 triggers scrutiny. A ratio above 0.80 passes. The 80% threshold is a legal convention, not a mathematical optimum.</p>
 <hr>
-<h2 id="real-world-proof-hiring-bias">Real-World Proof: Hiring Bias</h2>
+<h3 id="real-world-proof-hiring-bias">Real-World Proof: Hiring Bias</h3>
 <p>The AI Fair Recruitment audit in this repo is a direct illustration of a demographic parity violation - and its fix.</p>
 <p>A model trained with gender and age as features assigned hire recommendations at sharply different rates:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Hire Rate</th></tr></thead><tbody><tr><td>Male applicants</td><td>~71%</td></tr><tr><td>Female applicants</td><td>~50%</td></tr><tr><td><strong>Fairness Gap</strong></td><td><strong>~20.9 percentage points</strong></td></tr></tbody></table></div>
@@ -217,8 +217,8 @@
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Hire Rate</th></tr></thead><tbody><tr><td>Male applicants</td><td>~67%</td></tr><tr><td>Female applicants</td><td>~67%</td></tr><tr><td><strong>New Fairness Gap</strong></td><td><strong>~0.12 percentage points</strong></td></tr></tbody></table></div>
 <p><strong>97.3% reduction.</strong> The gap wasn&#x27;t in the underlying merit of candidates - it was in which features the model was permitted to see.</p>
 <hr>
-<h2 id="detection-code">Detection Code</h2>
-<h3 id="measure-demographic-parity-gap">Measure demographic parity gap</h3>
+<h3 id="detection-code">Detection Code</h3>
+<h4 id="measure-demographic-parity-gap">Measure demographic parity gap</h4>
 <pre><code class="language-python">import pandas as pd
 
 def demographic_parity_audit(df, prediction_col, group_col, positive_label=1):
@@ -254,7 +254,7 @@ df = pd.read_csv(&#x27;AI_Fair_Recruitment_Dataset.csv&#x27;)
 df[&#x27;predicted_hire&#x27;] = model.predict(X_test)  # substitute your model
 
 demographic_parity_audit(df_test, prediction_col=&#x27;predicted_hire&#x27;, group_col=&#x27;Gender&#x27;)</code></pre>
-<h3 id="compute-across-multiple-protected-attributes-at-once">Compute across multiple protected attributes at once</h3>
+<h4 id="compute-across-multiple-protected-attributes-at-once">Compute across multiple protected attributes at once</h4>
 <pre><code class="language-python">def multi_group_parity_audit(y_pred, groups_df, positive_label=1):
     &quot;&quot;&quot;
     Run demographic parity audit for every column in groups_df simultaneously.
@@ -282,7 +282,7 @@ audit = multi_group_parity_audit(y_pred, protected)
 for attr, result in audit.items():
     status = &#x27;✓&#x27; if result[&#x27;passes_eeoc&#x27;] else &#x27;✗&#x27;
     print(f&quot;{attr}: gap={result[&#x27;gap&#x27;]:.4f}, 4/5 ratio={result[&#x27;four_fifths_ratio&#x27;]:.4f} {status}&quot;)</code></pre>
-<h3 id="visualise-the-gap">Visualise the gap</h3>
+<h4 id="visualise-the-gap">Visualise the gap</h4>
 <pre><code class="language-python">import matplotlib.pyplot as plt
 
 def plot_parity_gap(rates_df, group_col, rate_col=&#x27;positive_rate&#x27;, title=&#x27;Demographic Parity&#x27;):
@@ -307,25 +307,25 @@ def plot_parity_gap(rates_df, group_col, rate_col=&#x27;positive_rate&#x27;, tit
                 facecolor=&#x27;#0f1117&#x27;)
     print(&quot;Saved: demographic-parity-gap.png&quot;)</code></pre>
 <hr>
-<h2 id="what-demographic-parity-catches-and-what-it-doesn-t">What Demographic Parity Catches - and What It Doesn&#x27;t</h2>
-<h3 id="what-it-catches">What it catches</h3>
+<h3 id="what-demographic-parity-catches-and-what-it-doesn-t">What Demographic Parity Catches - and What It Doesn&#x27;t</h3>
+<h4 id="what-it-catches">What it catches</h4>
 <ul><li>Models that assign positive outcomes (loans, hires, parole, insurance approvals) at lower rates to protected groups</li><li>Cases where a protected attribute or its proxies are driving the disparity - even if accuracy looks fine overall</li><li>Legal violations under disparate impact law without requiring evidence of intent</li></ul>
-<h3 id="what-it-misses">What it misses</h3>
+<h4 id="what-it-misses">What it misses</h4>
 <p><strong>1. Parity in mediocrity.</strong> A model achieves demographic parity by <em>reducing</em> the positive rate for the advantaged group rather than raising it for the disadvantaged group. The gap closes - but no one benefits. Always inspect absolute rates, not just the gap.</p>
 <p><strong>2. Error rate disparities.</strong> A model can satisfy demographic parity while making systematically different <em>types</em> of errors for different groups. It might approve loans at equal rates but deny creditworthy applicants from one group at a higher rate (a false negative disparity) while approving uncreditworthy applicants from another at a higher rate (a false positive disparity). Equalized odds catches this; demographic parity does not.</p>
 <p><strong>3. Calibration failures.</strong> A model can predict at equal rates across groups while its predictions mean different things for each group. If a risk score of 0.7 corresponds to 70% true risk for Group A but only 50% for Group B, the model is miscalibrated - but demographic parity will not flag it.</p>
 <p><strong>4. The impossibility result.</strong> When base rates differ between groups - which they almost always do - demographic parity cannot be satisfied simultaneously with equalized odds and predictive parity. Satisfying demographic parity will necessarily force one of the other two metrics to fail. This is not a flaw in the metric; it is a mathematical fact. See <a href="fairness-metric-conflicts.html"><code>fairness-metric-conflicts.md</code></a> for the proof.</p>
 <hr>
-<h2 id="limitations">Limitations</h2>
+<h3 id="limitations">Limitations</h3>
 <p><strong>Demographic parity ignores the ground truth.</strong> It does not ask whether the groups <em>should</em> receive different rates, given the actual distribution of the outcome. A perfectly accurate model trained on data where Group A has a genuinely higher rate of the positive outcome will violate demographic parity - not because it is biased, but because it is accurate. This is the core tension between parity-based and accuracy-based fairness.</p>
 <p><strong>The 80% rule is a legal convention, not a scientific threshold.</strong> The EEOC chose 80% pragmatically in 1978. There is no statistical basis for treating 79% as discriminatory and 81% as fair. Courts have found discrimination below and above this threshold. Treat it as a trigger for scrutiny, not a verdict.</p>
 <p><strong>Intersectionality is not captured.</strong> Auditing by race alone and by gender alone can pass demographic parity while Black women face a combined disparity that neither single-attribute audit would surface. Disaggregate by all relevant combinations when the data supports it.</p>
 <p><strong>The baseline can be corrupted.</strong> If the positive prediction rate you are equalising is itself built on biased historical data - arrest rates instead of actual crime rates, for example - equalising it embeds the historical bias into the fair model. See <a href="proxy-variables.html"><code>proxy-variables.md</code></a> and <a href="sampling-bias.html"><code>sampling-bias.md</code></a>.</p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li>All five audits (<a href="../index.html#project-compas"><code>COMPAS/</code></a>, <a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a>, <a href="../index.html#project-credit"><code>German Credit Lending/</code></a>, <a href="../index.html#project-insurance"><code>Insurance Denial/</code></a>, <a href="../index.html#project-benefits"><code>Benefits Denial/</code></a>) - demographic parity gap is the primary fairness metric in every one</li><li><a href="fairness-metric-conflicts.html"><code>explainers/fairness-metric-conflicts.md</code></a> - why demographic parity cannot coexist with equalized odds and predictive parity when base rates differ</li><li><a href="equalized-odds.html"><code>explainers/equalized-odds.md</code></a> - the error-rate alternative to demographic parity</li><li><a href="disparate-impact.html"><code>explainers/disparate-impact.md</code></a> - how demographic parity maps onto the legal four-fifths rule</li><li><a href="proxy-variables.html"><code>explainers/proxy-variables.md</code></a> - how to find and remove features that smuggle protected attributes back into the model</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1412.3756" target="_blank" rel="noreferrer noopener">Feldman et al.: Certifying and Removing Disparate Impact (2015)</a> - foundational paper on measuring and removing demographic parity violations</li><li><a href="https://www.eeoc.gov/laws/guidance/questions-and-answers-clarify-and-provide-common-interpretation-uniform-guidelines" target="_blank" rel="noreferrer noopener">EEOC: Uniform Guidelines on Employee Selection Procedures (1978)</a> - the original document establishing the four-fifths rule</li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas &amp; Hardt: Fairness and Machine Learning - Chapter 2</a> - formal treatment of demographic parity and its relationship to other metrics</li><li><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noreferrer noopener">ProPublica: Machine Bias (2016)</a> - the audit that brought parity-based fairness criticism into public view</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

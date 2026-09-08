@@ -189,23 +189,23 @@
       <p class="explainer-lede">Learn how correlated features like zip code, custody status, and employment history can smuggle protected attributes back into a model.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-a-proxy-variable">Explainer: What is a Proxy Variable?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-a-proxy-variable">Explainer: What is a Proxy Variable?</h2>
 <blockquote><p><em>The sneaky reason AI stays biased even after you remove race from the data.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p>A <strong>proxy variable</strong> is a data feature that <em>correlates</em> with a protected attribute (like race, gender, or class) even though it doesn&#x27;t mention it directly - so removing the protected attribute from a model doesn&#x27;t remove the bias it encodes.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most people assume that removing race from an AI model makes it race-neutral. This is wrong.</p>
 <p>Machine learning models don&#x27;t care what a feature is <em>called</em>. They care what it <em>predicts</em>. If a feature like <code>custody_status</code> or <code>zip_code</code> is correlated with race in the training data, the model will learn and use that correlation - whether or not the word &quot;race&quot; appears anywhere in the dataset.</p>
 <p>This is called <strong>proxy discrimination</strong>, and it&#x27;s one of the hardest problems in algorithmic fairness.</p>
 <hr>
-<h2 id="common-proxy-variables">Common Proxy Variables</h2>
+<h3 id="common-proxy-variables">Common Proxy Variables</h3>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Feature</th><th>Protected Attribute It Encodes</th><th>Why</th></tr></thead><tbody><tr><td>Zip code</td><td>Race</td><td>Historical redlining segregated neighborhoods by race. Zip codes still reflect this.</td></tr><tr><td>Custody status</td><td>Race</td><td>Over-policing of Black communities leads to disproportionate pretrial detention.</td></tr><tr><td>Name</td><td>Gender / Ethnicity</td><td>Names encode gender and ethnicity with high accuracy.</td></tr><tr><td>College attended</td><td>Socioeconomic background</td><td>Elite colleges remain heavily stratified by class and race.</td></tr><tr><td>Credit score</td><td>Race / Class</td><td>Credit histories reflect historical exclusion from banking.</td></tr><tr><td>Prior arrests</td><td>Race</td><td>Arrest records reflect over-policing, not actual crime rates.</td></tr></tbody></table></div>
 <hr>
-<h2 id="real-world-proof-compas-analysis">Real-World Proof: COMPAS Analysis</h2>
+<h3 id="real-world-proof-compas-analysis">Real-World Proof: COMPAS Analysis</h3>
 <p>We tested this directly using the <a href="https://github.com/propublica/compas-analysis" target="_blank" rel="noreferrer noopener">ProPublica COMPAS dataset</a>.</p>
-<h3 id="what-we-did">What We Did</h3>
+<h4 id="what-we-did">What We Did</h4>
 <p><strong>Step 1 - Biased model (includes race + proxies):</strong></p>
 <pre><code class="language-python">X = pd.get_dummies(df[[
     &#x27;race&#x27;,
@@ -229,11 +229,11 @@
 ]])</code></pre>
 <p><strong>Results:</strong></p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>High-Risk Flag Rate</th></tr></thead><tbody><tr><td>Black defendants</td><td>84.71%</td></tr><tr><td>White defendants</td><td>69.02%</td></tr><tr><td><strong>Fairness gap</strong></td><td><strong>15.69%</strong></td></tr></tbody></table></div>
-<h3 id="summary">Summary</h3>
+<h4 id="summary">Summary</h4>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Approach</th><th>Fairness Gap</th><th>Reduction</th></tr></thead><tbody><tr><td>Biased model</td><td>86.77%</td><td>-</td></tr><tr><td>Remove race only</td><td>~80%+</td><td>Minimal</td></tr><tr><td>Remove race + proxy</td><td>15.69%</td><td><strong>71%</strong></td></tr></tbody></table></div>
 <p><strong>Removing the protected attribute alone is not enough. You must audit every feature for correlation with protected attributes.</strong></p>
 <hr>
-<h2 id="how-to-detect-proxy-variables">How to Detect Proxy Variables</h2>
+<h3 id="how-to-detect-proxy-variables">How to Detect Proxy Variables</h3>
 <pre><code class="language-python">import pandas as pd
 from scipy.stats import chi2_contingency
 
@@ -258,15 +258,15 @@ print(result)
 # {&#x27;feature&#x27;: &#x27;CustodyStatus&#x27;, &#x27;protected_attr&#x27;: &#x27;race&#x27;, &#x27;p_value&#x27;: 0.0001, &#x27;is_proxy&#x27;: True}</code></pre>
 <p>Run this on every feature in your dataset before training. Any feature with <code>is_proxy: True</code> needs careful consideration - either remove it or apply fairness-aware techniques.</p>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>Proxy variables exist because our social world is stratified. Zip codes encode race because of redlining. Custody records encode race because of over-policing. Credit scores encode class because of historical exclusion.</p>
 <p>Data doesn&#x27;t exist in a vacuum. It reflects the society that generated it. A model trained on that data will learn those reflections - unless you actively audit and intervene.</p>
 <p><strong>This is why algorithmic auditing is not optional. It is a prerequisite for deployment.</strong></p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - Full COMPAS analysis: biased model → fair model → 71% gap reduction</li><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - AI recruitment bias: 97.3% gap reduction after feature audit</li><li>Coming soon: Facial recognition bias, HMDA loan bias, healthcare AI</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noreferrer noopener">ProPublica: Machine Bias (2016)</a></li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas &amp; Hardt: Fairness and Machine Learning</a></li><li><a href="https://science.sciencemag.org/content/366/6464/447" target="_blank" rel="noreferrer noopener">Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)</a></li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

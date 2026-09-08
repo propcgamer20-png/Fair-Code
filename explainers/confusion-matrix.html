@@ -190,21 +190,21 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>A model can boast 90% accuracy while hiding the fact that its 10% error rate consists entirely of falsely flagging innocent people from a minority group. A confusion matrix splits a single accuracy number into the four outcomes that actually matter, revealing exactly who pays for a model&#x27;s mistakes.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>A confusion matrix</strong> is a table that summarizes a classification model&#x27;s performance by breaking its predictions down into true positives, true negatives, false positives, and false negatives - the four foundational numbers that drive almost every algorithmic fairness metric.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>In high-stakes systems, the type of mistake a model makes is just as important as how often it makes it. A false positive (a false alarm) and a false negative (a missed case) rarely carry the same cost.</p>
 <p>Accuracy alone is a dangerous metric for fairness because it aggregates all correct predictions and all errors into a single percentage. A model that perfectly predicts outcomes for a 90% majority group but misclassifies everyone in a 10% minority group will still score 90% overall accuracy. By calculating a confusion matrix separately for each demographic group, you stop asking &quot;is the model accurate?&quot; and start asking &quot;how does the model fail, and who absorbs the cost of those failures?&quot;</p>
-<h2 id="the-core-concept">The Core Concept</h2>
+<h3 id="the-core-concept">The Core Concept</h3>
 <p>A binary classification model makes a prediction (Positive or Negative), and the real world provides the actual truth (Positive or Negative). This creates a 2x2 grid of possibilities:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th></th><th>Predicted Positive (1)</th><th>Predicted Negative (0)</th></tr></thead><tbody><tr><td><strong>Actual Positive (1)</strong></td><td><strong>True Positive (TP)</strong>: Correctly flagged</td><td><strong>False Negative (FN)</strong>: Incorrectly missed</td></tr><tr><td><strong>Actual Negative (0)</strong></td><td><strong>False Positive (FP)</strong>: Incorrectly flagged</td><td><strong>True Negative (TN)</strong>: Correctly cleared</td></tr></tbody></table></div>
 <p>From these four quadrants, we derive the rates that define most fairness metrics:</p>
 <ul><li><strong>True Positive Rate (TPR / Recall / Sensitivity)</strong>: TP / (TP + FN). Of all the people who actually experienced the event, what fraction did the model catch?</li><li><strong>False Positive Rate (FPR)</strong>: FP / (FP + TN). Of all the people who did not experience the event, what fraction did the model incorrectly flag?</li><li><strong>False Negative Rate (FNR)</strong>: FN / (FN + TP). Of all the people who actually experienced the event, what fraction did the model miss?</li><li><strong>Positive Predictive Value (PPV / Precision)</strong>: TP / (TP + FP). Of all the people the model flagged, what fraction actually experienced the event?</li></ul>
-<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<h3 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h3>
 <p>The COMPAS recidivism algorithm perfectly illustrates why confusion matrices matter for fairness. Northpointe, the creator of COMPAS, pointed out that their model had equal <strong>Positive Predictive Value</strong> for Black and White defendants - a risk score of 7 meant roughly the same likelihood of reoffending for both groups.</p>
 <p>However, ProPublica looked at the confusion matrix and calculated the <strong>False Positive Rate</strong> and <strong>False Negative Rate</strong>. They found that Black defendants who did not reoffend were falsely labeled as high-risk (False Positives) at nearly twice the rate of White defendants who did not reoffend. Conversely, White defendants who did reoffend were incorrectly labeled as low-risk (False Negatives) much more often than Black defendants.</p>
 <p>Because the underlying base rates of arrest were different for the two groups, it was mathematically impossible for the model to have both equal Positive Predictive Value and equal False Positive/Negative Rates. The confusion matrix made this trade-off visible, sparking the modern debate on algorithmic fairness.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>This code computes the four core values (TP, TN, FP, FN) and the key derived rates for each demographic group, allowing you to spot disparities in how errors are distributed.</p>
 <pre><code class="language-python">import pandas as pd
 from sklearn.metrics import confusion_matrix
@@ -249,18 +249,18 @@ def group_confusion_metrics(df, y_true_col, y_pred_col, group_col):
 # Usage example
 # metrics_df = group_confusion_metrics(compas_df, &quot;two_year_recid&quot;, &quot;high_risk_prediction&quot;, &quot;race&quot;)
 # print(metrics_df[[&quot;FPR&quot;, &quot;FNR&quot;, &quot;PPV (Precision)&quot;]])</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-requires-a-single-decision-threshold">1. Requires a single decision threshold</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-requires-a-single-decision-threshold">1. Requires a single decision threshold</h4>
 <p>A confusion matrix evaluates a model at one specific threshold (e.g., probability &gt; 0.5 means positive). If you change the threshold, all four numbers in the matrix change. To evaluate how a model performs across all possible thresholds, you need a <a href="roc-curve-auc.html">ROC Curve</a>.</p>
-<h3 id="2-counts-all-errors-equally">2. Counts all errors equally</h3>
+<h4 id="2-counts-all-errors-equally">2. Counts all errors equally</h4>
 <p>The standard confusion matrix treats every False Positive as identical to every other False Positive. It does not know if a model barely missed the threshold (0.49) or was wildly wrong (0.01). It also does not inherently weigh the human cost of a False Positive against a False Negative.</p>
-<h3 id="3-the-base-rate-problem">3. The Base Rate Problem</h3>
+<h4 id="3-the-base-rate-problem">3. The Base Rate Problem</h4>
 <p>When two demographic groups have different base rates (prevalence) of the target variable in the dataset, it is mathematically impossible to equalize all metrics derived from the confusion matrix at the same time. You often have to choose between equalizing predictive value (calibration) and equalizing error rates (Equalized Odds).</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="false-positives-vs-false-negatives.html">False Positives vs. False Negatives in Medical Risk Models</a> - a deep dive into why the two error types carry vastly different real-world costs.</li><li><a href="equalized-odds.html">Equalized Odds</a> - the fairness metric that demands equal False Positive and True Positive Rates across groups.</li><li><a href="predictive-parity.html">Predictive Parity</a> - the fairness metric that focuses on equal Positive Predictive Value (Precision).</li><li><a href="roc-curve-auc.html">What Is a ROC Curve and AUC?</a> - how to evaluate a model&#x27;s ranking ability across all possible thresholds, independent of a single confusion matrix.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the recidivism audit that highlights the conflict between equalizing Positive Predictive Value and equalizing False Positive Rates.</li><li><a href="../index.html#project-readmission"><code>Healthcare Readmission/</code></a> - an audit demonstrating how a model can maintain high overall accuracy while concentrating its False Negatives in a specific demographic group.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova, A. (2017): Fair Prediction with Disparate Impact</a> - the mathematical proof showing why a confusion matrix cannot simultaneously satisfy predictive parity and equal error rates when base rates differ.</li><li><a href="https://arxiv.org/abs/1609.05807" target="_blank" rel="noreferrer noopener">Kleinberg, J., Mullainathan, S., Raghavan, M. (2016): Inherent Trade-Offs in the Fair Determination of Risk Scores</a> - a foundational paper formalizing the impossibilities of satisfying all fairness metrics derived from the confusion matrix.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>
