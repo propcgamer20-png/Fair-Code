@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)? · Fair Code</title>
+<meta name="description" content="Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo&#x27;s own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS&#x27;s real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which &quot;significant&quot; findings survive correction and which don&#x27;t.">
+<link rel="canonical" href="https://www.thefaircode.xyz/explainers/multiple-comparisons.html">
+<meta name="author" content="Yash Kewlani">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:site_name" content="Fair Code">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)? · Fair Code">
+<meta property="og:description" content="Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo&#x27;s own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS&#x27;s real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which &quot;significant&quot; findings survive correction and which don&#x27;t.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.thefaircode.xyz/explainers/multiple-comparisons.html">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og/multiple-comparisons.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)? · Fair Code">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og-light/multiple-comparisons.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)? · Fair Code (light)">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)? · Fair Code">
+<meta name="twitter:description" content="Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo&#x27;s own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS&#x27;s real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which &quot;significant&quot; findings survive correction and which don&#x27;t.">
+<meta name="twitter:image" content="https://www.thefaircode.xyz/assets/og/multiple-comparisons.png">
+
+<link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='32' y='18' width='13' height='64' fill='%2314171A'/><rect x='32' y='18' width='42' height='13' fill='%2314171A'/><rect x='32' y='44' width='36' height='13' fill='%234F7A5B'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const saved = localStorage.getItem('fc-theme') || systemPref;
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<link rel="stylesheet" href="../assets/explainers.css">
+<style>
+  :root {
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "author": {
+        "@type": "Person",
+        "name": "Yash Kewlani",
+        "url": "https://github.com/yakew7"
+      },
+      "name": "What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?",
+      "description": "Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo's own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS's real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which \"significant\" findings survive correction and which don't.",
+      "url": "https://www.thefaircode.xyz/explainers/multiple-comparisons.html",
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "Fair Code Explainers",
+        "url": "https://www.thefaircode.xyz/index.html#explainers"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "url": "https://www.thefaircode.xyz/explainers/multiple-comparisons.html",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A multiple-comparisons correction (Bonferroni, Holm, or Benjamini-Hochberg false discovery rate) adjusts the significance threshold a batch of p-values is judged against, so that running many hypothesis tests at once doesn't inflate the chance of calling a fluke \"significant\" just because enough tests were run."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does this matter for fairness?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "What Is a Bootstrap Confidence Interval (and a Permutation Test)? attaches a p-value to every fairness gap this repo measures - but it attaches one to every single gap, not just one per audit. The benchmark harness computes six metrics, across every protected attribute, for three model families and five mitigation strategies, for each of seven audits."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Fair Code",
+          "item": "https://www.thefaircode.xyz/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Explainers",
+          "item": "https://www.thefaircode.xyz/index.html#explainers"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?",
+          "item": "https://www.thefaircode.xyz/explainers/multiple-comparisons.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="84e0aebf-44e1-466e-b2c6-62f75e1c36c7"></script>
+</head>
+<body class="explainer-page">
+  <main class="explainer-shell is-ready" data-explainer-shell>
+    <div class="explainer-topbar">
+      <a class="explainer-back" href="../index.html#explainers">← Back to explainers</a>
+      <div class="explainer-topbar-actions">
+        <a class="explainer-source" href="https://github.com/yakew7/Fair-Code/blob/main/explainers/multiple-comparisons.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="explainer-theme-toggle" id="explainerThemeToggle" aria-label="Toggle theme" aria-pressed="false">☀</button>
+      </div>
+    </div>
+
+    <section class="explainer-hero">
+      <div class="explainer-kicker">Explainer</div>
+      <h1 class="explainer-headline">What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?</h1>
+      <p class="explainer-lede">Run enough p-values at 0.05 and some will read &quot;significant&quot; by chance alone.</p>
+      <p class="explainer-lede">Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo&#x27;s own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS&#x27;s real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which &quot;significant&quot; findings survive correction and which don&#x27;t.</p>
+    </section>
+
+    <article class="explainer-content"><blockquote><p><em>Run enough p-values at a 0.05 threshold and some will read &quot;significant&quot; by chance alone - a multiple-comparisons correction is how you find out which of this repo&#x27;s dozens of per-audit findings actually survive that scrutiny.</em></p></blockquote>
+<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<p>A <strong>multiple-comparisons correction</strong> (Bonferroni, Holm, or Benjamini-Hochberg false discovery rate) adjusts the significance threshold a batch of p-values is judged against, so that running many hypothesis tests at once doesn&#x27;t inflate the chance of calling a fluke &quot;significant&quot; just because enough tests were run.</p>
+<h2 id="why-it-matters">Why It Matters</h2>
+<p><a href="bootstrap-confidence-intervals.html">What Is a Bootstrap Confidence Interval (and a Permutation Test)?</a> attaches a p-value to every fairness gap this repo measures - but it attaches one to <em>every single gap</em>, not just one per audit. The benchmark harness computes six metrics, across every protected attribute, for three model families and five mitigation strategies, for each of seven audits. For a single-protected-attribute audit like COMPAS (race) that&#x27;s <code>6 metrics x 3 models x 5 strategies = 90</code> p-values from one audit alone; across the full frozen benchmark, <code>paper/results-frozen/results_fairness.csv</code> carries <strong>1,320</strong> p-values in total.</p>
+<p>At a raw 0.05 threshold, each individual test has a 5% chance of reading &quot;significant&quot; purely by chance, even when nothing real is happening. Run 90 independent tests and the probability that <em>at least one</em> looks significant by chance alone climbs to <code>1 - 0.95^90 ≈ 99%</code> - not a rare edge case, a near-certainty. <a href="bootstrap-confidence-intervals.html#limitations">Bootstrap Confidence Intervals</a> already names this exact gap in its own limitations section: <em>&quot;No correction (e.g. Bonferroni) is currently applied across this full set.&quot;</em> This explainer covers what such a correction actually does to a real slice of those p-values, and what it costs.</p>
+<h2 id="core-concept">Core Concept</h2>
+<p>There are two different questions a correction can answer, and they trade off against each other:</p>
+<p><strong>Family-wise error rate (FWER)</strong> - the probability of even <em>one</em> false positive anywhere in the whole batch of tests. <strong>Bonferroni</strong> and <strong>Holm</strong> both control FWER.</p>
+<ul><li><strong>Bonferroni</strong> is the simplest possible fix: if you&#x27;re running <code>m</code> tests at level <code>alpha</code>, judge every individual p-value against <code>alpha / m</code> instead of <code>alpha</code>. For COMPAS&#x27;s 90 tests at <code>alpha = 0.05</code>, that&#x27;s <code>0.05 / 90 ≈ 0.00056</code> - a p-value has to be almost 90 times smaller than the usual 0.05 to survive. It&#x27;s conservative because it assumes the worst case (every test independent, all null), which makes it easy to reason about but quick to miss real, smaller effects.</li><li><strong>Holm&#x27;s step-down procedure</strong> controls the same FWER with more power than Bonferroni, by not applying the harshest threshold to every test. Sort the <code>m</code> p-values ascending. Compare the smallest to <code>alpha / m</code> (Bonferroni&#x27;s own threshold); if it survives, compare the <em>next</em> smallest to <code>alpha / (m - 1)</code> - a slightly looser bar - and keep going, each step comparing against <code>alpha / (m - i + 1)</code> for the <code>i</code>-th smallest p-value. The first p-value that fails stops the whole procedure: every larger p-value is rejected too, sequentially, even if one of them would individually have passed its own step&#x27;s threshold. Holm never rejects fewer null hypotheses than Bonferroni, and can reject strictly more.</li></ul>
+<p><strong>False discovery rate (FDR)</strong> - not &quot;no false positives anywhere,&quot; but &quot;of the findings I call significant, only a controlled fraction are expected to be false.&quot; <strong>Benjamini-Hochberg (BH-FDR)</strong> controls this instead of FWER, and is far less conservative because it&#x27;s answering an easier question.</p>
+<ul><li><strong>Benjamini-Hochberg</strong> sorts the <code>m</code> p-values ascending (rank <code>1..m</code>) and finds the <em>largest</em> rank <code>i</code> where <code>p_(i) &lt;= (i / m) * alpha</code>. Every p-value at or below that rank is called significant - not just the ones that individually clear their own step, unlike Holm&#x27;s sequential stop. Because later, larger ranks get a looser threshold that scales up toward <code>alpha</code> itself, BH-FDR keeps far more discoveries than Bonferroni or Holm at the same nominal level, at the cost of tolerating more false positives among them (bounded, on average, at the chosen FDR rate).</li></ul>
+<h2 id="concrete-example-compas-audit-01">Concrete Example: COMPAS - Audit 01</h2>
+<p>COMPAS declares one protected attribute (race), so its full grid is <code>5 strategies x 3 models x 6 metrics = 90</code> p-values - real numbers straight from <code>paper/results-frozen/results_fairness.csv</code>. At the raw 0.05 threshold, <strong>67 of the 90</strong> read &quot;significant.&quot; After correction:</p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Correction</th><th>Significant (of 90)</th><th>Threshold used</th></tr></thead><tbody><tr><td>Raw (p &lt; 0.05)</td><td>67</td><td>0.05 for every test</td></tr><tr><td>Bonferroni</td><td>53</td><td>0.05 / 90 = 0.00056 for every test</td></tr><tr><td>Holm</td><td>55</td><td>sequential, from 0.00056 up to 0.05</td></tr><tr><td>Benjamini-Hochberg FDR</td><td>64</td><td>sequential, scaling with rank</td></tr></tbody></table></div>
+<p>A sample of individual rows across that boundary shows what each correction actually does to a specific finding:</p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Strategy</th><th>Model</th><th>Metric</th><th>p-value</th><th>Raw</th><th>Bonferroni</th><th>Holm</th><th>BH-FDR</th></tr></thead><tbody><tr><td>baseline</td><td>logistic_regression</td><td>demographic_parity_diff</td><td>0.0000</td><td>significant</td><td>significant</td><td>significant</td><td>significant</td></tr><tr><td>unawareness_proxy_removal</td><td>random_forest</td><td>equal_opportunity_diff</td><td>0.0010</td><td>significant</td><td><strong>not</strong></td><td>significant</td><td>significant</td></tr><tr><td>unawareness_proxy_removal</td><td>logistic_regression</td><td>equalized_odds_diff</td><td>0.0015</td><td>significant</td><td><strong>not</strong></td><td><strong>not</strong></td><td>significant</td></tr><tr><td>baseline</td><td>random_forest</td><td>accuracy_equality_diff</td><td>0.0065</td><td>significant</td><td><strong>not</strong></td><td><strong>not</strong></td><td>significant</td></tr><tr><td>in_processing</td><td>random_forest</td><td>demographic_parity_diff</td><td>0.0225</td><td>significant</td><td><strong>not</strong></td><td><strong>not</strong></td><td>significant</td></tr><tr><td>in_processing</td><td>logistic_regression</td><td>equal_opportunity_diff</td><td>0.0385</td><td>significant</td><td><strong>not</strong></td><td><strong>not</strong></td><td><strong>not</strong></td></tr><tr><td>baseline</td><td>logistic_regression</td><td>accuracy_equality_diff</td><td>0.0395</td><td>significant</td><td><strong>not</strong></td><td><strong>not</strong></td><td><strong>not</strong></td></tr><tr><td>unawareness</td><td>logistic_regression</td><td>accuracy_equality_diff</td><td>0.9455</td><td>not</td><td>not</td><td>not</td><td>not</td></tr></tbody></table></div>
+<p>The first row (p essentially 0) survives every correction - nothing about running 90 tests changes the conclusion that COMPAS&#x27;s baseline demographic parity gap by race is real. The last row was never significant to begin with. The six rows in between are exactly the point: identical raw p-values read as five different verdicts depending on which question you ask (&quot;no false positives anywhere&quot; vs. &quot;a controlled fraction of my discoveries are false&quot;), and two of them - both around p = 0.038-0.040 - are &quot;significant&quot; under the repo&#x27;s current uncorrected reporting but wouldn&#x27;t survive even the most permissive correction here.</p>
+<h2 id="detection-code">Detection Code</h2>
+<p>A from-scratch implementation of all three corrections, verified against <code>statsmodels.stats.multitest.multipletests</code> on the exact 90-row COMPAS/race slice above (identical significant-count results: 53 Bonferroni, 55 Holm, 64 BH-FDR):</p>
+<pre><code class="language-python">import numpy as np
+
+
+def bonferroni(p_values, alpha=0.05):
+    &quot;&quot;&quot;FWER control: judge every p-value against alpha / m.&quot;&quot;&quot;
+    m = len(p_values)
+    threshold = alpha / m
+    return np.asarray(p_values) &lt;= threshold
+
+
+def holm(p_values, alpha=0.05):
+    &quot;&quot;&quot;FWER control, step-down: sort ascending, compare the i-th smallest
+    (1-indexed) to alpha / (m - i + 1). The first failure stops rejection
+    for every larger p-value too, even ones that would pass their own step.&quot;&quot;&quot;
+    p_values = np.asarray(p_values)
+    m = len(p_values)
+    order = np.argsort(p_values)
+    reject_sorted = np.zeros(m, dtype=bool)
+    for i, idx in enumerate(order):  # i is 0-indexed; rank = i + 1
+        threshold = alpha / (m - i)
+        if p_values[idx] &lt;= threshold:
+            reject_sorted[i] = True
+        else:
+            break  # every remaining (larger) p-value is not rejected
+    reject = np.zeros(m, dtype=bool)
+    reject[order] = reject_sorted
+    return reject
+
+
+def benjamini_hochberg(p_values, alpha=0.05):
+    &quot;&quot;&quot;FDR control: sort ascending, find the largest rank i where
+    p_(i) &lt;= (i / m) * alpha, then reject every p-value at or below
+    that rank - not just the ones that individually clear their own step.&quot;&quot;&quot;
+    p_values = np.asarray(p_values)
+    m = len(p_values)
+    order = np.argsort(p_values)
+    sorted_p = p_values[order]
+    ranks = np.arange(1, m + 1)
+    passes = sorted_p &lt;= (ranks / m) * alpha
+    reject_sorted = np.zeros(m, dtype=bool)
+    if passes.any():
+        cutoff_rank = np.max(np.nonzero(passes)) + 1  # last passing rank, 1-indexed
+        reject_sorted[:cutoff_rank] = True
+    reject = np.zeros(m, dtype=bool)
+    reject[order] = reject_sorted
+    return reject
+
+
+# Usage example, on the p-values from any one audit&#x27;s results_fairness.csv slice:
+# p_values = fairness_df[fairness_df[&quot;audit&quot;] == &quot;compas&quot;][&quot;p_value&quot;].to_numpy()
+# raw_sig = p_values &lt; 0.05
+# print(raw_sig.sum(), bonferroni(p_values).sum(), holm(p_values).sum(), benjamini_hochberg(p_values).sum())
+# 67 53 55 64 - matching the table above.</code></pre>
+<h2 id="limitations">Limitations</h2>
+<h3 id="1-a-correction-trades-false-positives-for-false-negatives">1. A correction trades false positives for false negatives</h3>
+<p>Every one of these methods makes it <em>harder</em> to call something significant - that&#x27;s the whole point, but it&#x27;s not free. A real, smaller effect that would have cleared the raw 0.05 threshold can fail Bonferroni or Holm once corrected for 90 simultaneous tests, exactly like two of the rows in the table above. Choosing FWER over FDR (or vice versa) is choosing which error you&#x27;d rather risk, not eliminating error.</p>
+<h3 id="2-the-correction-is-only-as-meaningful-as-the-test-batch-it-s-applied-to">2. The correction is only as meaningful as the test batch it&#x27;s applied to</h3>
+<p>Correcting across &quot;every p-value COMPAS produces&quot; and correcting across &quot;every p-value this repo has ever produced&quot; give different answers to different questions - there&#x27;s no single universally correct choice of <code>m</code>. This explainer corrects within one audit (90 tests) because that&#x27;s the natural unit a reader evaluates a single audit&#x27;s claims against; a reader asking &quot;should I trust <em>any</em> significant finding across all seven audits&quot; would need to correct across all 1,320.</p>
+<h3 id="3-none-of-these-three-methods-account-for-correlated-tests">3. None of these three methods account for correlated tests</h3>
+<p>Many of these 90 p-values are not independent - the same underlying data drives all six metrics for a given (strategy, model) cell, and adjacent strategies share most of their rows. Bonferroni and Holm&#x27;s FWER guarantees hold regardless (they&#x27;re valid under arbitrary dependence), but BH-FDR&#x27;s guarantee technically assumes independence or a specific positive-dependence structure; under general dependence a stricter variant (Benjamini-Yekutieli) is the theoretically safe choice, at the cost of even fewer discoveries.</p>
+<h3 id="4-this-explainer-s-own-correction-isn-t-applied-anywhere-in-the-actual-benchmark">4. This explainer&#x27;s own correction isn&#x27;t applied anywhere in the actual benchmark</h3>
+<p>The table above is illustrative, computed for this explainer - <code>faircode/significance.py</code> and <code>faircode/benchmark.py</code> do not currently apply any of these corrections to the harness&#x27;s real output. Reading any single p-value from <code>results_fairness.csv</code> today still means reading it uncorrected, in the context this explainer describes.</p>
+<h2 id="related-concepts">Related Concepts</h2>
+<ul><li><a href="bootstrap-confidence-intervals.html">What Is a Bootstrap Confidence Interval (and a Permutation Test)?</a> - the source of every p-value this explainer corrects, and the one that first flagged this gap in its own limitations.</li><li><a href="base-rate-fallacy.html">What Is the Base Rate Fallacy?</a> - another way a technically-correct number (a raw p-value, a screening test&#x27;s accuracy) misleads without the right context attached.</li><li><a href="intersectional-bias.html">What Is Intersectional Bias?</a> - intersectional pairs add even more simultaneous tests per audit, making the correction question sharper exactly where subgroups are already smallest.</li></ul>
+<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the audit behind every number in this explainer&#x27;s worked example.</li><li><a href="../faircode/significance.py"><code>faircode/significance.py</code></a> - computes the uncorrected p-value this explainer&#x27;s code corrects; frozen per <a href="https://github.com/yakew7/Fair-Code/blob/main/CLAUDE.md" target="_blank" rel="noreferrer noopener">CLAUDE.md</a>, so the detection code above mirrors its output independently rather than importing it.</li><li><a href="../paper/results-frozen/results_fairness.csv"><code>paper/results-frozen/results_fairness.csv</code></a> - the 1,320-row source of every p-value cited above.</li></ul>
+<h2 id="further-reading">Further Reading</h2>
+<ul><li><a href="https://www.tandfonline.com/doi/abs/10.1080/01621459.1961.10482090" target="_blank" rel="noreferrer noopener">Dunn, O. J. (1961): Multiple Comparisons Among Means, <em>Journal of the American Statistical Association</em>, 56(293), 52-64</a> - the paper that formalized the Bonferroni correction for simultaneous confidence intervals.</li><li><a href="http://www.jstor.org/stable/4615733" target="_blank" rel="noreferrer noopener">Holm, S. (1979): A Simple Sequentially Rejective Multiple Test Procedure, <em>Scandinavian Journal of Statistics</em>, 6(2), 65-70</a> - the step-down procedure that dominates Bonferroni while keeping the same family-wise error guarantee.</li><li><a href="https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1995.tb02031.x" target="_blank" rel="noreferrer noopener">Benjamini, Y., Hochberg, Y. (1995): Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing, <em>Journal of the Royal Statistical Society: Series B</em>, 57(1), 289-300</a> - the original false discovery rate paper, and the reason FDR control became standard practice in genomics and large-scale testing generally.</li></ul>
+<p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
+  </main>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('explainerThemeToggle');
+      const html = document.documentElement;
+      const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+      function syncTheme() {
+        const current = html.getAttribute('data-theme') || systemPref;
+        toggle.textContent = current === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', current === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+        toggle.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
+      }
+
+      syncTheme();
+
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme') || systemPref;
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        syncTheme();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -362,6 +362,7 @@ Explainers live in `explainers/` and should make one fairness concept easy to un
 | `fairness-through-unawareness.md` | Why removing the protected attribute doesn't remove what correlates with it |
 | `lime.md` | A local, approximate surrogate model - the other major way to explain one prediction, alongside SHAP |
 | `mitigation-strategies.md` | Where in the pipeline you intervene - pre-, in-, or post-processing - changes what a fairness fix can and can't do |
+| `multiple-comparisons.md` | Why running dozens of p-values per audit inflates the odds of a false "significant," and how Bonferroni, Holm, and Benjamini-Hochberg FDR each answer that differently on a real 90-p-value COMPAS slice |
 
 ### A good explainer should include
 

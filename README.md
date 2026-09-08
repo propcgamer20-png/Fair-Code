@@ -289,7 +289,8 @@ Fair-Code/
 │   ├── mitigation-strategies.md
 │   ├── fairness-through-unawareness.md
 │   ├── lime.md
-│   └── counterfactual-explanation.md
+│   ├── counterfactual-explanation.md
+│   └── multiple-comparisons.md
 │
 ├── .pre-commit-config.yaml              # em-dash/broken-links/ruff + build-explainers pre-push hooks
 ├── CHANGELOG.md
@@ -780,7 +781,7 @@ features = [
 53 short, plain-language write-ups of individual fairness concepts, each with runnable detection code. The healthcare-focused ones are called out above in [Healthcare AI Bias Focus](#healthcare-ai-bias-focus).
 
 <details>
-<summary><strong>Show all 53 explainers →</strong></summary>
+<summary><strong>Show all 54 explainers →</strong></summary>
 
 | Explainer | What it covers |
 |-----------|----------------|
@@ -837,6 +838,7 @@ features = [
 | [Why Fairness Through Unawareness Fails](explainers/fairness-through-unawareness.md) | Removing the protected attribute doesn't remove what correlates with it |
 | [What Is LIME?](explainers/lime.md) | A local, approximate surrogate model - the other major way to explain one prediction |
 | [What Is a Counterfactual Explanation? (And How It Differs From Counterfactual Fairness)](explainers/counterfactual-explanation.md) | One asks what changed the outcome. The other asks whether the outcome should have changed at all |
+| [What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?](explainers/multiple-comparisons.md) | Run enough p-values at 0.05 and some will read "significant" by chance alone |
 
 </details>
 
@@ -1198,7 +1200,7 @@ The full public roadmap - with phases, completion status, and content schedule -
 | Combined Social Reach (Instagram + LinkedIn) | 30K+ |
 | Countries Reached (Website Visitors) | 20 |
 | Code Audits Published | 7 |
-| Explainers Published | 53 |
+| Explainers Published | 54 |
 
 Tracked weekly in [METRICS.md](METRICS.md).
 

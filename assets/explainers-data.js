@@ -538,5 +538,15 @@ window.FAIR_CODE_EXPLAINERS = [
     "tags": [
       "explainability"
     ]
+  },
+  {
+    "slug": "multiple-comparisons",
+    "title": "What Is a Multiple-Comparisons Correction (Bonferroni, Holm, and False Discovery Rate)?",
+    "subtitle": "Run enough p-values at 0.05 and some will read \"significant\" by chance alone.",
+    "summary": "Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo's own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS's real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which \"significant\" findings survive correction and which don't.",
+    "tags": [
+      "metrics",
+      "detection"
+    ]
   }
 ];
