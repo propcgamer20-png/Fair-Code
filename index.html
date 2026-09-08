@@ -1742,14 +1742,14 @@
     <li><a href="#methodology">Method</a></li>
     <li class="nav-dropdown-wrap">
       <a href="#projects" class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Experiments <span class="nav-caret">▾</span></a>
-      <ul class="nav-dropdown" role="menu">
-        <li role="none"><a href="#project-compas" role="menuitem">01 - COMPAS</a></li>
-        <li role="none"><a href="#project-hiring" role="menuitem">02 - AI Hiring</a></li>
-        <li role="none"><a href="#project-credit" role="menuitem">03 - German Credit</a></li>
-        <li role="none"><a href="#project-insurance" role="menuitem">04 - Insurance Denial</a></li>
-        <li role="none"><a href="#project-benefits" role="menuitem">05 - Benefits Denial</a></li>
-        <li role="none"><a href="#project-readmission" role="menuitem">06 - Healthcare Readmission</a></li>
-        <li role="none"><a href="#project-tenant" role="menuitem">07 - Tenant Screening</a></li>
+      <ul class="nav-dropdown">
+        <li><a href="#project-compas">01 - COMPAS</a></li>
+        <li><a href="#project-hiring">02 - AI Hiring</a></li>
+        <li><a href="#project-credit">03 - German Credit</a></li>
+        <li><a href="#project-insurance">04 - Insurance Denial</a></li>
+        <li><a href="#project-benefits">05 - Benefits Denial</a></li>
+        <li><a href="#project-readmission">06 - Healthcare Readmission</a></li>
+        <li><a href="#project-tenant">07 - Tenant Screening</a></li>
       </ul>
     </li>
     <li><a href="#explainers">Explainers</a></li>
@@ -1988,7 +1988,7 @@
 </section>
 
 <!-- PROJECTS / EXPERIMENTS -->
-<section id="projects" aria-labelledby="projects-heading">
+<section id="projects" aria-labelledby="projects-heading" aria-live="polite">
   <div class="section-eyebrow"><span class="num">03</span>Projects</div>
   <div class="projects-header">
     <h2 id="projects-heading" class="projects-title">The experiments</h2>
@@ -2027,7 +2027,7 @@
     <div class="project-top">
       <div>
         <div class="project-num">PROJECT - 01</div>
-        <div class="project-name">COMPAS</div>
+        <h3 class="project-name">COMPAS</h3>
         <p class="project-desc">A real algorithm used in US courtrooms. ProPublica's public dataset, 70,000+ records. The bias is not a glitch. It's baked in.</p>
       </div>
       <div class="project-stats">
@@ -2106,7 +2106,7 @@
     <div class="project-top">
       <div>
         <div class="project-num">PROJECT - 02</div>
-        <div class="project-name">AI HIRING</div>
+        <h3 class="project-name">AI HIRING</h3>
         <p class="project-desc">Women hired 20.9% less than equally qualified men. The algorithm wasn't told to discriminate. It learned to.</p>
       </div>
       <div class="project-stats">
@@ -2185,7 +2185,7 @@
     <div class="project-top">
       <div>
         <div class="project-num">PROJECT - 03</div>
-        <div class="project-name">GERMAN CREDIT</div>
+        <h3 class="project-name">GERMAN CREDIT</h3>
         <p class="project-desc">A lending model rates young applicants as bad credit risks at 6+ points higher than older applicants with identical financial profiles. It learned age from job tenure.</p>
       </div>
       <div class="project-stats">
@@ -2264,7 +2264,7 @@
     <div class="project-top">
       <div>
         <div class="project-num">PROJECT - 04</div>
-        <div class="project-name">INSURANCE DENIAL</div>
+        <h3 class="project-name">INSURANCE DENIAL</h3>
         <p class="project-desc">An insurance AI flags older patients for high-cost claims at 7.93 points higher than younger patients. BMI, smoking status, and diabetes status encode race without naming it.</p>
       </div>
       <div class="project-stats">
@@ -2345,7 +2345,7 @@
     <div class="project-top">
       <div>
         <div class="project-num">PROJECT - 05</div>
-        <div class="project-name">BENEFITS DENIAL</div>
+        <h3 class="project-name">BENEFITS DENIAL</h3>
         <p class="project-desc">An automated means-test flags male applicants as ineligible at 18 points higher than female applicants - not because of what they earn, but because of who they're married to.</p>
       </div>
       <div class="project-stats">
@@ -2446,7 +2446,7 @@
     <div class="project-top">
       <div style="min-width: 0; flex: 1;">
         <div class="project-num">PROJECT - 06</div>
-        <div class="project-name">HEALTHCARE READMISSION</div>
+        <h3 class="project-name">HEALTHCARE READMISSION</h3>
         <p class="project-desc">A hospital readmission model flags patients for high clinical risk using payer code and discharge destination - variables that measure insurance access, not medical severity.</p>
       </div>
       <div class="project-stats" style="flex-shrink: 0;">
@@ -2538,7 +2538,7 @@
     <div class="project-top">
       <div style="min-width: 0; flex: 1;">
         <div class="project-num">PROJECT - 07</div>
-        <div class="project-name">TENANT SCREENING</div>
+        <h3 class="project-name">TENANT SCREENING</h3>
         <p class="project-desc">A tenant-screening company buys a criminal-history risk score and hands the landlord a high-risk flag on the applicant - a flag that fires 7 points more often for Black applicants than white ones, before the landlord reads a word of the application.</p>
       </div>
       <div class="project-stats" style="flex-shrink: 0;">

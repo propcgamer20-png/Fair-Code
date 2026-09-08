@@ -474,7 +474,7 @@ def build_server():
         """
         try:
             return _list_explainers_impl(tag)
-        except ValueError as exc:
+        except (ValueError, FileNotFoundError) as exc:
             raise _as_tool_error(exc) from exc
 
     @server.tool()
