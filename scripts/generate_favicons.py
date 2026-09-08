@@ -87,10 +87,18 @@ def main():
     spec = _parse_mark(LOGO_SVG)
 
     # Favicons: transparent, ink mark - logo.svg's own colors.
-    render(spec, 16, transparent=True).save(ICONS_DIR / "favicon-16x16.png")
+    favicon_16 = render(spec, 16, transparent=True)
+    favicon_16.save(ICONS_DIR / "favicon-16x16.png")
     favicon_32 = render(spec, 32, transparent=True)
     favicon_32.save(ICONS_DIR / "favicon-32x32.png")
-    favicon_32.save(ICONS_DIR / "favicon.ico", sizes=[(16, 16), (32, 32)])
+    # Pillow's ICO writer builds a listed `sizes` frame by resizing whichever
+    # save()-provided image (the base image passed to save(), or one in
+    # append_images) exactly matches that size, only falling back to
+    # resizing the base image down when no exact match exists - and it skips
+    # any requested size larger than the base image entirely, so the base
+    # must be the largest frame (favicon_32) with the smaller dedicated
+    # render passed via append_images, not the other way around.
+    favicon_32.save(ICONS_DIR / "favicon.ico", sizes=[(16, 16), (32, 32)], append_images=[favicon_16])
 
     # App/social icons: opaque dark tile, light mark.
     render(spec, 180, transparent=False, mark_fill=LIGHT_MARK).save(ICONS_DIR / "apple-touch-icon.png")
