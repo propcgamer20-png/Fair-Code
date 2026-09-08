@@ -378,6 +378,13 @@
     "tags": ["metrics", "detection"]
   },
   {
+    "slug": "fairness-accuracy-tradeoff",
+    "title": "What Is the Fairness-Accuracy Trade-off?",
+    "subtitle": "Closing a fairness gap is rarely free, and the cost isn't always the same size.",
+    "summary": "Learn why fairness-mitigation strategies that shrink a demographic parity gap often also reduce model accuracy, using COMPAS's real frozen numbers across all five strategies (accuracy falling from 65.3% to as low as 53.9% as the demographic parity gap closes from 85.5% toward roughly zero) - and why the trade-off isn't a fixed, linear cost.",
+    "tags": ["metrics", "data"]
+  },
+  {
     "slug": "treatment-equality",
     "title": "What Is Treatment Equality?",
     "subtitle": "Equal error rates across groups can still hide opposite-skewed error types within each group.",
