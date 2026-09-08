@@ -45,7 +45,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # these links; checking the copy too would just be false positives.
 ALLOW_PREFIXES = ("faircode/_explainers/",)
 
-FENCE_RE = re.compile(r'^\s*```')
+FENCE_RE = re.compile(r'^\s*(?:```|~~~)')
 HEADING_RE = re.compile(r'^(#{1,6})\s+(.*?)\s*#*$')
 LINK_RE = re.compile(r'(?<!!)\[[^\]]*\]\(([^)]+)\)')
 INLINE_CODE_RE = re.compile(r'`[^`]*`')
