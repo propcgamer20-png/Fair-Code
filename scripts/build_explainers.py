@@ -21,6 +21,7 @@ import json
 import re
 import subprocess
 from html import escape as _escape
+from html import unescape as unescape_html
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -113,7 +114,12 @@ def inline_markdown(text, known_slugs):
 
     def replace_link(match):
         label, url = match.group(1), match.group(2)
-        trimmed = url.strip()
+        # `url` was extracted from `escaped` (the whole line already ran
+        # through escape_html above), so it's HTML-entity-encoded here -
+        # unescape before resolving so the final escape_html() below is the
+        # only encoding pass the URL goes through, instead of double-encoding
+        # e.g. a literal "&" into "&amp;amp;".
+        trimmed = unescape_html(url.strip())
         is_external = bool(re.match(r"^(?:[a-z]+:)", trimmed, flags=re.IGNORECASE))
         resolved = resolve_link_target(trimmed, known_slugs)
         target_attr = ' target="_blank" rel="noreferrer noopener"' if is_external else ""
