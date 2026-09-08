@@ -376,6 +376,13 @@
     "subtitle": "Run enough p-values at 0.05 and some will read \"significant\" by chance alone.",
     "summary": "Learn what Bonferroni, Holm, and Benjamini-Hochberg false discovery rate corrections actually do to a batch of p-values, and why this repo's own benchmark harness - dozens of p-values per audit, 1,320 in total - needs one. Applies all three to COMPAS's real 90-p-value slice from paper/results-frozen/results_fairness.csv, verified against statsmodels, showing exactly which \"significant\" findings survive correction and which don't.",
     "tags": ["metrics", "detection"]
+  },
+  {
+    "slug": "treatment-equality",
+    "title": "What Is Treatment Equality?",
+    "subtitle": "Equal error rates across groups can still hide opposite-skewed error types within each group.",
+    "summary": "Learn why Treatment Equality checks the ratio of false negatives to false positives within each group, not the individual rates Equalized Odds already compares. Uses COMPAS's real (freshly computed, not frozen) confusion matrix: a 0.13 FN:FP ratio for African-American defendants against a 31.0 ratio for Caucasian defendants on the same baseline model.",
+    "tags": ["metrics"]
   }
 ]
 
