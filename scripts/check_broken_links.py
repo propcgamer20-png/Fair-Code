@@ -67,6 +67,18 @@ def _tracked_markdown_files():
     ]
 
 
+def _tracked_paths():
+    """All tracked file paths, exactly as git cased them - used so a
+    case-mismatched relative link (accepted by Path.exists() on a
+    case-insensitive filesystem like macOS/Windows) is still caught here,
+    matching git's own case-sensitive behavior and the case-sensitive Linux
+    runner this check actually runs on in CI."""
+    out = subprocess.run(
+        ["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout
+    return {line for line in out.splitlines() if line.strip()}
+
+
 def _strip_inline_formatting(text):
     for pattern, repl in INLINE_FORMATTING_RE:
         text = pattern.sub(repl, text)
@@ -123,6 +135,7 @@ def _parse_file(path):
 
 def main():
     files = _tracked_markdown_files()
+    tracked = _tracked_paths()
     headings_by_file = {}
     links_by_file = {}
 
@@ -156,7 +169,15 @@ def main():
 
             resolved = (path.parent / unquote(rel_path)).resolve()
 
-            if not resolved.exists():
+            if resolved.is_dir():
+                exists = True
+            else:
+                try:
+                    exists = resolved.relative_to(ROOT).as_posix() in tracked
+                except ValueError:
+                    exists = resolved.exists()
+
+            if not exists:
                 broken.append((path, line_no, target, f"{rel_path!r} does not exist"))
                 continue
 
