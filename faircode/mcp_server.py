@@ -204,12 +204,17 @@ def _compare_datasets_impl(path_a, path_b, overrides=None,
     return result
 
 
-def _proxy_hints_impl(path, overrides=None, min_share=None, min_group_size=None,
-                      held_out_with=None):
-    """Only min_share/min_group_size are exposed - they're the only two
-    threshold knobs that feed dimension detection (profiler.py's
-    _dimension()); intersection_floor/imbalance_flag/missing_flag affect
-    intersections/flags, which this tool never touches.
+def _proxy_hints_impl(path, overrides=None, held_out_with=None):
+    """`overrides` forces a column's detected kind the same way profile()'s
+    own `overrides` does; no other threshold knob affects this tool -
+    proxy_hints() (faircode/proxy.py) tests every detected dimension
+    unconditionally, reading only each dimension's `name`/`kind`, neither of
+    which min_share/intersection_floor/imbalance_flag/missing_flag/
+    min_group_size can change (they only affect profile()'s own per-group
+    scoring and flags, fields proxy_hints() never reads) - a previous
+    version of this tool exposed min_share/min_group_size as if they
+    narrowed which pairs got tested; they never did anything, so they were
+    removed (#471) rather than left as dead, misleadingly-named parameters.
 
     `held_out_with` mirrors the CLI's --proxy-hints-with: a list of
     "PATH=COLUMN" strings for testing a protected attribute that's already
@@ -227,8 +232,7 @@ def _proxy_hints_impl(path, overrides=None, min_share=None, min_group_size=None,
     overrides = overrides or {}
     df = _read_table_or_raise(path)
     _check_overrides(overrides, df.columns)
-    opts = _build_opts(min_share=min_share, min_group_size=min_group_size)
-    result = profile(df, overrides, opts)
+    result = profile(df, overrides)
     held_out = parse_held_out_specs(held_out_with, df, _read_table_or_raise,
                                     flag="held_out_with") if held_out_with else None
     output = {"hints": compute_proxy_hints(df, result["dimensions"], held_out=held_out)}
@@ -430,8 +434,6 @@ def build_server():
 
     @server.tool()
     def proxy_hints(path: str, overrides: dict[str, str] | None = None,
-                    min_share: float | None = None,
-                    min_group_size: int | None = None,
                     held_out_with: list[str] | None = None) -> dict:
         """Flag pairs of detected demographic columns that are strongly
         statistically associated (chi-squared test of independence, p < 0.05)
@@ -440,6 +442,11 @@ def build_server():
         means no pair crossed the significance threshold, not an error.
 
         Needs the optional 'scipy' extra (`pip install faircode[proxy]`).
+
+        Unlike `profile`/`compare_datasets`, this tool takes no min_share/
+        intersection_floor/imbalance_flag/missing_flag/min_group_size
+        threshold knobs - every detected pair is tested unconditionally, so
+        none of those thresholds would have anything to narrow (#471).
 
         This only tests columns present in the dataset at `path` by default:
         if a protected attribute has already been dropped entirely (a common
@@ -452,7 +459,7 @@ def build_server():
         section 3 and issue #328.
         """
         try:
-            return _proxy_hints_impl(path, overrides, min_share, min_group_size, held_out_with)
+            return _proxy_hints_impl(path, overrides, held_out_with)
         except (ValueError, FileNotFoundError, RuntimeError) as exc:
             raise _as_tool_error(exc) from exc
 
