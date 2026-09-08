@@ -1108,7 +1108,7 @@ kept as historical reference, not as evidence for a live publication - see [CLAU
 - [ ] LLM bias audit
 
 <details>
-<summary><strong>Show 44 completed items →</strong></summary>
+<summary><strong>Show 64 completed items →</strong></summary>
 
 - [x] COMPAS Criminal Justice Bias
 - [x] AI Fair Recruitment Bias
@@ -1116,6 +1116,7 @@ kept as historical reference, not as evidence for a live publication - see [CLAU
 - [x] Insurance Denial - Healthcare Bias
 - [x] Benefits Denial - Welfare Eligibility Bias
 - [x] Healthcare Readmission - Clinical Bias
+- [x] Tenant Screening - Rental Application Bias
 - [x] Jupyter notebook walkthroughs for each audit
 - [x] CI pipeline - all audit scripts run automatically on every push and PR
 - [x] Explainer: Proxy Variables
@@ -1152,6 +1153,25 @@ kept as historical reference, not as evidence for a live publication - see [CLAU
 - [x] Explainer: Miscalibration in Clinical Risk Scores Across Groups
 - [x] Explainer: Missing Data as Bias in Electronic Health Records
 - [x] Explainer: Why Medical Imaging Models Fail on Underrepresented Groups
+- [x] Explainer: What Is a ROC Curve and AUC?
+- [x] Explainer: What Is Class Imbalance?
+- [x] Explainer: What Is the Bias-Variance Trade-off?
+- [x] Explainer: What Is a Confusion Matrix?
+- [x] Explainer: What Is a Protected Attribute?
+- [x] Explainer: The Obermeyer Case - Cost as a Proxy for Health Need
+- [x] Explainer: Underdiagnosis Bias in Healthcare AI
+- [x] Explainer: Race Correction in Clinical Algorithms
+- [x] Explainer: What Is Reject Inference?
+- [x] Explainer: What Is the Base Rate Fallacy?
+- [x] Explainer: What Is a Precision-Recall Curve?
+- [x] Explainer: What Is Equal Opportunity?
+- [x] Explainer: What Is Intersectional Bias?
+- [x] Explainer: What Is Accuracy Equality?
+- [x] Explainer: What Is a Bootstrap Confidence Interval?
+- [x] Explainer: What Are Pre-, In-, and Post-Processing Fairness Mitigations?
+- [x] Explainer: Why Fairness Through Unawareness Fails
+- [x] Explainer: What Is LIME?
+- [x] Explainer: What Is a Counterfactual Explanation?
 - [x] Fairness audit web dashboard - [Open Dataset Profiler](#open-dataset-profiler)
 - [x] Bias detection utility library (`faircode/` module)
 
