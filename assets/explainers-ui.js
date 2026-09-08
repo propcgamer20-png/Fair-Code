@@ -30,6 +30,15 @@
       .replace(/'/g, '&#39;');
   }
 
+  function unescapeHtml(value) {
+    return String(value)
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, '\'');
+  }
+
   function inlineMarkdown(text) {
     const escaped = escapeHtml(text);
     return escaped
@@ -37,7 +46,11 @@
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em>$1</em>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
-        const trimmed = url.trim();
+        // `url` was extracted from `escaped` above, so it's already
+        // HTML-entity-encoded - unescape before resolving so the
+        // escapeHtml() below is the only encoding pass the URL goes
+        // through, instead of double-encoding e.g. "&" into "&amp;amp;".
+        const trimmed = unescapeHtml(url.trim());
         const isExternal = /^(?:[a-z]+:)/i.test(trimmed);
         const resolved = resolveLinkTarget(trimmed);
         return `<a href="${escapeHtml(resolved)}"${isExternal ? ' target="_blank" rel="noreferrer noopener"' : ''}>${label}</a>`;
