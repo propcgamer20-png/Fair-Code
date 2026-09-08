@@ -421,7 +421,18 @@
   mappingList.addEventListener('change', function (e) {
     if (!e.target.classList.contains('map-select') || !currentTable) return;
     currentOverrides = readOverrides();
-    reprofile(false);
+    if (!reprofile(false)) {
+      // The mapping override just applied may have removed the very
+      // dimension currentOpts.cross names (the engine throws in that case -
+      // see #420) - unlike the reference-upload handler, there's no prior
+      // value worth reverting to here, since the mapping change itself is
+      // what the user wants. Clear the now-stale cross selection and retry
+      // once instead of leaving reprofile() failed, which would otherwise
+      // hide the entire #results panel - including the mapping controls
+      // needed to undo the change - per showError() (#466).
+      delete currentOpts.cross;
+      reprofile(false);
+    }
   });
 
   // ── Intersection cross-selectors (issue #58) ───────────────────────────
