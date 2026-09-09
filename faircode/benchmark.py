@@ -60,10 +60,10 @@ def _load_dataset(manifest):
         df = row_filter.apply(df)
     df = df.reset_index(drop=True)
 
-    y = manifest.target.compute(df)
+    y, target_known = manifest.target.compute(df)
 
     protected_masks = {}
-    known_mask = pd.Series(True, index=df.index)
+    known_mask = target_known.copy()
     for pa in manifest.protected_attributes:
         disadv, known = pa.disadvantaged_mask(df)
         protected_masks[pa.name] = disadv
