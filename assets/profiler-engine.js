@@ -76,18 +76,21 @@
   var PSI_SIGNIFICANT = 0.25;
   var SCORE_DROP_FLAG = 5;
 
-  // Pandas-style missing tokens, so JS null-handling matches read_csv defaults.
+  // Pandas' default na_values (pandas.io.parsers.readers.STR_NA_VALUES),
+  // matched EXACTLY and case-sensitively so JS null-handling is bit-for-bit
+  // identical to loaders.py's plain pd.read_csv(). Notably: "None" IS in this
+  // set (pandas treats it as missing), while bare lowercase "na" and "none"
+  // are NOT - the previous list had both backwards, and lower-cased the cell
+  // before comparing, which also erased pandas' own case-sensitivity
+  // ("NA" is missing, "na" is not). See #491.
   var NA_TOKENS = {
-  '': 1,
-  'na': 1,
-  'n/a': 1,
-  'nan': 1,
-  'null': 1,
-  // Intentionally exclude "none" to match the Python profiler.
-  // In this project, pd.read_csv() preserves the literal string "none"
-  // as a categorical value, so treating it as missing breaks Python↔JS
-  // parity (see credit_customers.csv).
-};
+    '': 1,
+    '#N/A': 1, '#N/A N/A': 1, '#NA': 1,
+    '-1.#IND': 1, '-1.#QNAN': 1, '-NaN': 1, '-nan': 1,
+    '1.#IND': 1, '1.#QNAN': 1, '<NA>': 1,
+    'N/A': 1, 'NA': 1, 'NULL': 1, 'NaN': 1, 'None': 1,
+    'n/a': 1, 'nan': 1, 'null': 1,
+  };
 
   // ── Keyword lists - MUST mirror faircode/detect.py ─────────────────────
   var KEYWORDS = [
@@ -391,7 +394,8 @@
   }
   function isMissing(v) {
     if (v === null || v === undefined) return true;
-    return NA_TOKENS.hasOwnProperty(String(v).trim().toLowerCase());
+    // Case-sensitive, matching pandas' STR_NA_VALUES exactly (no lower-casing).
+    return NA_TOKENS.hasOwnProperty(String(v).trim());
   }
 
   // ── Column detection (SPEC section 1) ──────────────────────────────────
