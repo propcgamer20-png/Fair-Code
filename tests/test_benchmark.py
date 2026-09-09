@@ -333,3 +333,38 @@ def test_run_benchmark_wraps_degenerate_zero_row_dataset_with_manifest_path(tmp_
 
     with pytest.raises(ValueError, match=str(audit_dir / "audit.yaml")):
         run_benchmark(root=str(tmp_path), n_resamples=N_RESAMPLES, n_permutations=N_PERMUTATIONS)
+
+
+def test_load_dataset_excludes_rows_with_a_missing_target_label(tmp_path):
+    # Integration regression test for #488: _load_dataset combines
+    # TargetSpec.compute()'s known_mask with the protected-attribute
+    # known_mask it already ANDs together, so a genuinely missing/NaN
+    # target label is dropped the same way an unknown protected-attribute
+    # value already was - not silently scored as a plain negative-class row.
+    from faircode.benchmark import _load_dataset
+
+    audit_dir = tmp_path / "NaN Target Audit"
+    audit_dir.mkdir()
+    pd.DataFrame({
+        "label": [1, 0, 1, np.nan, 0],
+        "g": ["a", "b", "a", "b", "a"],
+        "x": [1, 2, 3, 4, 5],
+    }).to_csv(audit_dir / "toy.csv", index=False)
+    (audit_dir / "audit.yaml").write_text(yaml.dump({
+        "name": "toy",
+        "dataset": {"path": "toy.csv"},
+        "target": {"column": "label", "method": "binary"},
+        "protected_attributes": [
+            {"name": "g", "type": "categorical", "column": "g",
+             "disadvantaged_values": ["a"], "advantaged_values": ["b"]},
+        ],
+        "core_features": ["x"],
+    }))
+
+    manifest = load_manifest(audit_dir / "audit.yaml")
+    df, y, protected_masks = _load_dataset(manifest)
+
+    assert len(df) == 4
+    assert len(y) == 4
+    assert len(protected_masks["g"]) == 4
+    assert 4 not in df.index  # the NaN-label row (original index 3) is gone
