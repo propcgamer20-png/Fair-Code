@@ -142,7 +142,12 @@ def parse_table(lines, start_index):
         return None
 
     def split_row(row):
-        return [cell.strip() for cell in row.split("|")[1:-1]]
+        # Split on unescaped "|" only, then unescape "\|" -> "|" in each cell,
+        # so a literal pipe inside a cell (GFM's "\|") no longer starts a
+        # spurious column. Rows carry a leading and trailing "|", so the
+        # first and last split fragments are empty and dropped.
+        cells = re.split(r"(?<!\\)\|", row.strip())[1:-1]
+        return [cell.strip().replace("\\|", "|") for cell in cells]
 
     headers = split_row(rows[0])
     body_rows = [split_row(row) for row in rows[2:]]

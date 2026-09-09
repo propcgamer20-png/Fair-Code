@@ -65,7 +65,7 @@ Practitioners use four main statistical approaches to correct for reject inferen
 |---|---|---|---|
 | **Hard Parceling (Pseudo-Labeling)** | Train initial model M1 on approved cases (S = 1); score rejected cases (S = 0); assign binary labels Y_hat via threshold; retrain M2 on all rows. | Simple to implement in standard ML pipelines. | Propagates initial model errors and thresholding artifacts into retraining. |
 | **Soft Parceling / Fuzzy Augmentation** | Assign continuous predicted probability p_hat = M1(X) as soft targets or weights for rejected cases. | Avoids hard threshold cutoffs; preserves prediction uncertainty. | Dilutes training signal if initial model probability estimates are miscalibrated. |
-| **Inverse Probability Weighting (IPW)** | Estimate selection propensity w(X) = P(S = 1 | X); weight approved cases by 1 / w(X) during training. | Theoretically unbiased under Missing At Random (MAR) assumptions. | Extreme weights when propensity P(S = 1 | X) ≈ 0 create high estimator variance. |
+| **Inverse Probability Weighting (IPW)** | Estimate selection propensity w(X) = P(S = 1 \| X); weight approved cases by 1 / w(X) during training. | Theoretically unbiased under Missing At Random (MAR) assumptions. | Extreme weights when propensity P(S = 1 \| X) ≈ 0 create high estimator variance. |
 | **Heckman Two-Stage Model** | Stage 1: Fit probit model for selection S. Stage 2: Add Inverse Mills Ratio λ(Zγ) to outcome model to absorb correlation ρ(u, ε). | Explicitly models unobserved selection correlation ρ. | Relies heavily on bivariate normality and valid exclusion restrictions (Z). |
 
 ---

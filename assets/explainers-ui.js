@@ -109,8 +109,14 @@
       return null;
     }
 
-    const headers = rows[0].split('|').slice(1, -1).map(cell => cell.trim());
-    const bodyRows = rows.slice(2).map(row => row.split('|').slice(1, -1).map(cell => cell.trim()));
+    // Split on unescaped "|" only, then unescape "\|" -> "|" in each cell, so
+    // a literal pipe inside a cell (GFM's "\|") no longer starts a spurious
+    // column. Mirrors scripts/build_explainers.py's split_row().
+    const splitRow = row => row.trim().split(/(?<!\\)\|/).slice(1, -1)
+      .map(cell => cell.trim().replace(/\\\|/g, '|'));
+
+    const headers = splitRow(rows[0]);
+    const bodyRows = rows.slice(2).map(splitRow);
 
     const headerHtml = headers.map(cell => `<th>${inlineMarkdown(cell)}</th>`).join('');
     const bodyHtml = bodyRows.map(row => `<tr>${row.map(cell => `<td>${inlineMarkdown(cell)}</td>`).join('')}</tr>`).join('');
@@ -214,7 +220,9 @@
         flushParagraph();
         flushList();
         flushQuote();
-        const level = headingMatch[1].length;
+        // +1 offset: the explainer page's hero already renders a real <h1>.
+        // Mirrors scripts/build_explainers.py's render_markdown().
+        const level = Math.min(headingMatch[1].length + 1, 6);
         const headingText = headingMatch[2];
         const baseId = slugifyHeading(headingText);
         const nextCount = (headingCounts.get(baseId) || 0) + 1;
