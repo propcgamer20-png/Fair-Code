@@ -653,7 +653,7 @@
       engine: 'js',
       dataset_hash_a: hashA.digest,
       dataset_hash_b: hashB.digest,
-      params: Object.assign({}, currentOpts),
+      params: E.publicParams(currentOpts),
       overrides: Object.assign({}, currentOverrides)
     };
     if (hashA.note !== null) provenance.dataset_hash_a_note = hashA.note;
