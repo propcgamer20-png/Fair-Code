@@ -301,10 +301,14 @@ def _get_explainer_impl(slug):
 def _get_benchmark_results_impl(kind="fairness", audit=None, model=None, strategy=None,
                                 metric=None, protected_attribute=None):
     """Filters the frozen benchmark CSV named by `kind` ("fairness" or
-    "performance") down to rows matching every given (non-None) filter,
-    ignoring a filter that names a column the chosen `kind` doesn't have
-    (e.g. `protected_attribute` against results_performance.csv, which has
-    no such column). Caps the returned rows at _RESULTS_ROW_LIMIT so an
+    "performance") down to rows matching every given (non-None) filter.
+    A filter that names a column the chosen `kind` doesn't have (e.g.
+    `protected_attribute` against results_performance.csv, which has no
+    such column) raises ValueError rather than being silently ignored, so
+    a caller can't get the whole unfiltered table back believing their
+    filter was applied - matching how profile_dataset/compare_datasets
+    reject an `overrides` column absent from the dataset. Caps the returned
+    rows at _RESULTS_ROW_LIMIT so an
     unfiltered or loosely-filtered call can't flood the calling agent's
     context - `total_matches`/`truncated` tell it whether to narrow the
     query. NaN cells (e.g. results_performance.csv's AUC rows have no
@@ -323,8 +327,13 @@ def _get_benchmark_results_impl(kind="fairness", audit=None, model=None, strateg
             continue
         if not isinstance(value, (str, int, float, bool)):
             raise ValueError(f"{column} must be a plain string, got {type(value).__name__}")
-        if column in df.columns:
-            df = df[df[column] == value]
+        if column not in df.columns:
+            raise ValueError(
+                f"{column!r} is not a column of the {kind!r} benchmark results "
+                f"(available: {', '.join(df.columns)}); it cannot be used as a "
+                f"filter for this kind"
+            )
+        df = df[df[column] == value]
     total = len(df)
     for column in _RESULTS_NUMERIC_COLUMNS:
         if column in df.columns:
