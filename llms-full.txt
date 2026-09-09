@@ -1207,7 +1207,7 @@ features = ['Gender', 'Age', 'Experience_Years', 'Technical_Test_Score',
             'Education_Level', 'Previous_Companies', 'Distance_from_Company']
 ```
 
-`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was *designed* to see these attributes. The 20.9pp hire rate gap is the disparate impact.
+`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was *designed* to see these attributes. The 4.51pp hire rate gap (21.62% vs 17.10%) is the disparate impact.
 
 ### The Fix - What Removing Disparate Treatment Looks Like
 
@@ -1992,21 +1992,15 @@ A model trained with gender and age as features assigned hire recommendations at
 
 | Group | Hire Rate |
 |---|---|
-| Male applicants | ~71% |
-| Female applicants | ~50% |
-| **Fairness Gap** | **~20.9 percentage points** |
+| Male applicants | 21.62% |
+| Female applicants | 17.10% |
+| **Fairness Gap** | **4.51 percentage points** |
+
+(The disparate-impact ratio here is 17.10 / 21.62 = 0.79, below the 0.80 four-fifths threshold.)
 
 The model was not told to discriminate. It learned to - by treating age as a proxy for gender, because women in the dataset more often had career gaps. Age was correlated with gender, so including it smuggled the gender signal back in even without an explicit gender rule.
 
-After dropping gender and age (the protected attribute and its proxy):
-
-| Group | Hire Rate |
-|---|---|
-| Male applicants | ~67% |
-| Female applicants | ~67% |
-| **New Fairness Gap** | **~0.12 percentage points** |
-
-**97.3% reduction.** The gap wasn't in the underlying merit of candidates - it was in which features the model was permitted to see.
+After dropping gender and age (the protected attribute and its proxy), the gap closes to **0.12 percentage points** - a **97.3% reduction**. The gap wasn't in the underlying merit of candidates - it was in which features the model was permitted to see.
 
 ---
 
@@ -3728,9 +3722,9 @@ features = [
 
 | Group | Hire Rate |
 |---|---|
-| Male candidates | 61.2% |
-| Female candidates | 40.3% |
-| **Fairness gap** | **20.9%** |
+| Male candidates | 21.62% |
+| Female candidates | 17.10% |
+| **Fairness gap** | **4.51 percentage points** |
 
 The network didn't contain a rule that said "prefer men." It learned from historical hiring data in which men were hired more. The weights encoded that pattern. The bias was invisible - buried in floating-point numbers across hidden layers.
 
@@ -3748,21 +3742,15 @@ features = [
 ]
 ```
 
-**Results:**
-
-| Group | Hire Rate |
-|---|---|
-| Male candidates | 54.1% |
-| Female candidates | 54.0% |
-| **Fairness gap** | **0.1%** |
+**Result:** the fairness gap closes to **0.12 percentage points**.
 
 ### Summary
 
 | Approach | Fairness Gap | Reduction |
 |---|---|---|
-| Biased model | 20.9% | - |
-| Remove gender only | ~18% | Minimal |
-| Remove gender + proxy | 0.1% | **99.5%** |
+| Biased model | 4.51% | - |
+| Remove gender only | barely moves (age still proxies it) | Minimal |
+| Remove gender + proxy | 0.12% | **97.3%** |
 
 **The network's architecture didn't change. The training procedure didn't change. Only the inputs changed - and the bias disappeared.**
 

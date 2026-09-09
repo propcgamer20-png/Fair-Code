@@ -50,21 +50,15 @@ A model trained with gender and age as features assigned hire recommendations at
 
 | Group | Hire Rate |
 |---|---|
-| Male applicants | ~71% |
-| Female applicants | ~50% |
-| **Fairness Gap** | **~20.9 percentage points** |
+| Male applicants | 21.62% |
+| Female applicants | 17.10% |
+| **Fairness Gap** | **4.51 percentage points** |
+
+(The disparate-impact ratio here is 17.10 / 21.62 = 0.79, below the 0.80 four-fifths threshold.)
 
 The model was not told to discriminate. It learned to - by treating age as a proxy for gender, because women in the dataset more often had career gaps. Age was correlated with gender, so including it smuggled the gender signal back in even without an explicit gender rule.
 
-After dropping gender and age (the protected attribute and its proxy):
-
-| Group | Hire Rate |
-|---|---|
-| Male applicants | ~67% |
-| Female applicants | ~67% |
-| **New Fairness Gap** | **~0.12 percentage points** |
-
-**97.3% reduction.** The gap wasn't in the underlying merit of candidates - it was in which features the model was permitted to see.
+After dropping gender and age (the protected attribute and its proxy), the gap closes to **0.12 percentage points** - a **97.3% reduction**. The gap wasn't in the underlying merit of candidates - it was in which features the model was permitted to see.
 
 ---
 

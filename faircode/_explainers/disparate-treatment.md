@@ -69,7 +69,7 @@ features = ['Gender', 'Age', 'Experience_Years', 'Technical_Test_Score',
             'Education_Level', 'Previous_Companies', 'Distance_from_Company']
 ```
 
-`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was *designed* to see these attributes. The 20.9pp hire rate gap is the disparate impact.
+`Gender` is a direct input. `Age` is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was *designed* to see these attributes. The 4.51pp hire rate gap (21.62% vs 17.10%) is the disparate impact.
 
 ### The Fix - What Removing Disparate Treatment Looks Like
 
