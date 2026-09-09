@@ -2,9 +2,13 @@
 
 main() operates on the real repo ROOT/TEXT_GLOBS/DATA_JSON by design (it's a
 CI gate, not a library function), so these tests monkeypatch those module
-globals to point at an isolated tmp_path tree and fake out the `git`
-subprocess calls, rather than standing up a real git repository - the
-behavior under test is the comparison/flagging logic itself, not git.
+globals to point at an isolated tmp_path tree. `_rebuild_fresh_copy` (which
+does a real working-tree copy plus a real rebuild subprocess-by-subprocess,
+see #502) is itself monkeypatched to a fake that just writes whatever
+content a given test wants into the fresh-copy location directly - the
+behavior under test is the comparison/flagging logic against that fresh
+copy, not the copy-and-rebuild machinery itself (that machinery is exercised
+for real by running the script directly, not by these unit tests).
 """
 
 import importlib
@@ -17,13 +21,11 @@ def _script():
     return importlib.import_module("scripts.check_generated_files_current")
 
 
-def _fake_run(ls_files_output, show_returncode=0, show_stdout=""):
+def _fake_ls_files(ls_files_output):
     def run(cmd, cwd=None, capture_output=True, text=True, check=False):
         import types
         if cmd[:2] == ["git", "ls-files"]:
             return types.SimpleNamespace(returncode=0, stdout=ls_files_output)
-        if cmd[:2] == ["git", "show"]:
-            return types.SimpleNamespace(returncode=show_returncode, stdout=show_stdout)
         raise AssertionError(f"unexpected subprocess call: {cmd}")
     return run
 
@@ -70,10 +72,13 @@ def test_main_flags_a_stale_text_file(tmp_path, monkeypatch, capsys):
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
-    (tmp_path / "sitemap.xml").write_text("fresh content\n", encoding="utf-8")
-    monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=0, show_stdout="stale committed content\n"))
+    (tmp_path / "sitemap.xml").write_text("stale, un-rebuilt content\n", encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_ls_files("sitemap.xml\n"))
+
+    def fake_rebuild(tmp_root):
+        tmp_root.mkdir(parents=True)
+        (tmp_root / "sitemap.xml").write_text("fresh content\n", encoding="utf-8")
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", fake_rebuild)
 
     exit_code = script.main()
 
@@ -82,15 +87,18 @@ def test_main_flags_a_stale_text_file(tmp_path, monkeypatch, capsys):
     assert "sitemap.xml: content differs from a fresh regeneration" in captured.out
 
 
-def test_main_passes_when_text_file_matches_head(tmp_path, monkeypatch, capsys):
+def test_main_passes_when_text_file_matches_a_fresh_regeneration(tmp_path, monkeypatch, capsys):
     script = _script()
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
     (tmp_path / "sitemap.xml").write_text("same content\n", encoding="utf-8")
-    monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=0, show_stdout="same content\n"))
+    monkeypatch.setattr(script.subprocess, "run", _fake_ls_files("sitemap.xml\n"))
+
+    def fake_rebuild(tmp_root):
+        tmp_root.mkdir(parents=True)
+        (tmp_root / "sitemap.xml").write_text("same content\n", encoding="utf-8")
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", fake_rebuild)
 
     exit_code = script.main()
 
@@ -98,21 +106,47 @@ def test_main_passes_when_text_file_matches_head(tmp_path, monkeypatch, capsys):
     assert "up to date" in capsys.readouterr().out
 
 
-def test_main_flags_a_file_not_yet_committed(tmp_path, monkeypatch, capsys):
+def test_main_flags_a_file_missing_from_a_fresh_regeneration(tmp_path, monkeypatch, capsys):
+    # e.g. a tracked file left over from a removed entry that the generator
+    # no longer produces at all.
     script = _script()
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
-    (tmp_path / "sitemap.xml").write_text("brand new file\n", encoding="utf-8")
-    monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=1, show_stdout=""))
+    (tmp_path / "sitemap.xml").write_text("leftover content\n", encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_ls_files("sitemap.xml\n"))
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", lambda tmp_root: None)
 
     exit_code = script.main()
 
     captured = capsys.readouterr()
     assert exit_code == 1
-    assert "sitemap.xml: not yet committed" in captured.out
+    assert "sitemap.xml: missing from a fresh regeneration" in captured.out
+
+
+def test_main_flags_an_uncommitted_source_edit_without_a_rebuild(tmp_path, monkeypatch, capsys):
+    # The exact #502 repro: a source .md edited with no `make build-explainers`
+    # run afterwards must be caught even though nothing was ever committed -
+    # the previous git-show-HEAD-based version passed this right up until CI.
+    script = _script()
+    _empty_repo(tmp_path, monkeypatch, script)
+    monkeypatch.setattr(script, "TEXT_GLOBS", ["explainers/demographic-parity.html"])
+    monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
+    (tmp_path / "explainers").mkdir()
+    (tmp_path / "explainers" / "demographic-parity.html").write_text(
+        "<html>stale, built before the source .md was last edited</html>\n", encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_ls_files("explainers/demographic-parity.html\n"))
+    monkeypatch.setattr(
+        script, "_rebuild_fresh_copy",
+        lambda tmp_root: (tmp_root / "explainers" / "demographic-parity.html").parent.mkdir(parents=True)
+        or (tmp_root / "explainers" / "demographic-parity.html").write_text(
+            "<html>rebuilt from the edited source .md</html>\n", encoding="utf-8"))
+
+    exit_code = script.main()
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "explainers/demographic-parity.html: content differs from a fresh regeneration" in captured.out
 
 
 def test_main_flags_a_missing_og_image(tmp_path, monkeypatch, capsys):
@@ -121,7 +155,7 @@ def test_main_flags_a_missing_og_image(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(script, "DATA_JSON", tmp_path / "assets" / "explainers-data.json")
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
-    monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", lambda tmp_root: None)
 
     exit_code = script.main()
 
@@ -137,7 +171,7 @@ def test_main_flags_an_og_image_with_wrong_dimensions(tmp_path, monkeypatch, cap
     monkeypatch.setattr(script, "DATA_JSON", tmp_path / "assets" / "explainers-data.json")
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
-    monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", lambda tmp_root: None)
 
     for theme_dir in ("assets/og", "assets/og-light"):
         (tmp_path / theme_dir).mkdir(parents=True)
@@ -158,7 +192,7 @@ def test_main_passes_with_correctly_sized_og_images(tmp_path, monkeypatch, capsy
     monkeypatch.setattr(script, "DATA_JSON", tmp_path / "assets" / "explainers-data.json")
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
-    monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_rebuild_fresh_copy", lambda tmp_root: None)
 
     for theme_dir in ("assets/og", "assets/og-light"):
         (tmp_path / theme_dir).mkdir(parents=True)

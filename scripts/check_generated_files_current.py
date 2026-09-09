@@ -3,16 +3,22 @@
 llms-full.txt) or the MCP results-frozen mirror (faircode/_results_frozen/)
 are out of date relative to their sources.
 
-Used by .github/workflows/build-explainers.yml, run *after* the workflow's
-own `build_explainers.py`/`generate_og_images.py`/
-`freeze_paper_results.mirror_for_mcp()` steps have already regenerated
-everything fresh into the working tree.
+Self-sufficient: copies the working tree into a temp directory, reruns
+`build_explainers.py`/`generate_og_images.py`/
+`freeze_paper_results.mirror_for_mcp()` there against whatever sources
+are *currently on disk* (committed or not), and diffs the real working
+tree's generated files against that fresh regeneration. This is what
+lets `make build-explainers`'s own local run and CI agree: editing a
+source `.md` without rebuilding is caught immediately, not just once
+something gets committed (see #502 - the previous version diffed
+against `git show HEAD:<path>`, so an uncommitted source edit with no
+rebuild still read as "up to date").
 
 Text-based generated files (explainer HTML, explainers-data.js,
 sitemap.xml, llms-full.txt, faircode/_results_frozen/*.csv) are compared
-byte-for-byte against the fresh regeneration via `git diff` - they've
-never shown any platform-dependent variation, confirmed across two
-separate incidents below.
+byte-for-byte against the fresh regeneration - they've never shown any
+platform-dependent variation, confirmed across two separate incidents
+below.
 
 One field is deliberately excluded from that byte-exact comparison:
 build_explainers.py's `datePublished`/`dateModified` (JSON-LD) and
@@ -48,6 +54,10 @@ and has the right dimensions; `tests/test_generate_images.py` already
 verifies the *generator* satisfies that in a temp directory, so this
 script checks the same thing for what's actually committed.
 
+Self-sufficient - no prior build step needed, and no reliance on what's
+committed. Takes a few seconds (a full working-tree copy plus a full
+rebuild in that copy).
+
 Run locally:  python3 scripts/check_generated_files_current.py
 Exit code:    0 = everything current, 1 = something is genuinely stale.
 """
@@ -55,8 +65,10 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from PIL import Image
@@ -64,6 +76,9 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 DATA_JSON = ROOT / "assets" / "explainers-data.json"
 OG_DIMENSIONS = (1200, 630)
+_COPY_IGNORE = shutil.ignore_patterns(
+    "node_modules", "__pycache__", ".venv", "venv", "*.egg-info"
+)
 
 TEXT_GLOBS = [
     "explainers/*.html",
@@ -104,25 +119,43 @@ def _expected_og_slugs():
     return ["home", "profiler"] + [entry["slug"] for entry in entries]
 
 
+def _rebuild_fresh_copy(tmp_root: Path):
+    """Copies the working tree (including .git, so git-log-derived dates
+    behave identically to the real repo) into tmp_root and reruns the
+    generators there, against whatever sources are on disk right now."""
+    shutil.copytree(ROOT, tmp_root, ignore=_COPY_IGNORE, dirs_exist_ok=True)
+    subprocess.run(
+        [sys.executable, str(tmp_root / "scripts" / "build_explainers.py")],
+        cwd=tmp_root, check=True, capture_output=True,
+    )
+    subprocess.run(
+        [sys.executable, str(tmp_root / "scripts" / "generate_og_images.py")],
+        cwd=tmp_root, check=True, capture_output=True,
+    )
+    subprocess.run(
+        [sys.executable, "-c", "from scripts.freeze_paper_results import mirror_for_mcp; mirror_for_mcp()"],
+        cwd=tmp_root, check=True, capture_output=True,
+    )
+
+
 def main():
     stale = []
 
-    for pattern in TEXT_GLOBS:
-        for path in _tracked_paths(pattern):
-            rel = path.relative_to(ROOT)
-            show = subprocess.run(
-                ["git", "show", f"HEAD:{rel.as_posix()}"],
-                cwd=ROOT, capture_output=True, text=True, check=False,
-            )
-            if show.returncode != 0:
-                # Staged but never committed (e.g. running this locally
-                # before the first commit of a brand new file) - trivially
-                # differs from "nothing at HEAD", not a normalization case.
-                stale.append((rel, "not yet committed"))
-                continue
-            fresh = path.read_text(encoding="utf-8")
-            if _normalize_dates(show.stdout) != _normalize_dates(fresh):
-                stale.append((rel, "content differs from a fresh regeneration"))
+    with tempfile.TemporaryDirectory(prefix="fair-code-fresh-") as tmp:
+        tmp_root = Path(tmp) / "repo"
+        _rebuild_fresh_copy(tmp_root)
+
+        for pattern in TEXT_GLOBS:
+            for path in _tracked_paths(pattern):
+                rel = path.relative_to(ROOT)
+                fresh_path = tmp_root / rel
+                if not fresh_path.is_file():
+                    stale.append((rel, "missing from a fresh regeneration"))
+                    continue
+                fresh = fresh_path.read_text(encoding="utf-8")
+                current = path.read_text(encoding="utf-8")
+                if _normalize_dates(fresh) != _normalize_dates(current):
+                    stale.append((rel, "content differs from a fresh regeneration"))
 
     for theme_dir in ("assets/og", "assets/og-light"):
         for slug in _expected_og_slugs():
