@@ -390,6 +390,34 @@
     "subtitle": "Equal error rates across groups can still hide opposite-skewed error types within each group.",
     "summary": "Learn why Treatment Equality checks the ratio of false negatives to false positives within each group, not the individual rates Equalized Odds already compares. Uses COMPAS's real (freshly computed, not frozen) confusion matrix: a 0.13 FN:FP ratio for African-American defendants against a 31.0 ratio for Caucasian defendants on the same baseline model.",
     "tags": ["metrics"]
+  },
+  {
+    "slug": "simpsons-paradox",
+    "title": "What Is Simpson's Paradox in Fairness Audits?",
+    "subtitle": "A gap that shows up in the aggregate can shrink, vanish, or reverse once you disaggregate.",
+    "summary": "Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.",
+    "tags": ["metrics", "data", "detection"]
+  },
+  {
+    "slug": "conditional-demographic-parity",
+    "title": "What Is Conditional Demographic Parity?",
+    "subtitle": "Checking parity within strata of a chosen legitimate factor, not across the whole population.",
+    "summary": "Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.",
+    "tags": ["metrics", "detection"]
+  },
+  {
+    "slug": "subgroup-fairness",
+    "title": "What Is Subgroup Fairness (and Fairness Gerrymandering)?",
+    "subtitle": "Passing a fairness check on every attribute separately is not the same as passing it on every combination.",
+    "summary": "Learn how a model can satisfy a fairness metric on each protected attribute individually yet fail on an algorithmically-discoverable subgroup, and how a brute-force subgroup scan differs from this repo's fixed-pair --cross. Uses the Healthcare Readmission audit: the gender readmission gap is 0.19 pp overall but -5.15 pp inside the Asian patient subgroup.",
+    "tags": ["metrics", "detection"]
+  },
+  {
+    "slug": "differential-privacy",
+    "title": "What Is Differential Privacy (and Its Tension With Fairness)?",
+    "subtitle": "The accuracy cost of a privacy guarantee falls hardest on underrepresented groups.",
+    "summary": "Learn how DP-SGD's gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.",
+    "tags": ["data", "metrics"]
   }
 ]
 

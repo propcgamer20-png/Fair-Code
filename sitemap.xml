@@ -232,4 +232,16 @@
     <loc>https://www.thefaircode.xyz/explainers/treatment-equality.html</loc>
     <lastmod>2026-09-08</lastmod>
   </url>
+  <url>
+    <loc>https://www.thefaircode.xyz/explainers/simpsons-paradox.html</loc>
+  </url>
+  <url>
+    <loc>https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html</loc>
+  </url>
+  <url>
+    <loc>https://www.thefaircode.xyz/explainers/subgroup-fairness.html</loc>
+  </url>
+  <url>
+    <loc>https://www.thefaircode.xyz/explainers/differential-privacy.html</loc>
+  </url>
 </urlset>

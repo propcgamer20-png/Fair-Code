@@ -780,10 +780,10 @@ features = [
 
 ## Explainers
 
-56 short, plain-language write-ups of individual fairness concepts, each with runnable detection code. The healthcare-focused ones are called out above in [Healthcare AI Bias Focus](#healthcare-ai-bias-focus).
+60 short, plain-language write-ups of individual fairness concepts, each with runnable detection code. The healthcare-focused ones are called out above in [Healthcare AI Bias Focus](#healthcare-ai-bias-focus).
 
 <details>
-<summary><strong>Show all 56 explainers →</strong></summary>
+<summary><strong>Show all 60 explainers →</strong></summary>
 
 | Explainer | What it covers |
 |-----------|----------------|
@@ -1204,7 +1204,7 @@ The full public roadmap - with phases, completion status, and content schedule -
 | Combined Social Reach (Instagram + LinkedIn) | 30K+ |
 | Countries Reached (Website Visitors) | 20 |
 | Code Audits Published | 7 |
-| Explainers Published | 56 |
+| Explainers Published | 60 |
 
 Tracked weekly in [METRICS.md](METRICS.md).
 

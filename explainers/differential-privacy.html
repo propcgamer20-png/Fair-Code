@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Differential Privacy (and Its Tension With Fairness)? · Fair Code</title>
+<meta name="description" content="Learn how DP-SGD&#x27;s gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.">
+<link rel="canonical" href="https://www.thefaircode.xyz/explainers/differential-privacy.html">
+<meta name="author" content="Yash Kewlani">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:site_name" content="Fair Code">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="What Is Differential Privacy (and Its Tension With Fairness)? · Fair Code">
+<meta property="og:description" content="Learn how DP-SGD&#x27;s gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.thefaircode.xyz/explainers/differential-privacy.html">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og/differential-privacy.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Differential Privacy (and Its Tension With Fairness)? · Fair Code">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og-light/differential-privacy.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Differential Privacy (and Its Tension With Fairness)? · Fair Code (light)">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is Differential Privacy (and Its Tension With Fairness)? · Fair Code">
+<meta name="twitter:description" content="Learn how DP-SGD&#x27;s gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.">
+<meta name="twitter:image" content="https://www.thefaircode.xyz/assets/og/differential-privacy.png">
+
+<link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='32' y='18' width='13' height='64' fill='%2314171A'/><rect x='32' y='18' width='42' height='13' fill='%2314171A'/><rect x='32' y='44' width='36' height='13' fill='%234F7A5B'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const saved = localStorage.getItem('fc-theme') || systemPref;
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<link rel="stylesheet" href="../assets/explainers.css">
+<style>
+  :root {
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "author": {
+        "@type": "Person",
+        "name": "Yash Kewlani",
+        "url": "https://github.com/yakew7"
+      },
+      "name": "What Is Differential Privacy (and Its Tension With Fairness)?",
+      "description": "Learn how DP-SGD's gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.",
+      "url": "https://www.thefaircode.xyz/explainers/differential-privacy.html",
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "Fair Code Explainers",
+        "url": "https://www.thefaircode.xyz/index.html#explainers"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "url": "https://www.thefaircode.xyz/explainers/differential-privacy.html",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What Is Differential Privacy (and Its Tension With Fairness)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Differential privacy (DP) is a formal guarantee that the output of an analysis (here, a trained model) is almost unchanged whether or not any one individual's record was included, achieved during training by clipping each example's gradient contribution and adding random noise, with the strength of the guarantee set by a privacy budget epsilon (smaller epsilon = more noise = stronger privacy)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does this matter for fairness?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A bias-mitigation pipeline and a privacy requirement are often imposed on the same model by different stakeholders - a fairness team and a data-protection officer - who assume the two goals compose for free. They do not."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Fair Code",
+          "item": "https://www.thefaircode.xyz/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Explainers",
+          "item": "https://www.thefaircode.xyz/index.html#explainers"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "What Is Differential Privacy (and Its Tension With Fairness)?",
+          "item": "https://www.thefaircode.xyz/explainers/differential-privacy.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="84e0aebf-44e1-466e-b2c6-62f75e1c36c7"></script>
+</head>
+<body class="explainer-page">
+  <main class="explainer-shell is-ready" data-explainer-shell>
+    <div class="explainer-topbar">
+      <a class="explainer-back" href="../index.html#explainers">← Back to explainers</a>
+      <div class="explainer-topbar-actions">
+        <a class="explainer-source" href="https://github.com/yakew7/Fair-Code/blob/main/explainers/differential-privacy.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="explainer-theme-toggle" id="explainerThemeToggle" aria-label="Toggle theme" aria-pressed="false">☀</button>
+      </div>
+    </div>
+
+    <section class="explainer-hero">
+      <div class="explainer-kicker">Explainer</div>
+      <h1 class="explainer-headline">What Is Differential Privacy (and Its Tension With Fairness)?</h1>
+      <p class="explainer-lede">The accuracy cost of a privacy guarantee falls hardest on underrepresented groups.</p>
+      <p class="explainer-lede">Learn how DP-SGD&#x27;s gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.</p>
+    </section>
+
+    <article class="explainer-content"><h2 id="what-is-differential-privacy-and-its-tension-with-fairness">What Is Differential Privacy (and Its Tension With Fairness)?</h2>
+<blockquote><p><em>Differential privacy adds calibrated noise during training so no single person&#x27;s data changes the model much. That protection is not free, and it is not evenly distributed: the accuracy it costs falls hardest on exactly the underrepresented groups a fairness audit is trying to protect.</em></p></blockquote>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
+<p><strong>Differential privacy (DP)</strong> is a formal guarantee that the output of an analysis (here, a trained model) is almost unchanged whether or not any one individual&#x27;s record was included, achieved during training by clipping each example&#x27;s gradient contribution and adding random noise, with the strength of the guarantee set by a privacy budget <strong>epsilon</strong> (smaller epsilon = more noise = stronger privacy).</p>
+<h3 id="why-it-matters">Why It Matters</h3>
+<p>A bias-mitigation pipeline and a privacy requirement are often imposed on the same model by different stakeholders - a fairness team and a data-protection officer - who assume the two goals compose for free. They do not.</p>
+<p>The standard training algorithm for a DP model, <strong>DP-SGD</strong>, does two things to every gradient step: it <strong>clips</strong> each per-example gradient to a fixed norm, and it <strong>adds Gaussian noise</strong> proportional to that norm. Both operations interact badly with class imbalance:</p>
+<ul><li>Underrepresented groups tend to be the ones a model has not yet fit well, so their examples produce <strong>large gradients</strong> - the ones clipping cuts down the most. The majority&#x27;s already-small gradients pass through nearly untouched.</li><li>The noise is added to the batch-averaged gradient regardless of composition. A signal that is a small fraction of the batch (the minority&#x27;s contribution) is <strong>drowned by the noise</strong> at a lower epsilon than the majority&#x27;s signal is.</li></ul>
+<p>The result, documented by Bagdasaryan, Poursaeed and Shmatikov (2019), is that the accuracy drop from adding DP is &quot;not borne equally&quot;: it is substantially larger for underrepresented classes and subgroups, and <strong>if the original model was already unfair, DP makes it more unfair</strong>. This is the same shape as <a href="fairness-accuracy-tradeoff.html">the fairness-accuracy trade-off</a> - closing one gap opens another - except the axis being traded against fairness is privacy, not overall accuracy.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>DP-SGD replaces the plain gradient step with:</p>
+<pre><code>1. compute per-example gradients g_i for the minibatch
+2. clip:   g_i  &lt;-  g_i / max(1, ||g_i|| / C)          # cap the L2 norm at C
+3. sum, then add noise:   g  &lt;-  (sum_i g_i  +  N(0, sigma^2 C^2 I)) / B
+4. step:   w  &lt;-  w - lr * g</code></pre>
+<p><code>C</code> is the clipping norm and <code>sigma</code> the noise multiplier; together with the number of steps and the sampling rate they determine epsilon (via a privacy accountant). Smaller epsilon needs a larger <code>sigma</code>.</p>
+<p>Why this is disparate:</p>
+<ul><li><strong>Clipping is a per-example ceiling.</strong> An example the model already predicts well has a small gradient and is unaffected. An example the model gets wrong - disproportionately from a group with little training data - has a large gradient that gets scaled down, so its correction is weakened. Over many steps the majority keeps learning at full strength while the minority&#x27;s updates are throttled.</li><li><strong>Noise has a fixed scale but the useful signal does not.</strong> In a batch that is 90% majority, the minority&#x27;s contribution to the summed gradient is roughly a tenth of the total before noise. The noise term <code>N(0, sigma^2 C^2)</code> is the same size either way, so it overwhelms the minority direction while the majority direction still stands out. As <code>sigma</code> rises (epsilon falls), the minority signal disappears first.</li></ul>
+<p>A minimal way to see the mechanism: train a logistic model with DP-SGD on data where 10% of rows follow a different feature-to-label rule than the other 90%, and read out accuracy per group as <code>sigma</code> increases. The majority accuracy holds; the minority accuracy falls faster and further. The Detection Code section gives a runnable version.</p>
+<h3 id="concrete-illustration-from-the-literature-not-a-fair-code-run">Concrete Illustration (from the literature, not a Fair Code run)</h3>
+<p><strong>This repo&#x27;s benchmark harness does not train any DP model</strong> - there is no <code>epsilon</code> in <code>faircode/strategies.py</code> and no DP row in <code>results/</code>. Every number in this section is from the published study below, quoted so the pattern is concrete, not reproduced here.</p>
+<p>Bagdasaryan et al. (2019), <em>Differential Privacy Has Disparate Impact on Model Accuracy</em> (NeurIPS 2019), trained the same models with and without DP-SGD across several tasks:</p>
+<ul><li>A <strong>gender-classification model</strong> on facial images: adding DP reduced accuracy far more for darker-skinned faces (an underrepresented group in the training set) than for lighter-skinned faces, widening an accuracy gap that already existed in the non-private model.</li><li>A <strong>sentiment-analysis model</strong> on tweets: DP reduced accuracy more on text written in African-American English than on the majority dialect.</li><li>Across tasks, the finding held: &quot;the reduction in accuracy incurred by deep learning models with differential privacy disproportionately impacts underrepresented subgroups,&quot; and the effect grows as epsilon shrinks. Their summary of the mechanism is that <strong>the gradient clipping and noise addition of DP-SGD &quot;disproportionately affect&quot; the subgroups whose gradients are largest and whose share of the data is smallest</strong> - i.e. &quot;the poor get poorer.&quot;</li></ul>
+<p>The relevance to this repo: every audit here is built around a protected group that is, in its dataset, the smaller or worse-served one (younger applicants, minority defendants, one insurance tier). Those are precisely the groups DP-SGD costs the most accuracy. &quot;We added a privacy guarantee&quot; is therefore not evidence of &quot;we did not make the fairness gap worse&quot; - it needs its own per-group check.</p>
+<h3 id="detection-code">Detection Code</h3>
+<p>A self-contained, dependency-light DP-SGD toy: per-example gradient clipping plus Gaussian noise on a logistic model, with a per-group accuracy readout, run across a sweep of noise multipliers. It is illustrative - it shows the <em>mechanism</em>, not a calibrated epsilon.</p>
+<pre><code class="language-python">import numpy as np
+
+
+def make_imbalanced_data(n=6000, minority_frac=0.10, seed=0):
+    &quot;&quot;&quot;90% majority + 10% minority, where the minority&#x27;s label depends on a
+    different set of features - so the minority needs its own signal to be
+    learned, and that signal is what clipping + noise erode first.&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    n_min = int(n * minority_frac)
+    group = np.array([1] * n_min + [0] * (n - n_min))   # 1 = minority
+    rng.shuffle(group)
+    x = rng.normal(size=(n, 6))
+    w_majority = np.array([1.5, -1.0, 0.7, 0.0, 0.0, 0.0])
+    w_minority = np.array([0.0, 0.0, 0.0, 1.5, -1.0, 0.7])
+    logits = np.where(group == 1, x @ w_minority, x @ w_majority)
+    y = (rng.random(n) &lt; 1.0 / (1.0 + np.exp(-logits))).astype(int)
+    return x, y, group
+
+
+def dp_sgd_logreg(x, y, steps=4000, batch=64, lr=0.5,
+                  clip_norm=1.0, noise_multiplier=0.0, seed=1):
+    &quot;&quot;&quot;DP-SGD for logistic regression. noise_multiplier is &#x27;sigma&#x27;: 0 means
+    clip-only (no privacy), larger means smaller epsilon.&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    n, d = x.shape
+    w = np.zeros(d)
+    for _ in range(steps):
+        idx = rng.integers(0, n, batch)
+        xb, yb = x[idx], y[idx]
+        p = 1.0 / (1.0 + np.exp(-(xb @ w)))
+        per_example = (p - yb)[:, None] * xb                     # B x d
+        norms = np.linalg.norm(per_example, axis=1, keepdims=True)
+        per_example = per_example / np.maximum(1.0, norms / clip_norm)   # clip
+        grad = per_example.sum(axis=0)
+        if noise_multiplier &gt; 0:
+            grad = grad + rng.normal(scale=noise_multiplier * clip_norm, size=d)
+        w -= lr * grad / batch
+    return w
+
+
+def accuracy_by_group(w, x, y, group):
+    pred = (x @ w &gt; 0).astype(int)
+    maj = ((pred == y) &amp; (group == 0)).sum() / (group == 0).sum()
+    minority = ((pred == y) &amp; (group == 1)).sum() / (group == 1).sum()
+    return maj, minority
+
+
+def sweep(seeds=range(6)):
+    x_tr, y_tr, g_tr = make_imbalanced_data(seed=0)
+    x_te, y_te, g_te = make_imbalanced_data(n=4000, seed=99)
+
+    def mean_acc(**kw):
+        rows = [accuracy_by_group(dp_sgd_logreg(x_tr, y_tr, seed=s, **kw),
+                                  x_te, y_te, g_te) for s in seeds]
+        return np.mean(rows, axis=0)
+
+    print(f&quot;{&#x27;setting&#x27;:&lt;28}{&#x27;majority&#x27;:&gt;10}{&#x27;minority&#x27;:&gt;10}{&#x27;gap&#x27;:&gt;8}&quot;)
+    maj, minr = mean_acc(noise_multiplier=0.0)
+    print(f&quot;{&#x27;clip only (no privacy)&#x27;:&lt;28}{maj:&gt;10.3f}{minr:&gt;10.3f}{maj - minr:&gt;+8.3f}&quot;)
+    for sigma in (1.0, 2.0, 4.0, 8.0):
+        maj, minr = mean_acc(noise_multiplier=sigma)
+        print(f&quot;{f&#x27;DP-SGD sigma={sigma}&#x27;:&lt;28}{maj:&gt;10.3f}{minr:&gt;10.3f}{maj - minr:&gt;+8.3f}&quot;)
+
+
+# sweep()
+# The majority column stays roughly flat as sigma grows; the minority column
+# and the gap move against the minority. Swap in a real dataset + a privacy
+# accountant (e.g. Opacus, tensorflow-privacy) to attach an epsilon to each row.</code></pre>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-epsilon-has-no-universally-correct-value">1. Epsilon has no universally correct value</h4>
+<p>There is no threshold at which a model is &quot;private enough&quot;. Deployed systems have used epsilon from below 1 (strong) to over 10 (weak); the choice trades re-identification risk against utility and against the fairness cost described here, and it is a policy decision, not a statistical one - the same shape as choosing a fairness metric.</p>
+<h4 id="2-dp-protects-against-a-specific-threat-not-against-bias">2. DP protects against a specific threat, not against bias</h4>
+<p>The DP guarantee is about <strong>membership inference and individual re-identification</strong>: an attacker cannot tell whether a particular person was in the training set. It says nothing about whether the labels are biased, whether the sampling was biased, or whether the model discriminates. A perfectly private model can be perfectly unfair. DP and fairness are orthogonal guarantees that happen to interfere.</p>
+<h4 id="3-the-disparate-impact-can-sometimes-be-mitigated-at-a-cost">3. The disparate impact can sometimes be mitigated, at a cost</h4>
+<p>Per-group clipping norms, adaptive clipping, or fair-DP training objectives can reduce the gap DP-SGD opens, but they add hyperparameters, can weaken the privacy accounting, and are not standard in off-the-shelf DP training libraries. Assume the vanilla DP-SGD behavior unless a mitigation is explicitly in place and measured.</p>
+<h4 id="4-the-toy-here-is-a-mechanism-demo-not-a-calibrated-result">4. The toy here is a mechanism demo, not a calibrated result</h4>
+<p>The Detection Code has no privacy accountant, so its <code>sigma</code> values do not map to a real epsilon, and its synthetic data exaggerates the minority&#x27;s distinctness for clarity. Treat it as an illustration of <em>why</em> the effect happens; for a real number, run DP-SGD with an accountant on a real dataset and measure per-group accuracy directly.</p>
+<h3 id="related-concepts">Related Concepts</h3>
+<ul><li><a href="fairness-accuracy-tradeoff.html">What Is the Fairness-Accuracy Trade-off?</a> - the same &quot;closing one gap opens another&quot; structure, with accuracy rather than privacy on the other axis.</li><li><a href="class-imbalance.html">What Is Class Imbalance?</a> - why an underrepresented group&#x27;s signal is a small share of each batch, the property DP-SGD&#x27;s noise exploits.</li><li><a href="mitigation-strategies.html">Mitigation Strategies</a> - this repo&#x27;s five bias-mitigation strategies, none of which is DP; adding DP on top would need its own per-group evaluation.</li><li>Membership inference - the attack DP is designed to prevent: given a trained model, deciding whether a specific record was in its training set. DP bounds how well any such attack can do.</li><li><a href="underdiagnosis-bias.html">What Is Underdiagnosis Bias?</a> - another case where a technique aimed at one problem quietly worsens per-group outcomes.</li></ul>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
+<ul><li><a href="../index.html#project-readmission"><code>Healthcare Readmission/</code></a> - a clinical model where a real deployment would plausibly face a patient-privacy requirement; the smallest race and age subgroups are the ones DP-SGD would cost the most.</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - younger applicants are the protected, smaller group; a DP-trained credit model would degrade for them fastest as epsilon tightens.</li></ul>
+<h3 id="further-reading">Further Reading</h3>
+<ul><li><a href="https://arxiv.org/abs/1905.12101" target="_blank" rel="noreferrer noopener">Bagdasaryan, E., Poursaeed, O., Shmatikov, V. (2019): Differential Privacy Has Disparate Impact on Model Accuracy, <em>Advances in Neural Information Processing Systems 32 (NeurIPS 2019)</em></a> - the paper this explainer&#x27;s central claim comes from; shows the DP accuracy cost is larger for underrepresented subgroups across image, text, and tabular tasks.</li><li><a href="https://arxiv.org/abs/1607.00133" target="_blank" rel="noreferrer noopener">Abadi, M. et al. (2016): Deep Learning with Differential Privacy, <em>ACM CCS 2016</em></a> - the original DP-SGD algorithm (per-example clipping + Gaussian noise + moments accountant).</li><li><a href="https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf" target="_blank" rel="noreferrer noopener">Dwork, C., Roth, A. (2014): The Algorithmic Foundations of Differential Privacy, <em>Foundations and Trends in Theoretical Computer Science</em>, 9(3-4)</a> - the standard reference for the epsilon definition and its properties.</li><li><a href="https://arxiv.org/abs/1907.00212" target="_blank" rel="noreferrer noopener">Cummings, R., Gupta, V., Kimpara, D., Morgenstern, J. (2019): On the Compatibility of Privacy and Fairness, <em>FairUMAP 2019</em></a> - a formal look at when the two guarantees can and cannot be satisfied together.</li></ul>
+<hr>
+<p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
+  </main>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('explainerThemeToggle');
+      const html = document.documentElement;
+      const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+      function syncTheme() {
+        const current = html.getAttribute('data-theme') || systemPref;
+        toggle.textContent = current === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', current === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+        toggle.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
+      }
+
+      syncTheme();
+
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme') || systemPref;
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        syncTheme();
+      });
+    })();
+  </script>
+</body>
+</html>

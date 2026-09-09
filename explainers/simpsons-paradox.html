@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Simpson&#x27;s Paradox in Fairness Audits? · Fair Code</title>
+<meta name="description" content="Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.">
+<link rel="canonical" href="https://www.thefaircode.xyz/explainers/simpsons-paradox.html">
+<meta name="author" content="Yash Kewlani">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:site_name" content="Fair Code">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="What Is Simpson&#x27;s Paradox in Fairness Audits? · Fair Code">
+<meta property="og:description" content="Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.thefaircode.xyz/explainers/simpsons-paradox.html">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og/simpsons-paradox.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Simpson&#x27;s Paradox in Fairness Audits? · Fair Code">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og-light/simpsons-paradox.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Simpson&#x27;s Paradox in Fairness Audits? · Fair Code (light)">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is Simpson&#x27;s Paradox in Fairness Audits? · Fair Code">
+<meta name="twitter:description" content="Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.">
+<meta name="twitter:image" content="https://www.thefaircode.xyz/assets/og/simpsons-paradox.png">
+
+<link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='32' y='18' width='13' height='64' fill='%2314171A'/><rect x='32' y='18' width='42' height='13' fill='%2314171A'/><rect x='32' y='44' width='36' height='13' fill='%234F7A5B'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const saved = localStorage.getItem('fc-theme') || systemPref;
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<link rel="stylesheet" href="../assets/explainers.css">
+<style>
+  :root {
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "author": {
+        "@type": "Person",
+        "name": "Yash Kewlani",
+        "url": "https://github.com/yakew7"
+      },
+      "name": "What Is Simpson's Paradox in Fairness Audits?",
+      "description": "Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.",
+      "url": "https://www.thefaircode.xyz/explainers/simpsons-paradox.html",
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "Fair Code Explainers",
+        "url": "https://www.thefaircode.xyz/index.html#explainers"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "url": "https://www.thefaircode.xyz/explainers/simpsons-paradox.html",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What Is Simpson's Paradox in Fairness Audits?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Simpson's Paradox is a statistical phenomenon in which a trend or association that holds within every subgroup of the data reverses, disappears, or appears out of nowhere once the subgroups are combined into a single aggregate, because the subgroups differ in size and in their baseline rates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does this matter for fairness?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Almost every fairness metric in this repo is a single aggregate number: one demographicparitydiff, one selection-rate gap, one accuracy-equality figure per audit. That number is computed by pooling every row for a protected group and comparing the pooled rate to another group's pooled rate."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Fair Code",
+          "item": "https://www.thefaircode.xyz/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Explainers",
+          "item": "https://www.thefaircode.xyz/index.html#explainers"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "What Is Simpson's Paradox in Fairness Audits?",
+          "item": "https://www.thefaircode.xyz/explainers/simpsons-paradox.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="84e0aebf-44e1-466e-b2c6-62f75e1c36c7"></script>
+</head>
+<body class="explainer-page">
+  <main class="explainer-shell is-ready" data-explainer-shell>
+    <div class="explainer-topbar">
+      <a class="explainer-back" href="../index.html#explainers">← Back to explainers</a>
+      <div class="explainer-topbar-actions">
+        <a class="explainer-source" href="https://github.com/yakew7/Fair-Code/blob/main/explainers/simpsons-paradox.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="explainer-theme-toggle" id="explainerThemeToggle" aria-label="Toggle theme" aria-pressed="false">☀</button>
+      </div>
+    </div>
+
+    <section class="explainer-hero">
+      <div class="explainer-kicker">Explainer</div>
+      <h1 class="explainer-headline">What Is Simpson&#x27;s Paradox in Fairness Audits?</h1>
+      <p class="explainer-lede">A gap that shows up in the aggregate can shrink, vanish, or reverse once you disaggregate.</p>
+      <p class="explainer-lede">Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.</p>
+    </section>
+
+    <article class="explainer-content"><h2 id="what-is-simpson-s-paradox-in-fairness-audits">What Is Simpson&#x27;s Paradox in Fairness Audits?</h2>
+<blockquote><p><em>A model can look fair in aggregate while every disaggregated subgroup shows the opposite pattern, or look unfair in aggregate when no subgroup does - because pooling groups of different sizes and base rates lets the mix, not the model, drive the headline number.</em></p></blockquote>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
+<p><strong>Simpson&#x27;s Paradox</strong> is a statistical phenomenon in which a trend or association that holds within every subgroup of the data reverses, disappears, or appears out of nowhere once the subgroups are combined into a single aggregate, because the subgroups differ in size and in their baseline rates.</p>
+<h3 id="why-it-matters">Why It Matters</h3>
+<p>Almost every fairness metric in this repo is a single aggregate number: one <code>demographic_parity_diff</code>, one selection-rate gap, one accuracy-equality figure per audit. That number is computed by pooling every row for a protected group and comparing the pooled rate to another group&#x27;s pooled rate.</p>
+<p>Pooling is not neutral. When a protected group is distributed differently across the strata of some other variable - an occupation, a marital status, a loan product, a hospital - than the comparison group is, the aggregate comparison silently reweights those strata. The result is a headline gap that can be several times larger than any gap that actually exists within a stratum, can point the opposite direction from every stratum, or can vanish entirely.</p>
+<p>This is distinct from <a href="intersectional-bias.html">intersectional bias</a>, which is about a compounding gap that only appears at the <em>intersection</em> of two attributes and is hidden when you check one attribute at a time. Simpson&#x27;s Paradox is the reverse direction: a gap that appears (or flips) in the <em>aggregate</em> and is not present, or is present with the opposite sign, once you disaggregate. Both are failures of looking at the data at the wrong level, but they pull in opposite directions, and a serious audit has to check for both.</p>
+<p>Simpson&#x27;s Paradox does not tell you which view is correct. It only tells you that the aggregate and the disaggregated pictures disagree, which means the aggregate number alone cannot be trusted as a fairness finding without knowing why they disagree.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>Let <code>Y</code> be a binary outcome (1 = the favorable outcome), <code>G</code> a protected group, and <code>S</code> a stratifying variable with levels <code>s</code>. The aggregate rate for a group is a weighted average of its within-stratum rates, where the weights are how that group is distributed across strata:</p>
+<pre><code>P(Y = 1 | G = g) = sum over s of  P(S = s | G = g) * P(Y = 1 | G = g, S = s)</code></pre>
+<p>Two things vary between groups in that sum: the within-stratum rates <code>P(Y = 1 | G = g, S = s)</code>, and the stratum weights <code>P(S = s | G = g)</code>. The aggregate gap between two groups blends both. If the weights differ enough, the weight term can dominate and the aggregate gap stops reflecting the within-stratum rates at all.</p>
+<h4 id="a-minimal-reversal">A minimal reversal</h4>
+<p>Consider a hiring screen with two departments. Within each department the callback rate for Group A is higher than for Group B:</p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Department</th><th>Group A callbacks</th><th>Group B callbacks</th></tr></thead><tbody><tr><td>Engineering (easy to pass)</td><td>70 / 80 = <strong>87.5%</strong></td><td>18 / 20 = <strong>90.0%</strong></td></tr><tr><td>Design (hard to pass)</td><td>2 / 20 = <strong>10.0%</strong></td><td>8 / 80 = <strong>10.0%</strong></td></tr><tr><td><strong>Pooled</strong></td><td>72 / 100 = <strong>72.0%</strong></td><td>26 / 100 = <strong>26.0%</strong></td></tr></tbody></table></div>
+<p>Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design the two are tied (10.0% vs 10.0%). Neither department favors Group A. Yet the pooled rate shows Group A ahead by 46 points, because 80% of Group A&#x27;s applicants are in the high-callback department and 80% of Group B&#x27;s are in the low-callback one. The pooled 46-point &quot;gap&quot; is entirely a fact about where each group applied, not about how either group was treated inside a department.</p>
+<h3 id="concrete-example-benefits-denial-audit-04">Concrete Example: Benefits Denial - Audit 04</h3>
+<p><code>Benefits Denial/</code> audits the Adult Census Income dataset (<code>adult.csv</code>, 32,561 rows), where the target is <code>income == &#x27;&gt;50K&#x27;</code> and <code>sex</code> is a declared protected attribute. These are the dataset&#x27;s own outcome rates (not a model&#x27;s predictions), which is the base rate a demographic-parity check on the labels compares.</p>
+<p><strong>Aggregate:</strong></p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>n</th><th>P(income &gt; 50K)</th></tr></thead><tbody><tr><td>Male</td><td>21,790</td><td><strong>30.6%</strong></td></tr><tr><td>Female</td><td>10,771</td><td><strong>11.0%</strong></td></tr><tr><td>Gap (M - F)</td><td></td><td><strong>+19.6 pp</strong></td></tr></tbody></table></div>
+<p>Now stratify by <code>marital.status</code>. The single largest stratum, <code>Married-civ-spouse</code>, holds 14,976 rows - 46% of the entire dataset:</p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Stratum</th><th>Male n</th><th>Male rate</th><th>Female n</th><th>Female rate</th><th>Gap (M - F)</th></tr></thead><tbody><tr><td>Married-civ-spouse</td><td>13,319</td><td>44.6%</td><td>1,657</td><td>45.5%</td><td><strong>-0.9 pp</strong></td></tr><tr><td>Never-married</td><td>5,916</td><td>5.5%</td><td>4,767</td><td>3.5%</td><td>+2.0 pp</td></tr><tr><td>Divorced</td><td>1,771</td><td>16.0%</td><td>2,672</td><td>6.7%</td><td>+9.3 pp</td></tr><tr><td>Widowed</td><td>168</td><td>23.2%</td><td>825</td><td>5.6%</td><td>+17.6 pp</td></tr><tr><td>Separated</td><td>394</td><td>12.4%</td><td>631</td><td>2.7%</td><td>+9.8 pp</td></tr></tbody></table></div>
+<p>Collapsed to just married vs not-married, the gap shrinks from +19.6 pp to <strong>+3.0 pp</strong> (married) and <strong>+3.9 pp</strong> (not married). And inside <code>Married-civ-spouse</code> - nearly half the data - the sign <strong>reverses</strong>: women are 0.9 points ahead.</p>
+<p>The mechanism is the stratum weights. Women are 52% of the &quot;not married&quot; pool, which has an overall high-income rate of 6.5%, but only 12% of the &quot;married&quot; pool, which has an overall rate of 43.7%. The aggregate comparison places most men in the high-earning stratum and splits women toward the low-earning one, so roughly 16 of the 19.6 aggregate points come from <em>where</em> each group sits, not from a within-stratum difference in outcome rates.</p>
+<p>Whether <code>marital.status</code> is a legitimate thing to condition on here is a separate, normative question - see <a href="conditional-demographic-parity.html">Conditional Demographic Parity</a> and the Limitations section below. The point Simpson&#x27;s Paradox makes is narrower: the +19.6 pp aggregate figure, reported on its own, describes the dataset&#x27;s composition at least as much as it describes any disparity in outcomes.</p>
+<pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv(&quot;Benefits Denial/adult.csv&quot;)
+df[&quot;high_income&quot;] = (df[&quot;income&quot;] == &quot;&gt;50K&quot;).astype(int)
+
+
+def sex_gap(frame):
+    male = frame.loc[frame[&quot;sex&quot;] == &quot;Male&quot;, &quot;high_income&quot;].mean()
+    female = frame.loc[frame[&quot;sex&quot;] == &quot;Female&quot;, &quot;high_income&quot;].mean()
+    return male, female, male - female
+
+
+print(&quot;aggregate:&quot;, sex_gap(df))
+# (0.3057, 0.1095, 0.1962)
+
+married = df[df[&quot;marital.status&quot;] == &quot;Married-civ-spouse&quot;]
+print(&quot;married-civ-spouse:&quot;, sex_gap(married))
+# (0.4458, 0.4550, -0.0092)  &lt;- sign reversed</code></pre>
+<h3 id="detection-code">Detection Code</h3>
+<p>The following module compares a rate gap computed in aggregate against the same gap computed within each stratum of a chosen variable, and reports whether the aggregate sign matches the strata, whether it is inflated, or whether it reverses.</p>
+<pre><code class="language-python">import numpy as np
+import pandas as pd
+
+
+def simpsons_check(
+    df: pd.DataFrame,
+    outcome_col: str,
+    group_col: str,
+    advantaged: str,
+    disadvantaged: str,
+    stratify_col: str,
+    min_stratum_size: int = 100,
+    min_group_in_stratum: int = 30,
+) -&gt; dict:
+    &quot;&quot;&quot;
+    Compare the (advantaged - disadvantaged) outcome-rate gap in aggregate
+    against the same gap within each stratum of stratify_col.
+
+    outcome_col must be 0/1. Returns a dict with the aggregate gap, a table
+    of per-stratum gaps (sample-size weighted), the weighted-average
+    within-stratum gap, and a verdict:
+
+      &quot;consistent&quot;        aggregate agrees in sign and rough size with strata
+      &quot;inflated&quot;          same sign, but |aggregate| far exceeds the weighted
+                          within-stratum gap (aggregation is amplifying it)
+      &quot;sign_reversal&quot;     aggregate sign is opposite the weighted within gap,
+                          or opposite the majority of strata by sample size
+    &quot;&quot;&quot;
+    d = df[[outcome_col, group_col, stratify_col]].dropna()
+    d = d[d[group_col].isin([advantaged, disadvantaged])]
+
+    def gap(frame):
+        a = frame.loc[frame[group_col] == advantaged, outcome_col]
+        b = frame.loc[frame[group_col] == disadvantaged, outcome_col]
+        if len(a) == 0 or len(b) == 0:
+            return np.nan, len(a), len(b)
+        return a.mean() - b.mean(), len(a), len(b)
+
+    agg_gap, n_adv, n_dis = gap(d)
+
+    rows = []
+    for value, sub in d.groupby(stratify_col):
+        if len(sub) &lt; min_stratum_size:
+            continue
+        g, na, nb = gap(sub)
+        if np.isnan(g) or min(na, nb) &lt; min_group_in_stratum:
+            continue
+        rows.append({&quot;stratum&quot;: value, &quot;n&quot;: len(sub), &quot;gap&quot;: g,
+                     &quot;n_advantaged&quot;: na, &quot;n_disadvantaged&quot;: nb})
+
+    strata = pd.DataFrame(rows).sort_values(&quot;n&quot;, ascending=False)
+    if strata.empty:
+        return {&quot;verdict&quot;: &quot;insufficient_data&quot;, &quot;aggregate_gap&quot;: agg_gap,
+                &quot;strata&quot;: strata}
+
+    weights = strata[&quot;n&quot;] / strata[&quot;n&quot;].sum()
+    weighted_within_gap = float((strata[&quot;gap&quot;] * weights).sum())
+
+    same_sign = np.sign(agg_gap) == np.sign(weighted_within_gap)
+    majority_n_opposite = strata.loc[
+        np.sign(strata[&quot;gap&quot;]) != np.sign(agg_gap), &quot;n&quot;
+    ].sum() &gt; strata[&quot;n&quot;].sum() / 2
+
+    if not same_sign or majority_n_opposite:
+        verdict = &quot;sign_reversal&quot;
+    elif abs(agg_gap) &gt; 2 * abs(weighted_within_gap) + 0.05:
+        verdict = &quot;inflated&quot;
+    else:
+        verdict = &quot;consistent&quot;
+
+    return {
+        &quot;verdict&quot;: verdict,
+        &quot;aggregate_gap&quot;: float(agg_gap),
+        &quot;weighted_within_stratum_gap&quot;: weighted_within_gap,
+        &quot;n_advantaged&quot;: int(n_adv),
+        &quot;n_disadvantaged&quot;: int(n_dis),
+        &quot;strata&quot;: strata.reset_index(drop=True),
+    }
+
+
+def print_simpsons_report(result: dict) -&gt; None:
+    print(f&quot;Verdict: {result[&#x27;verdict&#x27;]}&quot;)
+    print(f&quot;  aggregate gap (adv - dis):       {result[&#x27;aggregate_gap&#x27;]:+.4f}&quot;)
+    if &quot;weighted_within_stratum_gap&quot; in result:
+        print(f&quot;  weighted within-stratum gap:     &quot;
+              f&quot;{result[&#x27;weighted_within_stratum_gap&#x27;]:+.4f}&quot;)
+        print(&quot;\n  per-stratum gaps (largest first):&quot;)
+        for _, row in result[&quot;strata&quot;].iterrows():
+            flip = &quot;  &lt;- opposite sign&quot; if (
+                np.sign(row[&quot;gap&quot;]) != np.sign(result[&quot;aggregate_gap&quot;])
+            ) else &quot;&quot;
+            print(f&quot;    {str(row[&#x27;stratum&#x27;])[:24]:24s} &quot;
+                  f&quot;n={int(row[&#x27;n&#x27;]):6d}  gap={row[&#x27;gap&#x27;]:+.4f}{flip}&quot;)
+
+
+# Usage on the Benefits Denial audit:
+# import pandas as pd
+# df = pd.read_csv(&quot;Benefits Denial/adult.csv&quot;)
+# df[&quot;high_income&quot;] = (df[&quot;income&quot;] == &quot;&gt;50K&quot;).astype(int)
+# print_simpsons_report(simpsons_check(
+#     df, &quot;high_income&quot;, &quot;sex&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;marital.status&quot;))</code></pre>
+<p>Run against <code>Benefits Denial/adult.csv</code> with <code>stratify_col=&quot;marital.status&quot;</code>, this reports <code>sign_reversal</code>: the aggregate <code>+0.196</code> gap is opposite in sign to the <code>Married-civ-spouse</code> stratum, which by itself is a plurality of the sample.</p>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-there-is-no-single-correct-level-of-aggregation">1. There is no single correct level of aggregation</h4>
+<p>Simpson&#x27;s Paradox flags a disagreement; it does not adjudicate it. Whether the aggregate or the within-stratum view is the &quot;real&quot; fairness finding depends on whether the stratifying variable is a legitimate explanation for the outcome difference or is itself part of the discrimination. Conditioning on a variable that is a proxy for the protected attribute launders the disparity away (see <a href="proxy-variables.html">Proxy Variables</a>); conditioning on a genuinely exogenous factor removes a confound. That judgment is normative and domain-specific, not statistical.</p>
+<h4 id="2-choosing-the-stratifying-variable-is-a-modeling-decision">2. Choosing the stratifying variable is a modeling decision</h4>
+<p>You will not find a reversal for every variable. The detection code above tests one variable at a time; running it across many candidate strata invites finding a reversal by chance, especially with small strata. A reported reversal is only meaningful for a variable there is an independent reason to care about.</p>
+<h4 id="3-small-strata-produce-unstable-per-group-rates">3. Small strata produce unstable per-group rates</h4>
+<p>Disaggregation shrinks sample sizes fast. A stratum where one group has 30 members will have a within-stratum rate with a wide confidence interval, and its &quot;gap&quot; can flip sign across dataset splits from noise alone. The <code>min_group_in_stratum</code> guard mitigates but does not eliminate this.</p>
+<h4 id="4-continuous-confounders-need-binning-and-the-bins-matter">4. Continuous confounders need binning, and the bins matter</h4>
+<p>The example used a categorical stratifier. For a continuous confounder (age, income, tenure) you have to choose bin edges, and coarse or misaligned bins can hide a reversal that finer bins would show, or manufacture one. Report the binning alongside the result.</p>
+<h3 id="related-concepts">Related Concepts</h3>
+<ul><li><a href="intersectional-bias.html">What Is Intersectional Bias?</a> - the opposite failure: a compounding gap visible only at the intersection of two attributes, hidden when each is checked alone.</li><li><a href="conditional-demographic-parity.html">What Is Conditional Demographic Parity?</a> - the fairness metric built specifically around checking parity <em>within</em> strata of a chosen legitimate factor.</li><li><a href="confounding-variable.html">What Is a Confounding Variable?</a> - the underlying causal structure that makes Simpson&#x27;s reversals possible.</li><li><a href="base-rate-fallacy.html">What Is the Base Rate Fallacy?</a> - a related error about ignoring prior probabilities when reading a conditional rate.</li><li><a href="proxy-variables.html">What Is a Proxy Variable?</a> - why conditioning on the wrong variable can hide real discrimination instead of explaining it.</li></ul>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
+<ul><li><a href="../index.html#project-benefits"><code>Benefits Denial/</code></a> - the Adult Census Income audit used above; the aggregate <code>sex</code> income gap is roughly five times any within-marital-status gap and reverses inside the largest stratum.</li><li><a href="../index.html#project-readmission"><code>Healthcare Readmission/</code></a> - a multi-hospital readmission audit where per-facility case mix is a natural stratifier for an aggregate readmission-rate gap.</li></ul>
+<h3 id="further-reading">Further Reading</h3>
+<ul><li><a href="https://www.science.org/doi/10.1126/science.187.4175.398" target="_blank" rel="noreferrer noopener">Bickel, P. J., Hammel, E. A., O&#x27;Connell, J. W. (1975): Sex Bias in Graduate Admissions: Data from Berkeley, <em>Science</em>, 187(4175), 398-404</a> - the canonical worked example: Berkeley&#x27;s aggregate admit rate favored men, but department by department it did not.</li><li><a href="https://www.jstor.org/stable/2984065" target="_blank" rel="noreferrer noopener">Simpson, E. H. (1951): The Interpretation of Interaction in Contingency Tables, <em>Journal of the Royal Statistical Society B</em>, 13(2), 238-241</a> - the paper the effect is named after.</li><li><a href="https://ftp.cs.ucla.edu/pub/stat_ser/r414.pdf" target="_blank" rel="noreferrer noopener">Pearl, J. (2014): Comment: Understanding Simpson&#x27;s Paradox, <em>The American Statistician</em>, 68(1), 8-13</a> - why the paradox is a causal question, not a statistical one, and why no purely statistical rule resolves it.</li></ul>
+<hr>
+<p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
+  </main>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('explainerThemeToggle');
+      const html = document.documentElement;
+      const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+      function syncTheme() {
+        const current = html.getAttribute('data-theme') || systemPref;
+        toggle.textContent = current === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', current === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+        toggle.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
+      }
+
+      syncTheme();
+
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme') || systemPref;
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        syncTheme();
+      });
+    })();
+  </script>
+</body>
+</html>
