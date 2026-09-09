@@ -130,6 +130,37 @@ def test_negative_age_sentinels_are_missing_instead_of_an_elderly_group():
     assert dim["missing_pct"] == 0.6667
 
 
+def test_non_numeric_age_sentinels_get_their_own_categorical_group():
+    # Regression test for #487: free-text age responses with no embedded
+    # number ("unknown", "prefer not to say") used to silently fold into
+    # missing_pct, indistinguishable from a genuinely blank cell -
+    # contradicting SPEC.md section 2's "anything else: treat as
+    # categorical" rule.
+    df = pd.DataFrame({"age": [25, 30, 45, "unknown", "unknown", "unknown",
+                                "prefer not to say", 22, 33, 41]})
+
+    dim = profile(df)["dimensions"][0]
+
+    labels = {group["label"]: group["count"] for group in dim["groups"]}
+    assert labels["unknown"] == 3
+    assert labels["prefer not to say"] == 1
+    assert dim["missing_pct"] == 0.0
+    assert dim["n_groups"] == 5
+
+
+def test_non_numeric_age_sentinels_are_distinct_from_genuine_missing_cells():
+    # A real None/NaN cell must still count toward missing_pct, not get
+    # folded into a categorical sentinel group alongside real free text.
+    df = pd.DataFrame({"age": [25, 30, 45, None, float("nan"), "unknown",
+                                22, 33, 41, 29]})
+
+    dim = profile(df)["dimensions"][0]
+
+    labels = {group["label"]: group["count"] for group in dim["groups"]}
+    assert labels["unknown"] == 1
+    assert dim["missing_pct"] == 0.2
+
+
 def test_skewness_symmetric_is_zero():
     assert abs(_skewness([1, 2, 3, 4, 5])) < 1e-9
 
