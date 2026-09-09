@@ -28,8 +28,11 @@ that is what the `unfair.py` / `fair.py` audits do. The Profiler answers a diffe
 Token boundaries are what stop `age` from matching `Agency_Text` or `Language`.
 
 A keyword matches a token by **exact match** when the keyword is <4 chars, or **prefix match** when
-it is ≥4 chars (prefix, not substring - so `age` never matches `agency`, but `statecode` matches
-`state`). Classify by the **first** keyword list that matches any token (order matters):
+it is ≥4 chars (prefix, not substring - so `age` never matches `agency`, but `zipcode` matches
+`zip`). A small set of keywords (`race`, `state`, `city`, `region`, `country` -
+`detect.EXACT_ONLY_KEYWORDS`) are exact-match-only regardless of length, since their common prefixes
+false-positive too easily (`statecode` would otherwise match `state`, `statement`/`stateless` would
+too). Classify by the **first** keyword list that matches any token (order matters):
 
 | Dimension   | Keywords                                                                 |
 |-------------|--------------------------------------------------------------------------|
