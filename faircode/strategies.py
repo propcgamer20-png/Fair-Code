@@ -44,7 +44,6 @@ import pandas.api.types as pdt
 from fairlearn.postprocessing import ThresholdOptimizer
 from fairlearn.reductions import DemographicParity, EqualizedOdds, ExponentiatedGradient
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 
 STRATEGIES = ("baseline", "unawareness", "unawareness_proxy_removal", "in_processing", "post_processing")
 
@@ -69,6 +68,28 @@ _REDUCTIONS_CONSTRAINTS = {
 EXPONENTIATED_GRADIENT_MAX_ITER = 50
 
 
+def _ordinal_encode(values: "pd.Series") -> "pd.Series":
+    """Integer-code a categorical column, but order the codes so any
+    numeric-looking category sorts by its numeric value (the rest sort
+    alphabetically after them).
+
+    Plain LabelEncoder sorts every category as a string, so one non-numeric
+    sentinel ("Unknown", "N/A") in an otherwise-numeric column - which turns
+    the whole column object-dtyped - silently scrambles the numeric order
+    ("10" and "20" encode below "3"). A genuinely categorical column with no
+    numeric-looking values encodes identically to LabelEncoder. See #514.
+    """
+    cats = list(pd.unique(values))
+    as_num = pd.to_numeric(pd.Series(cats), errors="coerce")
+    order = sorted(
+        range(len(cats)),
+        key=lambda i: (0, float(as_num.iloc[i]), "")
+        if pd.notna(as_num.iloc[i]) else (1, 0.0, str(cats[i])),
+    )
+    mapping = {cats[i]: rank for rank, i in enumerate(order)}
+    return values.map(mapping)
+
+
 def encode_features(df: pd.DataFrame, columns: list) -> pd.DataFrame:
     """Label-encode categorical columns, pass numeric columns through.
 
@@ -79,6 +100,10 @@ def encode_features(df: pd.DataFrame, columns: list) -> pd.DataFrame:
     would blow up the feature matrix differently per audit. Missing values
     are filled (median for numeric, a sentinel category for categorical) so
     every model family gets a fully-populated matrix.
+
+    A categorical column is ordinal-encoded with numeric-looking categories
+    ordered by value, so a stray non-numeric sentinel in an otherwise
+    numeric column does not scramble its ordering (#514).
     """
     out = pd.DataFrame(index=df.index)
     for col in columns:
@@ -89,7 +114,7 @@ def encode_features(df: pd.DataFrame, columns: list) -> pd.DataFrame:
             out[col] = numeric.fillna(0.0 if pd.isna(median) else median)
         else:
             filled = series.astype(str).fillna("__missing__")
-            out[col] = LabelEncoder().fit_transform(filled)
+            out[col] = _ordinal_encode(filled).to_numpy()
     return out
 
 
