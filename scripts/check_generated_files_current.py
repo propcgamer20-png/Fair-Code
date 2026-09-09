@@ -3,10 +3,12 @@
 llms-full.txt) or the MCP results-frozen mirror (faircode/_results_frozen/)
 are out of date relative to their sources.
 
-Used by .github/workflows/build-explainers.yml, run *after* the workflow's
-own `build_explainers.py`/`generate_og_images.py`/
-`freeze_paper_results.mirror_for_mcp()` steps have already regenerated
-everything fresh into the working tree.
+Used by .github/workflows/build-explainers.yml. Runs its own fresh
+regeneration internally (see "self-sufficient" below), so it no longer
+depends on the workflow's own build_explainers.py/generate_og_images.py/
+freeze_paper_results.mirror_for_mcp() steps having run first - though CI
+still runs those first anyway, since the workflow's later steps assume a
+built working tree either way.
 
 Text-based generated files (explainer HTML, explainers-data.js,
 sitemap.xml, llms-full.txt, faircode/_results_frozen/*.csv) are compared
@@ -48,6 +50,16 @@ and has the right dimensions; `tests/test_generate_images.py` already
 verifies the *generator* satisfies that in a temp directory, so this
 script checks the same thing for what's actually committed.
 
+This script is self-sufficient: it builds a fresh copy of the site itself
+(via `git worktree`, with every currently tracked file's working-tree
+content copied on top of the HEAD checkout, so uncommitted edits to an
+already-tracked source file are what gets built) and compares the real
+working tree against that regeneration - not against what's committed at
+HEAD. Editing an explainer's .md without running `make build-explainers`
+afterward is exactly the case this now catches; it no longer needs to run
+after CI's own build_explainers.py/generate_og_images.py steps to be
+meaningful, though CI still runs it there too.
+
 Run locally:  python3 scripts/check_generated_files_current.py
 Exit code:    0 = everything current, 1 = something is genuinely stale.
 """
@@ -55,8 +67,11 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
+from contextlib import ExitStack
 from pathlib import Path
 
 from PIL import Image
@@ -104,25 +119,73 @@ def _expected_og_slugs():
     return ["home", "profiler"] + [entry["slug"] for entry in entries]
 
 
+def _fresh_build_dir(stack):
+    """Returns a Path to a real regeneration of the site, built from what's
+    actually on disk right now - not from HEAD. `git worktree add` gives a
+    checkout backed by the same object database/history as ROOT (so
+    git-log-derived dates in build_explainers.py resolve identically to a
+    regeneration done in ROOT itself), then every currently tracked file's
+    *working-tree* content is copied on top of that HEAD checkout, so
+    uncommitted edits to an already-tracked source file are what gets
+    built - exactly the scenario in the bug report this fixes. A brand new,
+    never-`git add`-ed file isn't covered by that overlay (there's nothing
+    to `git ls-files` yet), which matches this script's pre-existing
+    handling of that case below (falls through to "not produced by a fresh
+    regeneration", since a file with no source in the fresh build can't
+    have been generated there).
+
+    `stack` is an ExitStack the caller uses to guarantee the worktree is
+    cleaned up even if a later step raises.
+    """
+    tmp = Path(tempfile.mkdtemp(prefix="faircode-freshbuild-"))
+    stack.callback(lambda: subprocess.run(
+        ["git", "worktree", "remove", "--force", str(tmp)],
+        cwd=ROOT, capture_output=True, check=False,
+    ))
+    subprocess.run(
+        ["git", "worktree", "add", "--detach", "--quiet", str(tmp), "HEAD"],
+        cwd=ROOT, check=True,
+    )
+
+    tracked = subprocess.run(
+        ["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+    for rel in tracked:
+        if not rel.strip():
+            continue
+        src, dst = ROOT / rel, tmp / rel
+        if src.is_file():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, dst)
+
+    for cmd in (
+        [sys.executable, "scripts/build_explainers.py"],
+        [sys.executable, "scripts/generate_og_images.py"],
+        [sys.executable, "-c",
+         "from scripts.freeze_paper_results import mirror_for_mcp; mirror_for_mcp()"],
+    ):
+        subprocess.run(cmd, cwd=tmp, check=True, capture_output=True, text=True)
+
+    return tmp
+
+
 def main():
     stale = []
 
-    for pattern in TEXT_GLOBS:
-        for path in _tracked_paths(pattern):
-            rel = path.relative_to(ROOT)
-            show = subprocess.run(
-                ["git", "show", f"HEAD:{rel.as_posix()}"],
-                cwd=ROOT, capture_output=True, text=True, check=False,
-            )
-            if show.returncode != 0:
-                # Staged but never committed (e.g. running this locally
-                # before the first commit of a brand new file) - trivially
-                # differs from "nothing at HEAD", not a normalization case.
-                stale.append((rel, "not yet committed"))
-                continue
-            fresh = path.read_text(encoding="utf-8")
-            if _normalize_dates(show.stdout) != _normalize_dates(fresh):
-                stale.append((rel, "content differs from a fresh regeneration"))
+    with ExitStack() as stack:
+        fresh_dir = _fresh_build_dir(stack)
+
+        for pattern in TEXT_GLOBS:
+            for path in _tracked_paths(pattern):
+                rel = path.relative_to(ROOT)
+                fresh_path = fresh_dir / rel
+                if not fresh_path.is_file():
+                    stale.append((rel, "not produced by a fresh regeneration"))
+                    continue
+                working_tree = path.read_text(encoding="utf-8")
+                fresh = fresh_path.read_text(encoding="utf-8")
+                if _normalize_dates(fresh) != _normalize_dates(working_tree):
+                    stale.append((rel, "content differs from a fresh regeneration"))
 
     for theme_dir in ("assets/og", "assets/og-light"):
         for slug in _expected_og_slugs():
