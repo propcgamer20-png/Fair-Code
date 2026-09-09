@@ -195,6 +195,39 @@ def test_python_js_profiler_parity_rejects_negative_age_sentinels(tmp_path):
     assert age["missing_pct"] == 0.4
 
 
+def test_python_js_na_token_parity_on_literal_na_and_none(tmp_path):
+    """NA_TOKENS / isMissing() must match pandas' default STR_NA_VALUES
+    exactly and case-sensitively: literal "None" is missing, bare lowercase
+    "na" is a real category. The JS engine used to have both backwards and
+    lower-cased the cell before comparing (#491)."""
+    csv = tmp_path / "na_test.csv"
+    csv.write_text(
+        "status,x\n"
+        "active,1\ninactive,2\nna,3\nna,4\nNone,5\nNone,6\n"
+        "active,7\ninactive,8\nactive,9\ninactive,10\n",
+        encoding="utf-8",
+    )
+
+    python_result = profile(read_table(str(csv)))
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    javascript_result = json.loads(completed.stdout)
+
+    python_result = dict(python_result)
+    javascript_result = dict(javascript_result)
+    python_result.pop("flags", None)
+    javascript_result.pop("flags", None)
+    assert javascript_result == python_result
+
+    status = next(d for d in python_result["dimensions"] if d["name"] == "status")
+    labels = {g["label"] for g in status["groups"]}
+    assert "na" in labels          # bare lowercase "na" is NOT a pandas NA token
+    assert "None" not in labels    # "None" IS a pandas NA token
+    assert status["missing_pct"] == 0.2
+
+
 def test_python_js_profiler_parity_with_overrides_cross_and_thresholds(tmp_path):
     """Non-default options - --map/--cross/--reference/thresholds - only ever
     had cross-engine parity coverage for their default-off path (issue #376).
