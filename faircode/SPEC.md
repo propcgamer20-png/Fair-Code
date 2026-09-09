@@ -416,12 +416,14 @@ parity obligation of its own - there is no equivalent MCP surface for the JS eng
 | `get_benchmark_results` | `faircode/_results_frozen/results_{fairness,performance}.csv` (mirrored from `paper/results-frozen/`) | Phase 2: filters the frozen CSV named by `kind` on exact-match `audit`/`model`/`strategy`/`metric`/`protected_attribute` (a filter naming a column `kind` doesn't have is ignored). Returns `{results, total_matches, truncated}`, capped at 200 rows |
 
 The first three tools accept `overrides` (the section 1 `{column: kind}` map, as a JSON object rather
-than repeated `--map COL=KIND` strings) and the relevant section 7 thresholds by name.
-`profile_dataset` also accepts `cross` and `reference_path`, matching `profile`'s `--cross` and
-`--reference`; `compare_datasets` does not, matching `compare`'s own flag set. `proxy_hints` only
-exposes `min_share`/`min_group_size` - the two thresholds that feed dimension detection - since
-`intersection_floor`/`imbalance_flag`/`missing_flag` affect intersections/flags, which this tool
-never touches.
+than repeated `--map COL=KIND` strings). `profile_dataset` and `compare_datasets` also accept the
+relevant section 7 thresholds by name; `profile_dataset` additionally accepts `cross` and
+`reference_path`, matching `profile`'s `--cross` and `--reference`, while `compare_datasets` does
+not, matching `compare`'s own flag set. `proxy_hints` takes no threshold parameters at all - it
+tests every detected dimension unconditionally, reading only each dimension's `name`/`kind`, neither
+of which any section 7 threshold can change (they only affect `profile()`'s own per-group scoring
+and flags, fields `proxy_hints()` never reads) - so it accepts just `overrides` and `held_out_with`
+(the CLI's `--proxy-hints-with`, for testing a protected attribute already dropped from the dataset).
 
 An anticipated failure (an unreadable path, an unknown `overrides` column, `proxy_hints` without
 the `proxy` extra installed) is raised inside the tool as a plain Python exception and converted to
