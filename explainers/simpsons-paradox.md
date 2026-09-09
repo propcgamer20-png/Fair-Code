@@ -38,7 +38,7 @@ Consider a hiring screen with two departments. Within each department the callba
 
 Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design the two are tied (10.0% vs 10.0%). Neither department favors Group A. Yet the pooled rate shows Group A ahead by 46 points, because 80% of Group A's applicants are in the high-callback department and 80% of Group B's are in the low-callback one. The pooled 46-point "gap" is entirely a fact about where each group applied, not about how either group was treated inside a department.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 `Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows), where the target is `income == '>50K'` and `sex` is a declared protected attribute. These are the dataset's own outcome rates (not a model's predictions), which is the base rate a demographic-parity check on the labels compares.
 
@@ -47,7 +47,7 @@ Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design
 | Group | n | P(income > 50K) |
 |---|---:|---:|
 | Male | 21,790 | **30.6%** |
-| Female | 10,771 | **11.0%** |
+| Female | 10,771 | **10.9%** |
 | Gap (M - F) | | **+19.6 pp** |
 
 Now stratify by `marital.status`. The single largest stratum, `Married-civ-spouse`, holds 14,976 rows - 46% of the entire dataset:
@@ -195,7 +195,7 @@ def print_simpsons_report(result: dict) -> None:
 #     df, "high_income", "sex", "Male", "Female", "marital.status"))
 ```
 
-Run against `Benefits Denial/adult.csv` with `stratify_col="marital.status"`, this reports `sign_reversal`: the aggregate `+0.196` gap is opposite in sign to the `Married-civ-spouse` stratum, which by itself is a plurality of the sample.
+Run against `Benefits Denial/adult.csv` with `stratify_col="marital.status"`, this reports `inflated`, not `sign_reversal` - even though `Married-civ-spouse` (46% of the sample) reverses sign on its own, `sign_reversal` requires either the *weighted-average* within-stratum gap to disagree in sign with the aggregate, or a strict majority (over 50% of rows, not just the largest single stratum) to be opposite-signed. Neither holds here: the weighted within-stratum gap (`+0.024`) agrees in sign with the aggregate (`+0.196`), and the other five strata's combined weight still outweighs `Married-civ-spouse`'s 46%. What the aggregate figure is doing instead is amplifying a real, same-direction effect roughly eightfold (`0.196` vs. `0.024`), which is exactly what `inflated` means - a single large, sign-reversed stratum is a real and worth-noting finding on its own, but it isn't sufficient by itself to call the aggregate a fabrication; that requires weighing every stratum, not eyeballing the biggest one.
 
 ## Limitations and Trade-offs
 
