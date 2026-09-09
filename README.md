@@ -68,7 +68,7 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 
 | # | Domain | Protected Attribute | Proxies Removed | Gap Before → After | Reduction |
 |:-:|--------|--------------------|-----------------|--------------------|:---------:|
-| 01 | [Criminal Justice](#01--compas--criminal-justice-bias) | Race | Custody Status | 86.77% → 15.69% | **71%** |
+| 01 | [Criminal Justice](#01--compas--criminal-justice-bias) | Race | Custody Status | 86.77% → 15.69% | **82%** |
 | 02 | [Hiring](#02--ai-fair-recruitment--hiring-bias) | Gender | Age | 4.51% → 0.12% | **97.3%** |
 | 03 | [Lending](#03--german-credit-lending--lending-bias) | Age | Employment Tenure | 7.16% → 1.89% | **73.6%** |
 | 04 | [Healthcare](#04--insurance-denial--healthcare-bias) | Age, Gender | BMI, Smoker, Diabetic | Age: 7.93% → 3.18% | **60%** |
@@ -367,11 +367,11 @@ X = pd.get_dummies(df[[
 
 | Group | High-Risk Flag Rate |
 |-------|:-------------------:|
-| Black Defendants | 84.71% |
+| Black Defendants | 84.82% |
 | White Defendants | 69.02% |
 | **New Fairness Gap** | **15.69%** |
 
-**Result: 71% reduction in the fairness gap.**
+**Result: 82% reduction in the fairness gap.**
 
 > **Key insight:** Removing race alone isn't enough. Proxy variables like custody status carry the same racial signal because of historical over-policing of Black communities. Both the protected attribute *and* its proxies must be removed.
 
@@ -550,8 +550,8 @@ Trained with sex, race, age, and national origin directly, plus four proxy varia
 
 | Group | Ineligibility Flag Rate |
 |-------|:-----------------------:|
-| Male applicants | 25.71% |
-| Female applicants | 7.71% |
+| Male applicants | 25.82% |
+| Female applicants | 7.82% |
 | **Fairness Gap (Sex)** | **18.00%** |
 
 | Group | Ineligibility Flag Rate |
