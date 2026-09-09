@@ -145,6 +145,25 @@ def test_to_html_renders_reference_baseline_section(mock_profile_result):
     assert "-5.0 pp" in html_out
 
 
+def test_to_html_reports_reference_groups_omitted_by_display_cap(mock_profile_result):
+    """Mirrors test_to_html_reports_groups_omitted_by_display_cap for the
+    reference-baseline sub-table, which was silently truncated with no
+    dim-more notice."""
+    mock_profile_result["dimensions"][0]["reference"] = {
+        "deviation": 0.1,
+        "groups": [
+            {"label": f"Group {i}", "expected": 1 / 15, "actual": 1 / 15, "delta": 0.0}
+            for i in range(15)
+        ],
+    }
+
+    html_out = to_html(mock_profile_result)
+
+    assert "Group 11" in html_out
+    assert "Group 12" not in html_out
+    assert '<div class="dim-more">… and 3 more groups</div>' in html_out
+
+
 def test_to_html_omits_reference_section_when_absent(mock_profile_result):
     html_out = to_html(mock_profile_result)
 
@@ -266,6 +285,25 @@ def test_to_terminal_truncates_a_long_reference_group_label(mock_profile_result)
 
     assert ref_label[:16] in out
     assert ref_label not in out
+
+
+def test_to_terminal_reports_reference_groups_omitted_by_display_cap(mock_profile_result):
+    """SPEC section 7: every report surface that truncates a group list must
+    state how many groups were omitted. The reference sub-table used to be
+    silently capped at DISPLAY_GROUPS with no notice."""
+    mock_profile_result["dimensions"][0]["reference"] = {
+        "deviation": 0.1,
+        "groups": [
+            {"label": f"Group {i}", "expected": 1 / 15, "actual": 1 / 15, "delta": 0.0}
+            for i in range(15)
+        ],
+    }
+
+    out = to_terminal(mock_profile_result)
+
+    assert "Group 11" in out
+    assert "Group 12" not in out
+    assert "… and 3 more groups" in out
 
 
 def test_to_terminal_renders_flags_section(mock_profile_result):

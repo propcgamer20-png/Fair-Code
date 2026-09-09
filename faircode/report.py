@@ -87,10 +87,13 @@ def to_terminal(result: dict) -> str:
         if meta:
             add(f"  ({'  '.join(meta)})")
         if d.get("reference"):
+            ref_groups = d["reference"]["groups"]
             add(f"  reference (deviation {d['reference']['deviation'] * 100:.1f}%):")
-            for g in d["reference"]["groups"][:DISPLAY_GROUPS]:
+            for g in ref_groups[:DISPLAY_GROUPS]:
                 add(f"    {g['label'][:16]:<16} exp {g['expected'] * 100:5.1f}%  "
                     f"act {g['actual'] * 100:5.1f}%  ({g['delta'] * 100:+5.1f} pp)")
+            if len(ref_groups) > DISPLAY_GROUPS:
+                add(f"    … and {len(ref_groups) - DISPLAY_GROUPS} more groups")
         add("")
 
     if result["flags"]:
@@ -224,13 +227,19 @@ def to_html(result: dict) -> str:
                 f'<td class="num">{g["delta"] * 100:+.1f} pp</td></tr>'
                 for g in ref["groups"][:DISPLAY_GROUPS]
             )
+            ref_more = ""
+            if len(ref["groups"]) > DISPLAY_GROUPS:
+                ref_more = (
+                    f'<div class="dim-more">… and '
+                    f'{len(ref["groups"]) - DISPLAY_GROUPS} more groups</div>'
+                )
             reference_html = (
                 f'<div class="reference"><h3>Reference '
                 f'<span class="kind">deviation {ref["deviation"] * 100:.1f}%</span></h3>'
                 f'<table><caption>Expected vs. actual share - {esc(d["name"])}</caption>'
                 f'<tr><th scope="col"></th><th scope="col" class="num">Expected</th>'
                 f'<th scope="col" class="num">Actual</th><th scope="col" class="num">Delta</th></tr>'
-                f'{ref_rows}</table></div>'
+                f'{ref_rows}</table>{ref_more}</div>'
             )
 
         meta_parts = []
