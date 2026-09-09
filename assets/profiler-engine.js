@@ -670,7 +670,16 @@
         if (ageToNumeric(rows[i][name]) !== null) { any = true; break; }
       }
       if (any) {
-        for (i = 0; i < rows.length; i++) out.push(ageBand(ageToNumeric(rows[i][name])));
+        for (i = 0; i < rows.length; i++) {
+          var value = rows[i][name];
+          var num = ageToNumeric(value);
+          // Non-numeric age sentinels get their own categorical label here
+          // too, matching dimension()'s main breakdown - otherwise they map
+          // to null and intersections() drops those rows, so the crosstab
+          // and the main groups disagree (#524).
+          out.push(num !== null ? ageBand(num)
+                   : (isCategoricalAgeSentinel(value) ? String(value) : null));
+        }
         return out;
       }
     }
