@@ -65,10 +65,31 @@ _DEFAULT_OPTS = {
 }
 
 
+_UNIT_INTERVAL_OPTS = ("min_share", "intersection_floor", "missing_flag", "reference_flag")
+
+
+def _validate_opts(o: dict) -> None:
+    """Reject out-of-range tunables (SPEC section 7) instead of silently
+    producing a self-contradictory report - e.g. min_share=1.5 flags every
+    group as under-represented while overall_score/grade stay 100/"A" (#511).
+    """
+    for key in _UNIT_INTERVAL_OPTS:
+        v = o.get(key)
+        if v is not None and not 0.0 <= v <= 1.0:
+            raise ValueError(f"{key} must be between 0 and 1, got {v!r}")
+    imbalance = o.get("imbalance_flag")
+    if imbalance is not None and imbalance < 1.0:
+        raise ValueError(f"imbalance_flag must be >= 1, got {imbalance!r}")
+    min_group_size = o.get("min_group_size")
+    if min_group_size is not None and min_group_size < 1:
+        raise ValueError(f"min_group_size must be >= 1, got {min_group_size!r}")
+
+
 def _resolve_opts(opts) -> dict:
     o = dict(_DEFAULT_OPTS)
     if opts:
         o.update({k: v for k, v in opts.items() if v is not None})
+    _validate_opts(o)
     return o
 
 

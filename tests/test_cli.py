@@ -36,6 +36,19 @@ def test_profile_fail_under_returns_nonzero_and_explains_score(tmp_path, capsys)
     assert "representation score 72/100 is below --fail-under 90" in captured.err
 
 
+def test_profile_rejects_out_of_range_min_share(tmp_path, capsys):
+    # A percentage/fraction typo (15 instead of 0.15, or 1.5) used to be
+    # accepted silently and produce a self-contradictory report (#511).
+    path = tmp_path / "a.csv"
+    path.write_text("sex\n" + "M\n" * 50 + "F\n" * 50, encoding="utf-8")
+
+    exit_code = main(["profile", str(path), "--min-share", "1.5"])
+
+    captured = capsys.readouterr()
+    assert exit_code != 0
+    assert "min_share must be between 0 and 1" in captured.err
+
+
 def test_profile_fail_under_keeps_json_output_machine_readable(tmp_path, capsys):
     path = tmp_path / "balanced.csv"
     path.write_text("sex\nM\nF\nM\nF\n", encoding="utf-8")
