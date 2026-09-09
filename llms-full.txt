@@ -11416,7 +11416,7 @@ Consider a hiring screen with two departments. Within each department the callba
 
 Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design the two are tied (10.0% vs 10.0%). Neither department favors Group A. Yet the pooled rate shows Group A ahead by 46 points, because 80% of Group A's applicants are in the high-callback department and 80% of Group B's are in the low-callback one. The pooled 46-point "gap" is entirely a fact about where each group applied, not about how either group was treated inside a department.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 `Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows), where the target is `income == '>50K'` and `sex` is a declared protected attribute. These are the dataset's own outcome rates (not a model's predictions), which is the base rate a demographic-parity check on the labels compares.
 
@@ -11425,7 +11425,7 @@ Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design
 | Group | n | P(income > 50K) |
 |---|---:|---:|
 | Male | 21,790 | **30.6%** |
-| Female | 10,771 | **11.0%** |
+| Female | 10,771 | **10.9%** |
 | Gap (M - F) | | **+19.6 pp** |
 
 Now stratify by `marital.status`. The single largest stratum, `Married-civ-spouse`, holds 14,976 rows - 46% of the entire dataset:
@@ -11573,7 +11573,7 @@ def print_simpsons_report(result: dict) -> None:
 #     df, "high_income", "sex", "Male", "Female", "marital.status"))
 ```
 
-Run against `Benefits Denial/adult.csv` with `stratify_col="marital.status"`, this reports `sign_reversal`: the aggregate `+0.196` gap is opposite in sign to the `Married-civ-spouse` stratum, which by itself is a plurality of the sample.
+Run against `Benefits Denial/adult.csv` with `stratify_col="marital.status"`, this reports `inflated`, not `sign_reversal` - even though `Married-civ-spouse` (46% of the sample) reverses sign on its own, `sign_reversal` requires either the *weighted-average* within-stratum gap to disagree in sign with the aggregate, or a strict majority (over 50% of rows, not just the largest single stratum) to be opposite-signed. Neither holds here: the weighted within-stratum gap (`+0.024`) agrees in sign with the aggregate (`+0.196`), and the other five strata's combined weight still outweighs `Married-civ-spouse`'s 46%. What the aggregate figure is doing instead is amplifying a real, same-direction effect roughly eightfold (`0.196` vs. `0.024`), which is exactly what `inflated` means - a single large, sign-reversed stratum is a real and worth-noting finding on its own, but it isn't sufficient by itself to call the aggregate a fabrication; that requires weighing every stratum, not eyeballing the biggest one.
 
 ## Limitations and Trade-offs
 
@@ -11661,7 +11661,7 @@ Conditional demographic parity zeroes out the second source by construction: it 
 
 The catch is entirely in the choice of `L`. If `L` is a genuine exogenous factor, the within-stratum gap is the disparity net of a real confounder. If `L` is a [proxy](proxy-variables.md) for the protected attribute, conditioning on it absorbs the discrimination into the "legitimate" term and the within-stratum gap understates the real harm. CDP gives you a knob; it does not tell you where to set it.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 `Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows). The target is `income == '>50K'` and `sex` is a declared protected attribute. Using the dataset's own outcome rates (the base rate a label-level demographic parity check compares):
 
@@ -11670,12 +11670,12 @@ The catch is entirely in the choice of `L`. If `L` is a genuine exogenous factor
 | Group | n | P(income > 50K) |
 |---|---:|---:|
 | Male | 21,790 | 30.6% |
-| Female | 10,771 | 11.0% |
+| Female | 10,771 | 10.9% |
 | Gap (M - F) | | **+19.6 pp** |
 
 Now apply CDP with two different choices of legitimate factor `L`.
 
-### L = education level (`education.num`, 15 levels)
+### L = education level (`education.num`, 16 levels)
 
 | education.num | n | Gap (M - F) |
 |---:|---:|---:|
@@ -11684,7 +11684,7 @@ Now apply CDP with two different choices of legitimate factor `L`.
 | 13 (Bachelors) | 5,355 | +29.4 pp |
 | 14 (Masters) | 1,723 | +32.3 pp |
 | 15 (Prof-school) | 576 | +33.1 pp |
-| 16 (Doctorate) | 413 | +20.2 pp |
+| 16 (Doctorate) | 413 | +20.1 pp |
 
 Sample-weighted within-stratum gap: **+18.4 pp**. Conditioning on education removes almost none of the aggregate gap - within every education level men are markedly more likely to be high earners, and at the top three levels the gap is *larger* than the unconditional +19.6. CDP conditioned on education says: the disparity is not an artifact of women being less educated in this dataset.
 
@@ -11697,7 +11697,7 @@ Sample-weighted within-stratum gap: **+18.4 pp**. Conditioning on education remo
 | Divorced | 4,443 | +9.3 pp |
 | Widowed | 993 | +17.6 pp |
 
-Sample-weighted within-stratum gap: roughly **+3 pp**, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.
+Sample-weighted within-stratum gap: roughly **+2 pp**, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.
 
 ### The two answers disagree, and that is the point
 
@@ -11728,7 +11728,7 @@ for col in ("education.num", "marital.status"):
     _, w = within_stratum_gap(df, col)
     print(f"condition on {col:16s}: weighted within-stratum gap = {w:+.4f}")
 # condition on education.num   : weighted within-stratum gap = +0.1844
-# condition on marital.status  : weighted within-stratum gap = +0.0305
+# condition on marital.status  : weighted within-stratum gap = +0.0243
 ```
 
 ## Detection Code
@@ -11827,7 +11827,7 @@ def print_cdp_report(result: dict, condition_label: str) -> None:
 #     "marital.status")
 ```
 
-Against `Benefits Denial/adult.csv` this reports an `explained_fraction` near `0.06` for `education.num` (conditioning removes almost nothing) and near `0.84` for `marital.status` (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.
+Against `Benefits Denial/adult.csv` this reports an `explained_fraction` near `0.06` for `education.num` (conditioning removes almost nothing) and near `0.88` for `marital.status` (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.
 
 ## Limitations and Trade-offs
 
@@ -11920,9 +11920,9 @@ The reason this is worth doing rather than just checking more pairs by hand: the
 |---|---:|---:|
 | Female | 54,708 | 11.25% |
 | Male | 47,055 | 11.06% |
-| Gap | | 0.19 pp (ratio 0.984) |
+| Gap | | 0.18 pp (ratio 0.984) |
 
-A 0.19-point gap clears the EEOC four-fifths rule (ratio 0.984, well above 0.80) and any reasonable demographic parity tolerance. On the `gender` axis alone, this dataset looks clean.
+A 0.18-point gap clears the EEOC four-fifths rule (ratio 0.984, well above 0.80) and any reasonable demographic parity tolerance. On the `gender` axis alone, this dataset looks clean.
 
 **Now `gender x race` - the gender gap inside each race stratum:**
 
@@ -11950,7 +11950,7 @@ df["y"] = (df["readmitted"] == "<30").astype(int)
 
 # marginal gender check - looks fine
 by_sex = df.groupby("gender")["y"].mean()
-print(by_sex["Female"] - by_sex["Male"])          # +0.0019
+print(by_sex["Female"] - by_sex["Male"])          # +0.0018
 
 # the same gap inside the Asian stratum - a 5-point violation
 asian = df[df["race"] == "Asian"]

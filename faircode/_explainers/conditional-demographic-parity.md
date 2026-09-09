@@ -37,7 +37,7 @@ Conditional demographic parity zeroes out the second source by construction: it 
 
 The catch is entirely in the choice of `L`. If `L` is a genuine exogenous factor, the within-stratum gap is the disparity net of a real confounder. If `L` is a [proxy](proxy-variables.md) for the protected attribute, conditioning on it absorbs the discrimination into the "legitimate" term and the within-stratum gap understates the real harm. CDP gives you a knob; it does not tell you where to set it.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 `Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows). The target is `income == '>50K'` and `sex` is a declared protected attribute. Using the dataset's own outcome rates (the base rate a label-level demographic parity check compares):
 
@@ -46,12 +46,12 @@ The catch is entirely in the choice of `L`. If `L` is a genuine exogenous factor
 | Group | n | P(income > 50K) |
 |---|---:|---:|
 | Male | 21,790 | 30.6% |
-| Female | 10,771 | 11.0% |
+| Female | 10,771 | 10.9% |
 | Gap (M - F) | | **+19.6 pp** |
 
 Now apply CDP with two different choices of legitimate factor `L`.
 
-### L = education level (`education.num`, 15 levels)
+### L = education level (`education.num`, 16 levels)
 
 | education.num | n | Gap (M - F) |
 |---:|---:|---:|
@@ -60,7 +60,7 @@ Now apply CDP with two different choices of legitimate factor `L`.
 | 13 (Bachelors) | 5,355 | +29.4 pp |
 | 14 (Masters) | 1,723 | +32.3 pp |
 | 15 (Prof-school) | 576 | +33.1 pp |
-| 16 (Doctorate) | 413 | +20.2 pp |
+| 16 (Doctorate) | 413 | +20.1 pp |
 
 Sample-weighted within-stratum gap: **+18.4 pp**. Conditioning on education removes almost none of the aggregate gap - within every education level men are markedly more likely to be high earners, and at the top three levels the gap is *larger* than the unconditional +19.6. CDP conditioned on education says: the disparity is not an artifact of women being less educated in this dataset.
 
@@ -73,7 +73,7 @@ Sample-weighted within-stratum gap: **+18.4 pp**. Conditioning on education remo
 | Divorced | 4,443 | +9.3 pp |
 | Widowed | 993 | +17.6 pp |
 
-Sample-weighted within-stratum gap: roughly **+3 pp**, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.
+Sample-weighted within-stratum gap: roughly **+2 pp**, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.
 
 ### The two answers disagree, and that is the point
 
@@ -104,7 +104,7 @@ for col in ("education.num", "marital.status"):
     _, w = within_stratum_gap(df, col)
     print(f"condition on {col:16s}: weighted within-stratum gap = {w:+.4f}")
 # condition on education.num   : weighted within-stratum gap = +0.1844
-# condition on marital.status  : weighted within-stratum gap = +0.0305
+# condition on marital.status  : weighted within-stratum gap = +0.0243
 ```
 
 ## Detection Code
@@ -203,7 +203,7 @@ def print_cdp_report(result: dict, condition_label: str) -> None:
 #     "marital.status")
 ```
 
-Against `Benefits Denial/adult.csv` this reports an `explained_fraction` near `0.06` for `education.num` (conditioning removes almost nothing) and near `0.84` for `marital.status` (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.
+Against `Benefits Denial/adult.csv` this reports an `explained_fraction` near `0.06` for `education.num` (conditioning removes almost nothing) and near `0.88` for `marital.status` (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.
 
 ## Limitations and Trade-offs
 
