@@ -27,7 +27,7 @@ Fair Code is an open-source responsible AI platform explaining algorithmic bias,
 
 | Stars | Contributors | Forks | Watching | Social Reach | Countries | Audits | Explainers | CI |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| 46 | 28 | 32 | 8 | 30K+ | 20 | 7 | 53 | ✅ every push/PR |
+| 46 | 29 | 33 | 8 | 30K+ | 20 | 7 | 60 | ✅ every push/PR |
 
 > The earlier paper freeze has lifted - the real paper, with fresh results, is now planned for next
 > year. `paper/results-frozen/` (tag `v1.0-paper`, commit `bbef2ba`) is kept as a reference snapshot.
@@ -44,7 +44,7 @@ Fair Code is an open-source responsible AI platform explaining algorithmic bias,
 
 ## Phase 1 - Bias Glossary and Beginner Explainers ✅
 
-**Status: Foundational library complete - 56 explainers published, expanding toward a 60+ library**
+**Status: Foundational library complete - 60 explainers published**
 
 Build the foundational vocabulary and explain core fairness concepts clearly enough for a non-technical reader.
 
