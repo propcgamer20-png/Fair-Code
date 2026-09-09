@@ -385,8 +385,11 @@ def parse_reference(df: pd.DataFrame) -> dict:
     """Parse a long-format reference baseline into {column: {group: share}}.
 
     Expected headers (case-insensitive): a column identifier, a group/value, and
-    a share. Shares may be fractions (0.51) or percentages (51) - if any value
-    exceeds 1.5 the whole table is read as percentages. See SPEC section 8.
+    a share. Shares may be fractions (0.51) or percentages (51); the choice is
+    made per column (grouped by the column identifier) - if any of a column's
+    values exceeds 1.5 that column is read as percentages. Deciding it once
+    across the whole table corrupted a correctly-scaled column in a reference
+    file that mixes conventions between columns. See SPEC section 8.
     """
     lower = {str(c).strip().lower(): c for c in df.columns}
 
@@ -414,10 +417,15 @@ def parse_reference(df: pd.DataFrame) -> dict:
             continue
         raw.append((str(row[col_c]).strip(), str(row[grp_c]).strip(), share))
 
-    scale = 100.0 if any(s > 1.5 for _, _, s in raw) else 1.0
-    reference: dict = {}
+    by_col: dict = {}
     for col, grp, share in raw:
-        reference.setdefault(col, {})[grp] = share / scale
+        by_col.setdefault(col, []).append((grp, share))
+
+    reference: dict = {}
+    for col, pairs in by_col.items():
+        scale = 100.0 if any(s > 1.5 for _, s in pairs) else 1.0
+        for grp, share in pairs:
+            reference.setdefault(col, {})[grp] = share / scale
     return reference
 
 

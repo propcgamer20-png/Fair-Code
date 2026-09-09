@@ -340,6 +340,23 @@ def test_parse_reference_fraction_and_percent():
     assert pct == {"sex": {"m": 0.4, "f": 0.6}}  # percentages normalized to fractions
 
 
+def test_parse_reference_mixed_scale_is_decided_per_column():
+    # A reference file assembled from multiple sources: `sex` given as
+    # fractions, `race` given as percentages, in the same file. The
+    # percent-vs-fraction decision used to be made once across the whole
+    # table, so `race`'s 70 pushed a global scale=100 onto `sex`'s already
+    # correct 0.6/0.4, corrupting them to 0.006/0.004 (#513).
+    ref = parse_reference(pd.DataFrame({
+        "column": ["sex", "sex", "race", "race", "race"],
+        "group": ["Female", "Male", "White", "Black", "Other"],
+        "share": [0.6, 0.4, 70, 20, 10],
+    }))
+    assert ref == {
+        "sex": {"Female": 0.6, "Male": 0.4},
+        "race": {"White": 0.7, "Black": 0.2, "Other": 0.1},
+    }
+
+
 def test_parse_reference_percent_string_values():
     # "49%" used to raise inside float() and get silently dropped by the
     # bare except - the whole --reference file went to {} with no error.
