@@ -5,7 +5,7 @@
 .DEFAULT_GOAL := help
 PY := python3
 
-.PHONY: help setup test coverage build-explainers favicons fix-explainer-count lint check
+.PHONY: help setup test coverage build-explainers favicons fix-explainer-count lint audits check
 
 help:  ## Show the available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -35,5 +35,27 @@ lint:  ## Enforce the em-dash-free rule + check for broken doc links + ruff (mir
 	$(PY) scripts/check_broken_links.py
 	ruff check faircode scripts tests
 
-check: lint test  ## Run everything CI runs (lint + full test suite)
+audits:  ## Run every audit's unfair.py/fair.py + the CLI smoke tests (mirrors audits.yml's required run-audits job, plus profiler/benchmark-harness's CLI steps)
+	@set -e; \
+	for d in "COMPAS" "AI Fair Recruitment" "German Credit Lending" "Insurance Denial" \
+	         "Benefits Denial" "Healthcare Readmission" "Tenant Screening"; do \
+		echo "== $$d - unfair.py =="; \
+		$(PY) "$$d/unfair.py"; \
+		echo "== $$d - fair.py =="; \
+		$(PY) "$$d/fair.py"; \
+	done
+	@echo "== CLI smoke test: faircode profile =="
+	faircode profile "Insurance Denial/insurance.csv"
+	faircode profile "Benefits Denial/adult.csv" --json > /dev/null
+	@echo "== CLI smoke test: faircode benchmark =="
+	@tmp=$$(mktemp -d); \
+	faircode benchmark "German Credit Lending/audit.yaml" \
+		--n-resamples 100 --n-permutations 100 --no-plots \
+		--out "$$tmp"; \
+	test -s "$$tmp/results_fairness.csv"; \
+	test -s "$$tmp/results_performance.csv"; \
+	echo "Benchmark harness smoke test passed: $$(wc -l < "$$tmp/results_fairness.csv") fairness rows written"; \
+	rm -rf "$$tmp"
+
+check: lint test audits  ## Run everything CI runs (lint + full test suite + audits/CLI smoke tests)
 	@echo "All checks passed."
