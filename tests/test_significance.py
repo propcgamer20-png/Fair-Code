@@ -37,6 +37,27 @@ def test_separated_groups_are_significant_and_ci_excludes_zero():
     assert rep["ci_low"] <= rep["gap"] <= rep["ci_high"]
 
 
+def test_confidence_tightens_the_significance_threshold_not_just_the_ci():
+    # A gap with 0.01 < p < 0.05 is significant at the default confidence
+    # (0.95 -> p < 0.05) but not at confidence=0.99 (-> p < 0.01). Before
+    # #548 the `significant` flag was pinned to p < 0.05 regardless of
+    # `confidence`, which only widened/narrowed the CI.
+    rng = np.random.default_rng(0)
+    for _ in range(5):
+        a = rng.binomial(1, 0.55, size=60).astype(float)
+        b = rng.binomial(1, 0.35, size=60).astype(float)
+
+    r95 = significance_report(a, b, n_resamples=3000, n_permutations=3000,
+                              confidence=0.95, random_state=4)
+    r99 = significance_report(a, b, n_resamples=3000, n_permutations=3000,
+                              confidence=0.99, random_state=4)
+
+    assert r95["p_value"] == r99["p_value"]          # same permutation test
+    assert 0.01 < r95["p_value"] < 0.05
+    assert r95["significant"] is True
+    assert r99["significant"] is False
+
+
 # ── Determinism ──────────────────────────────────────────────────────────────
 def test_random_state_makes_results_deterministic():
     a = [1] * 40 + [0] * 60
