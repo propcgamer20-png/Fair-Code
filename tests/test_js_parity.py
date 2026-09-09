@@ -37,6 +37,26 @@ def test_sheetjs_cdn_url_matches():
     assert engine_url == cli_url
 
 
+def test_compare_card_renderers_special_case_kind_mismatch():
+    """driftCard() and buildCompareHtmlReport()'s per-dimension section must
+    both read cd.kind_mismatch, so a skipped comparison isn't drawn as a
+    "none drift" badge next to a real score change (#519). Source-level check
+    (mirrors test_sheetjs_cdn_url_matches) - these renderers are DOM-coupled
+    and have no unit harness."""
+    src = (REPO_ROOT / "assets" / "profiler-compare.js").read_text(encoding="utf-8")
+
+    drift_card = src[src.index("function driftCard("):]
+    drift_card = drift_card[: drift_card.index("\n  }\n")]
+    assert "kind_mismatch" in drift_card
+    assert "comparison skipped" in drift_card
+
+    report = src[src.index("function buildCompareHtmlReport("):]
+    assert "if (cd.kind_mismatch)" in report
+    # the skipped badge is styled in both the live css and the report's own <style>
+    assert ".drift-badge.skipped" in src
+    assert ".drift-badge.skipped" in (REPO_ROOT / "assets" / "profiler.css").read_text(encoding="utf-8")
+
+
 # Real audit datasets are already tracked in their own audit folders - reuse
 # them instead of keeping a second multi-megabyte copy under tests/fixtures.
 CSV_PATHS = {
