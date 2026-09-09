@@ -36,6 +36,28 @@
     reference: null   // {column: {group: expected_share}} baseline (SPEC 8)
   };
 
+  // SPEC section 7 tunables that must fall in [0, 1]. Mirrors
+  // faircode.profiler._UNIT_INTERVAL_OPTS.
+  var UNIT_INTERVAL_OPTS = ['min_share', 'intersection_floor', 'missing_flag', 'reference_flag'];
+
+  function validateOpts(o) {
+    // Reject out-of-range tunables instead of silently producing a
+    // self-contradictory report (#511). Mirrors _validate_opts in the
+    // Python engine.
+    UNIT_INTERVAL_OPTS.forEach(function (k) {
+      var v = o[k];
+      if (v !== null && v !== undefined && !(v >= 0 && v <= 1)) {
+        throw new Error(k + ' must be between 0 and 1, got ' + v);
+      }
+    });
+    if (o.imbalance_flag !== null && o.imbalance_flag !== undefined && o.imbalance_flag < 1) {
+      throw new Error('imbalance_flag must be >= 1, got ' + o.imbalance_flag);
+    }
+    if (o.min_group_size !== null && o.min_group_size !== undefined && o.min_group_size < 1) {
+      throw new Error('min_group_size must be >= 1, got ' + o.min_group_size);
+    }
+  }
+
   function resolveOpts(opts) {
     var o = {};
     Object.keys(DEFAULT_OPTS).forEach(function (k) { o[k] = DEFAULT_OPTS[k]; });
@@ -44,6 +66,7 @@
         if (opts[k] !== null && opts[k] !== undefined) o[k] = opts[k];
       });
     }
+    validateOpts(o);
     return o;
   }
   // Comparison / drift (SPEC section 8)

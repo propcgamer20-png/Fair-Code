@@ -308,6 +308,22 @@ def test_imbalance_flag_tunable():
                    for f in profile(df, opts={"imbalance_flag": 5.0})["flags"])
 
 
+@pytest.mark.parametrize("opts, message", [
+    ({"min_share": 1.5}, "min_share must be between 0 and 1"),
+    ({"min_share": -0.1}, "min_share must be between 0 and 1"),
+    ({"intersection_floor": 2.0}, "intersection_floor must be between 0 and 1"),
+    ({"missing_flag": 5.0}, "missing_flag must be between 0 and 1"),
+    ({"imbalance_flag": 0.5}, "imbalance_flag must be >= 1"),
+    ({"min_group_size": 0}, "min_group_size must be >= 1"),
+])
+def test_out_of_range_tunables_raise_instead_of_contradicting_themselves(opts, message):
+    # min_share=1.5 used to be accepted silently: every group flagged
+    # "under-represented" while overall_score/grade stayed 100/"A" (#511).
+    df = pd.DataFrame({"sex": ["M"] * 50 + ["F"] * 50})
+    with pytest.raises(ValueError, match=message):
+        profile(df, opts=opts)
+
+
 # ── Choosable intersection pair (issue #58) ──────────────────────────────────
 def test_cross_selects_intersection_pair():
     df = pd.DataFrame({

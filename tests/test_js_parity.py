@@ -234,6 +234,25 @@ def test_python_js_profiler_parity_with_overrides_cross_and_thresholds(tmp_path)
     assert any("reference" in d for d in python_result["dimensions"])
 
 
+def test_python_js_reject_out_of_range_min_share_parity(tmp_path):
+    """Both engines reject an out-of-range tunable (min_share=1.5) rather
+    than silently producing a self-contradictory report (#511)."""
+    csv = CSV_PATHS["small.csv"]
+
+    with pytest.raises(ValueError, match="min_share must be between 0 and 1"):
+        profile(pd.read_csv(csv), opts={"min_share": 1.5})
+
+    opts_path = tmp_path / "opts.json"
+    opts_path.write_text(json.dumps({"opts": {"min_share": 1.5}}), encoding="utf-8")
+
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv), str(opts_path)],
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert completed.returncode != 0
+    assert "min_share must be between 0 and 1" in completed.stderr
+
+
 def test_python_js_cross_parity_on_unmatched_column(tmp_path):
     """An unmatched `cross` column raises the same error on both engines
     instead of the JS engine silently falling back to the first two detected
