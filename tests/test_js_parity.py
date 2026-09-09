@@ -248,6 +248,31 @@ def test_python_js_na_token_parity_on_literal_na_and_none(tmp_path):
     assert status["missing_pct"] == 0.2
 
 
+def test_python_js_public_params_parity_for_a_defaulted_run():
+    """A web-profiler export with no threshold ever touched must still record
+    the 7 resolved defaults in provenance.params, matching the CLI/MCP path -
+    E.publicParams({}) mirrors provenance.public_params(_resolve_opts(None)) (#490)."""
+    from faircode.profiler import _resolve_opts
+    from faircode.provenance import public_params
+
+    expected = public_params(_resolve_opts(None))
+
+    script = (
+        "require(process.argv[1]);"
+        "process.stdout.write(JSON.stringify(globalThis.FairCodeProfiler.publicParams({})));"
+    )
+    completed = subprocess.run(
+        ["node", "-e", script, str(REPO_ROOT / "assets" / "profiler-engine.js")],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    assert json.loads(completed.stdout) == expected
+    assert set(expected) == {
+        "cross", "imbalance_flag", "intersection_floor", "min_group_size",
+        "min_share", "missing_flag", "reference_flag",
+    }
+    assert "reference" not in expected
+
+
 def test_python_js_profiler_parity_with_overrides_cross_and_thresholds(tmp_path):
     """Non-default options - --map/--cross/--reference/thresholds - only ever
     had cross-engine parity coverage for their default-off path (issue #376).

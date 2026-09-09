@@ -69,6 +69,25 @@
     validateOpts(o);
     return o;
   }
+
+  // Parsed data structures that carry their own provenance field elsewhere -
+  // echoing them into params would be noise. Mirrors
+  // faircode.provenance._OPAQUE_PARAMS.
+  var OPAQUE_PARAMS = { reference: 1 };
+
+  // The resolved knobs as actually applied (defaults included), minus the
+  // opaque parsed structures, key-sorted. Mirrors
+  // faircode.provenance.public_params(faircode.profiler._resolve_opts(opts)),
+  // so a web-profiler export's provenance.params matches the CLI/MCP path
+  // even when the user never touched a threshold input (#490).
+  function publicParams(opts) {
+    var resolved = resolveOpts(opts);
+    var out = {};
+    Object.keys(resolved).sort().forEach(function (k) {
+      if (!OPAQUE_PARAMS[k]) out[k] = resolved[k];
+    });
+    return out;
+  }
   // Comparison / drift (SPEC section 8)
   var PSI_EPSILON = 0.0001;
   var MISSING_DRIFT_FLAG = 0.05;
@@ -1088,6 +1107,9 @@
                               sniffDelimiter: sniffDelimiter,
                               profile: profile, compare: compare,
                               parseReference: parseReference,
+                              // publicParams: resolved knobs for an export's
+                              // provenance.params, matching the Python path (#490).
+                              publicParams: publicParams,
                               // Exposed so the Profile/Compare threshold-input
                               // placeholders (issue #377) can be sourced from
                               // this single source of truth instead of a

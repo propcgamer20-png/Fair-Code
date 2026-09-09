@@ -752,7 +752,7 @@
       faircode_version: FAIRCODE_VERSION,
       engine: 'js',
       dataset_hash: hash.digest,
-      params: Object.assign({}, currentOpts),
+      params: E.publicParams(currentOpts),
       overrides: Object.assign({}, currentOverrides)
     };
 
