@@ -38,6 +38,42 @@ def test_plot_strategy_comparison_writes_a_png(tmp_path):
     assert out_path.stat().st_size > 0
 
 
+def _multi_pa_fairness_df(metric="demographic_parity_diff", audit="toy_audit"):
+    rows = []
+    for strategy in STRATEGIES:
+        for model in ("logistic_regression", "random_forest", "gradient_boosting"):
+            for pa, value in (("age", 0.04), ("sex", -0.15)):
+                rows.append({
+                    "audit": audit, "strategy": strategy, "model": model,
+                    "protected_attribute": pa, "metric": metric, "value": value,
+                })
+    return pd.DataFrame(rows)
+
+
+def test_plot_strategy_comparison_grouped_bars_for_multi_attribute_audit(tmp_path):
+    # A multi-protected-attribute audit must not average age's +0.04 and
+    # sex's -0.15 into one meaningless -0.05 bar (#525) - it renders one bar
+    # per protected attribute per strategy instead.
+    df = _multi_pa_fairness_df()
+    out_path = tmp_path / "toy_audit_strategies.png"
+
+    plot_strategy_comparison(df, "toy_audit", out_path)
+
+    assert out_path.is_file() and out_path.stat().st_size > 0
+
+
+def test_plot_strategy_comparison_single_attribute_still_one_series(tmp_path):
+    # A protected_attribute column with only one distinct value keeps the
+    # original one-bar-per-strategy rendering.
+    df = _multi_pa_fairness_df()
+    df = df[df["protected_attribute"] == "age"]
+    out_path = tmp_path / "toy_audit_strategies.png"
+
+    plot_strategy_comparison(df, "toy_audit", out_path)
+
+    assert out_path.is_file() and out_path.stat().st_size > 0
+
+
 def test_generate_figures_writes_one_png_per_audit(tmp_path):
     results_dir = tmp_path / "results"
     results_dir.mkdir()
