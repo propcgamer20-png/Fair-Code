@@ -38,9 +38,9 @@ The reason this is worth doing rather than just checking more pairs by hand: the
 |---|---:|---:|
 | Female | 54,708 | 11.25% |
 | Male | 47,055 | 11.06% |
-| Gap | | 0.19 pp (ratio 0.984) |
+| Gap | | 0.18 pp (ratio 0.984) |
 
-A 0.19-point gap clears the EEOC four-fifths rule (ratio 0.984, well above 0.80) and any reasonable demographic parity tolerance. On the `gender` axis alone, this dataset looks clean.
+A 0.18-point gap clears the EEOC four-fifths rule (ratio 0.984, well above 0.80) and any reasonable demographic parity tolerance. On the `gender` axis alone, this dataset looks clean.
 
 **Now `gender x race` - the gender gap inside each race stratum:**
 
@@ -68,7 +68,7 @@ df["y"] = (df["readmitted"] == "<30").astype(int)
 
 # marginal gender check - looks fine
 by_sex = df.groupby("gender")["y"].mean()
-print(by_sex["Female"] - by_sex["Male"])          # +0.0019
+print(by_sex["Female"] - by_sex["Male"])          # +0.0018
 
 # the same gap inside the Asian stratum - a 5-point violation
 asian = df[df["race"] == "Asian"]
