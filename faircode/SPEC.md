@@ -418,10 +418,10 @@ parity obligation of its own - there is no equivalent MCP surface for the JS eng
 The first three tools accept `overrides` (the section 1 `{column: kind}` map, as a JSON object rather
 than repeated `--map COL=KIND` strings) and the relevant section 7 thresholds by name.
 `profile_dataset` also accepts `cross` and `reference_path`, matching `profile`'s `--cross` and
-`--reference`; `compare_datasets` does not, matching `compare`'s own flag set. `proxy_hints` only
-exposes `min_share`/`min_group_size` - the two thresholds that feed dimension detection - since
-`intersection_floor`/`imbalance_flag`/`missing_flag` affect intersections/flags, which this tool
-never touches.
+`--reference`; `compare_datasets` does not, matching `compare`'s own flag set. `proxy_hints` takes no
+threshold parameters at all - only `path`, `overrides`, and `held_out_with` - since it only surfaces
+candidate proxy pairs for a human/agent to review, not a scored or filtered result the section 7
+thresholds would narrow.
 
 An anticipated failure (an unreadable path, an unknown `overrides` column, `proxy_hints` without
 the `proxy` extra installed) is raised inside the tool as a plain Python exception and converted to
