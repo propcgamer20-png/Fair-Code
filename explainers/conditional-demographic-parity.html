@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Conditional Demographic Parity? · Fair Code</title>
+<meta name="description" content="Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.">
+<link rel="canonical" href="https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html">
+<meta name="author" content="Yash Kewlani">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:site_name" content="Fair Code">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="What Is Conditional Demographic Parity? · Fair Code">
+<meta property="og:description" content="Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og/conditional-demographic-parity.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Conditional Demographic Parity? · Fair Code">
+<meta property="og:image" content="https://www.thefaircode.xyz/assets/og-light/conditional-demographic-parity.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="What Is Conditional Demographic Parity? · Fair Code (light)">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is Conditional Demographic Parity? · Fair Code">
+<meta name="twitter:description" content="Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.">
+<meta name="twitter:image" content="https://www.thefaircode.xyz/assets/og/conditional-demographic-parity.png">
+
+<link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='32' y='18' width='13' height='64' fill='%2314171A'/><rect x='32' y='18' width='42' height='13' fill='%2314171A'/><rect x='32' y='44' width='36' height='13' fill='%234F7A5B'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const saved = localStorage.getItem('fc-theme') || systemPref;
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+</script>
+<link rel="stylesheet" href="../assets/explainers.css">
+<style>
+  :root {
+    --bg: #f4f1e8;
+    --surface: #ebe7d9;
+    --border: #d9d3c0;
+    --border2: #bdb59c;
+    --accent: #a63a22;
+    --accent3: #2f6b4f;
+    --text: #36321f;
+    --muted: #7d7459;
+    --white: #1d1910;
+    --bias-track-bg: #e2dcc9;
+
+    --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    --sans: 'Archivo', 'Helvetica Neue', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #15130d;
+    --surface: #1c1912;
+    --border: #2e2a1f;
+    --border2: #443e2d;
+    --accent: #cf6f49;
+    --accent3: #79b294;
+    --text: #cfc7b0;
+    --muted: #8d8367;
+    --white: #f1e9d4;
+    --bias-track-bg: #242013;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s, color 0.3s;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "author": {
+        "@type": "Person",
+        "name": "Yash Kewlani",
+        "url": "https://github.com/yakew7"
+      },
+      "name": "What Is Conditional Demographic Parity?",
+      "description": "Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.",
+      "url": "https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html",
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "Fair Code Explainers",
+        "url": "https://www.thefaircode.xyz/index.html#explainers"
+      },
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09"
+    },
+    {
+      "@type": "FAQPage",
+      "url": "https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What Is Conditional Demographic Parity?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Conditional demographic parity (CDP) requires equal positive-outcome rates across protected groups within each stratum of one or more explicitly chosen legitimate factors, rather than across the whole population at once."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does this matter for fairness?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Plain demographic parity requires P(Yhat = 1 | G = A) = P(Yhat = 1 | G = B) unconditionally. Two things go wrong with that in practice:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Fair Code",
+          "item": "https://www.thefaircode.xyz/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Explainers",
+          "item": "https://www.thefaircode.xyz/index.html#explainers"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "What Is Conditional Demographic Parity?",
+          "item": "https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="84e0aebf-44e1-466e-b2c6-62f75e1c36c7"></script>
+</head>
+<body class="explainer-page">
+  <main class="explainer-shell is-ready" data-explainer-shell>
+    <div class="explainer-topbar">
+      <a class="explainer-back" href="../index.html#explainers">← Back to explainers</a>
+      <div class="explainer-topbar-actions">
+        <a class="explainer-source" href="https://github.com/yakew7/Fair-Code/blob/main/explainers/conditional-demographic-parity.md" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        <button class="explainer-theme-toggle" id="explainerThemeToggle" aria-label="Toggle theme" aria-pressed="false">☀</button>
+      </div>
+    </div>
+
+    <section class="explainer-hero">
+      <div class="explainer-kicker">Explainer</div>
+      <h1 class="explainer-headline">What Is Conditional Demographic Parity?</h1>
+      <p class="explainer-lede">Checking parity within strata of a chosen legitimate factor, not across the whole population.</p>
+      <p class="explainer-lede">Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.</p>
+    </section>
+
+    <article class="explainer-content"><h2 id="what-is-conditional-demographic-parity">What Is Conditional Demographic Parity?</h2>
+<blockquote><p><em>Plain demographic parity asks whether two groups get positive outcomes at the same rate. Conditional demographic parity asks whether they get them at the same rate once you hold a chosen &quot;legitimate&quot; factor fixed - and the choice of that factor decides the answer.</em></p></blockquote>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
+<p><strong>Conditional demographic parity</strong> (CDP) requires equal positive-outcome rates across protected groups <em>within</em> each stratum of one or more explicitly chosen legitimate factors, rather than across the whole population at once.</p>
+<h3 id="why-it-matters">Why It Matters</h3>
+<p>Plain <a href="demographic-parity.html">demographic parity</a> requires <code>P(Y_hat = 1 | G = A) = P(Y_hat = 1 | G = B)</code> unconditionally. Two things go wrong with that in practice:</p>
+<ul><li>It is satisfied by a model that is equally useless for everyone (predict the base rate, ignore the features), so passing it is not evidence of a good model.</li><li>It is violated by a model that legitimately uses a lawful, non-proxy factor - years of experience in a hiring model, loan amount in a credit model - that happens to correlate with a protected group. The violation may be entirely explained by that factor, not by the protected attribute.</li></ul>
+<p>Conditional demographic parity is the standard refinement for the second problem. You pick one or more conditioning factors <code>L</code> that you are willing to treat as a legitimate basis for outcome differences, stratify the population by <code>L</code>, and check demographic parity <em>within</em> each stratum:</p>
+<pre><code>P(Y_hat = 1 | G = A, L = l) = P(Y_hat = 1 | G = B, L = l)   for every level l</code></pre>
+<p>If the groups reach parity within every stratum of <code>L</code>, the aggregate gap was &quot;explained by <code>L</code>&quot;. If a gap persists within strata, <code>L</code> does not account for it.</p>
+<p>This is a real, commonly used construction - it is the fairness analogue of adding a control variable to a regression, and it is close to what US disparate-impact analysis does when it asks whether a challenged practice is &quot;job related and consistent with business necessity&quot;. It is not a synonym for plain demographic parity, and it is not the same as <a href="intersectional-bias.html">intersectional</a> or <a href="subgroup-fairness.html">subgroup</a> fairness, which stratify by <em>other protected attributes</em> to find hidden gaps rather than by a legitimate factor to explain one.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>Start from the identity that makes the aggregate gap decomposable. For each group <code>g</code>:</p>
+<pre><code>P(Y_hat = 1 | G = g) = sum over l of  P(L = l | G = g) * P(Y_hat = 1 | G = g, L = l)</code></pre>
+<p>The aggregate rate is a weighted average of within-stratum rates, weighted by how group <code>g</code> is distributed across the strata of <code>L</code>. Subtracting the two groups&#x27; aggregate rates gives a gap with two sources: different within-stratum rates (<code>P(Y_hat = 1 | G = g, L = l)</code> differs by <code>g</code>), and different stratum weights (<code>P(L = l | G = g)</code> differs by <code>g</code>).</p>
+<p>Conditional demographic parity zeroes out the second source by construction: it only compares groups at the same value of <code>L</code>. What is left is the within-stratum gap. A sample-size-weighted average of the within-stratum gaps is the part of the aggregate gap that stratifying on <code>L</code> does <em>not</em> remove.</p>
+<p>The catch is entirely in the choice of <code>L</code>. If <code>L</code> is a genuine exogenous factor, the within-stratum gap is the disparity net of a real confounder. If <code>L</code> is a <a href="proxy-variables.html">proxy</a> for the protected attribute, conditioning on it absorbs the discrimination into the &quot;legitimate&quot; term and the within-stratum gap understates the real harm. CDP gives you a knob; it does not tell you where to set it.</p>
+<h3 id="concrete-example-benefits-denial-audit-05">Concrete Example: Benefits Denial - Audit 05</h3>
+<p><code>Benefits Denial/</code> audits the Adult Census Income dataset (<code>adult.csv</code>, 32,561 rows). The target is <code>income == &#x27;&gt;50K&#x27;</code> and <code>sex</code> is a declared protected attribute. Using the dataset&#x27;s own outcome rates (the base rate a label-level demographic parity check compares):</p>
+<p><strong>Unconditional:</strong></p>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>n</th><th>P(income &gt; 50K)</th></tr></thead><tbody><tr><td>Male</td><td>21,790</td><td>30.6%</td></tr><tr><td>Female</td><td>10,771</td><td>10.9%</td></tr><tr><td>Gap (M - F)</td><td></td><td><strong>+19.6 pp</strong></td></tr></tbody></table></div>
+<p>Now apply CDP with two different choices of legitimate factor <code>L</code>.</p>
+<h4 id="l-education-level-education-num-16-levels">L = education level (<code>education.num</code>, 16 levels)</h4>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>education.num</th><th>n</th><th>Gap (M - F)</th></tr></thead><tbody><tr><td>9 (HS grad)</td><td>10,501</td><td>+13.7 pp</td></tr><tr><td>10 (some college)</td><td>7,291</td><td>+19.5 pp</td></tr><tr><td>13 (Bachelors)</td><td>5,355</td><td>+29.4 pp</td></tr><tr><td>14 (Masters)</td><td>1,723</td><td>+32.3 pp</td></tr><tr><td>15 (Prof-school)</td><td>576</td><td>+33.1 pp</td></tr><tr><td>16 (Doctorate)</td><td>413</td><td>+20.1 pp</td></tr></tbody></table></div>
+<p>Sample-weighted within-stratum gap: <strong>+18.4 pp</strong>. Conditioning on education removes almost none of the aggregate gap - within every education level men are markedly more likely to be high earners, and at the top three levels the gap is <em>larger</em> than the unconditional +19.6. CDP conditioned on education says: the disparity is not an artifact of women being less educated in this dataset.</p>
+<h4 id="l-marital-status-marital-status">L = marital status (<code>marital.status</code>)</h4>
+<div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>marital.status</th><th>n</th><th>Gap (M - F)</th></tr></thead><tbody><tr><td>Married-civ-spouse</td><td>14,976</td><td>-0.9 pp</td></tr><tr><td>Never-married</td><td>10,683</td><td>+2.0 pp</td></tr><tr><td>Divorced</td><td>4,443</td><td>+9.3 pp</td></tr><tr><td>Widowed</td><td>993</td><td>+17.6 pp</td></tr></tbody></table></div>
+<p>Sample-weighted within-stratum gap: roughly <strong>+2 pp</strong>, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.</p>
+<h4 id="the-two-answers-disagree-and-that-is-the-point">The two answers disagree, and that is the point</h4>
+<p>Same protected attribute, same dataset, same +19.6 pp aggregate. Condition on education and the gap stands. Condition on marital status and it nearly vanishes. CDP did not resolve the fairness question - it moved it to a new one: <em>is marital status a legitimate basis for a 20-point income difference between men and women, or is it a proxy for a sex-role division of unpaid labor that the outcome variable should not be conditioned on?</em> That is a normative and legal question, not a statistical one, and CDP&#x27;s output is only as defensible as the answer to it. (This is the same aggregate-vs-stratified divergence covered from the other direction in <a href="simpsons-paradox.html">Simpson&#x27;s Paradox</a>.)</p>
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+
+df = pd.read_csv(&quot;Benefits Denial/adult.csv&quot;)
+df[&quot;high_income&quot;] = (df[&quot;income&quot;] == &quot;&gt;50K&quot;).astype(int)
+
+
+def within_stratum_gap(frame, condition_col):
+    rows = []
+    for level, sub in frame.groupby(condition_col):
+        m = sub.loc[sub[&quot;sex&quot;] == &quot;Male&quot;, &quot;high_income&quot;]
+        f = sub.loc[sub[&quot;sex&quot;] == &quot;Female&quot;, &quot;high_income&quot;]
+        if len(m) &lt; 30 or len(f) &lt; 30:
+            continue
+        rows.append((level, len(sub), m.mean() - f.mean()))
+    tbl = pd.DataFrame(rows, columns=[&quot;level&quot;, &quot;n&quot;, &quot;gap&quot;])
+    weighted = np.average(tbl[&quot;gap&quot;], weights=tbl[&quot;n&quot;])
+    return tbl, weighted
+
+
+for col in (&quot;education.num&quot;, &quot;marital.status&quot;):
+    _, w = within_stratum_gap(df, col)
+    print(f&quot;condition on {col:16s}: weighted within-stratum gap = {w:+.4f}&quot;)
+# condition on education.num   : weighted within-stratum gap = +0.1844
+# condition on marital.status  : weighted within-stratum gap = +0.0243</code></pre>
+<h3 id="detection-code">Detection Code</h3>
+<p>The following module computes the unconditional demographic parity gap, the conditional (within-stratum) gap for a chosen legitimate factor, and the fraction of the unconditional gap that conditioning explains away.</p>
+<pre><code class="language-python">import numpy as np
+import pandas as pd
+
+
+def conditional_demographic_parity(
+    df: pd.DataFrame,
+    outcome_col: str,
+    group_col: str,
+    advantaged: str,
+    disadvantaged: str,
+    condition_cols: list[str],
+    min_group_in_stratum: int = 30,
+) -&gt; dict:
+    &quot;&quot;&quot;
+    Compare the unconditional demographic parity gap for (advantaged -
+    disadvantaged) against the gap computed within each stratum defined by
+    cross-tabulating condition_cols.
+
+    outcome_col must be 0/1. Returns a dict with:
+      unconditional_gap        aggregate P(Y=1|adv) - P(Y=1|dis)
+      conditional_gap          sample-size-weighted mean of within-stratum gaps
+      explained_fraction       1 - conditional_gap / unconditional_gap, i.e.
+                               how much of the aggregate gap stratifying removed
+      strata                   per-stratum table (level, n, gap)
+
+    A strata row is skipped if either group has fewer than
+    min_group_in_stratum members in it (its within-stratum rate would be too
+    noisy to compare).
+    &quot;&quot;&quot;
+    d = df[[outcome_col, group_col, *condition_cols]].dropna()
+    d = d[d[group_col].isin([advantaged, disadvantaged])]
+
+    def gap(frame):
+        a = frame.loc[frame[group_col] == advantaged, outcome_col]
+        b = frame.loc[frame[group_col] == disadvantaged, outcome_col]
+        if len(a) == 0 or len(b) == 0:
+            return np.nan, len(a), len(b)
+        return a.mean() - b.mean(), len(a), len(b)
+
+    uncond_gap, _, _ = gap(d)
+
+    rows = []
+    for level, sub in d.groupby(condition_cols if len(condition_cols) &gt; 1
+                                else condition_cols[0]):
+        g, na, nb = gap(sub)
+        if np.isnan(g) or min(na, nb) &lt; min_group_in_stratum:
+            continue
+        rows.append({&quot;level&quot;: level, &quot;n&quot;: len(sub), &quot;gap&quot;: g})
+
+    strata = pd.DataFrame(rows).sort_values(&quot;n&quot;, ascending=False)
+    if strata.empty:
+        return {&quot;unconditional_gap&quot;: float(uncond_gap),
+                &quot;conditional_gap&quot;: np.nan, &quot;explained_fraction&quot;: np.nan,
+                &quot;strata&quot;: strata}
+
+    cond_gap = float(np.average(strata[&quot;gap&quot;], weights=strata[&quot;n&quot;]))
+    explained = (1.0 - cond_gap / uncond_gap) if uncond_gap != 0 else np.nan
+
+    return {
+        &quot;unconditional_gap&quot;: float(uncond_gap),
+        &quot;conditional_gap&quot;: cond_gap,
+        &quot;explained_fraction&quot;: float(explained),
+        &quot;strata&quot;: strata.reset_index(drop=True),
+    }
+
+
+def print_cdp_report(result: dict, condition_label: str) -&gt; None:
+    print(f&quot;Conditioning factor: {condition_label}&quot;)
+    print(f&quot;  unconditional DP gap:        {result[&#x27;unconditional_gap&#x27;]:+.4f}&quot;)
+    print(f&quot;  conditional (within) DP gap: {result[&#x27;conditional_gap&#x27;]:+.4f}&quot;)
+    if not np.isnan(result[&quot;explained_fraction&quot;]):
+        print(f&quot;  fraction of gap explained:   &quot;
+              f&quot;{result[&#x27;explained_fraction&#x27;]:.1%}&quot;)
+    print(&quot;  per-stratum gaps (largest first):&quot;)
+    for _, row in result[&quot;strata&quot;].iterrows():
+        print(f&quot;    {str(row[&#x27;level&#x27;])[:28]:28s} n={int(row[&#x27;n&#x27;]):6d}  &quot;
+              f&quot;gap={row[&#x27;gap&#x27;]:+.4f}&quot;)
+
+
+# Usage on the Benefits Denial audit:
+# import pandas as pd
+# df = pd.read_csv(&quot;Benefits Denial/adult.csv&quot;)
+# df[&quot;high_income&quot;] = (df[&quot;income&quot;] == &quot;&gt;50K&quot;).astype(int)
+# print_cdp_report(conditional_demographic_parity(
+#     df, &quot;high_income&quot;, &quot;sex&quot;, &quot;Male&quot;, &quot;Female&quot;, [&quot;education.num&quot;]),
+#     &quot;education.num&quot;)
+# print_cdp_report(conditional_demographic_parity(
+#     df, &quot;high_income&quot;, &quot;sex&quot;, &quot;Male&quot;, &quot;Female&quot;, [&quot;marital.status&quot;]),
+#     &quot;marital.status&quot;)</code></pre>
+<p>Against <code>Benefits Denial/adult.csv</code> this reports an <code>explained_fraction</code> near <code>0.06</code> for <code>education.num</code> (conditioning removes almost nothing) and near <code>0.88</code> for <code>marital.status</code> (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.</p>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
+<h4 id="1-the-conditioning-set-is-a-value-judgment-not-a-statistical-choice">1. The conditioning set is a value judgment, not a statistical choice</h4>
+<p>Everything CDP reports is downstream of which factors you declared &quot;legitimate&quot;. There is no test that tells you whether marital status, or occupation, or prior loan history, is a fair thing to condition on. Pick a factor that is genuinely a proxy for the protected attribute and CDP will confidently report that the disparity is &quot;explained&quot;, which is exactly the <a href="proxy-variables.html">proxy-variable</a> trap.</p>
+<h4 id="2-conditioning-can-only-ever-shrink-or-hold-the-gap-you-can-attribute-never-validate-the-factor">2. Conditioning can only ever shrink or hold the gap you can attribute, never validate the factor</h4>
+<p>A small within-stratum gap means the aggregate gap co-varies with <code>L</code>. It does not mean <code>L</code> <em>causes</em> the outcome difference, and it does not mean using <code>L</code> is lawful or ethical. Those require an argument outside the data.</p>
+<h4 id="3-strata-multiply-fast-and-thin-out">3. Strata multiply fast and thin out</h4>
+<p>Conditioning on one categorical factor is usually fine; conditioning on two or three cross-tabulated factors produces many strata with tiny per-group counts, unstable within-stratum rates, and a weighted gap dominated by a few large cells. Keep the conditioning set minimal and report per-stratum sample sizes.</p>
+<h4 id="4-continuous-conditioning-factors-require-binning">4. Continuous conditioning factors require binning</h4>
+<p><code>education.num</code> above is discrete. A continuous factor (age, income, tenure) has to be binned, and the bin edges change the answer. Coarse bins can leave residual confounding inside each bin; fine bins run into the small-strata problem in point 3.</p>
+<h4 id="5-it-does-not-fix-the-equally-useless-model-hole">5. It does not fix the &quot;equally useless model&quot; hole</h4>
+<p>Like plain demographic parity, CDP is a rate comparison. A model that is equally bad within every stratum still passes. CDP tightens demographic parity against one specific failure (a legitimate confounder); it does not turn it into a sufficiency or calibration guarantee.</p>
+<h3 id="related-concepts">Related Concepts</h3>
+<ul><li><a href="demographic-parity.html">What Is Demographic Parity?</a> - the unconditional metric CDP refines.</li><li><a href="proxy-variables.html">What Is a Proxy Variable?</a> - why conditioning on the wrong factor launders discrimination instead of explaining it.</li><li><a href="simpsons-paradox.html">What Is Simpson&#x27;s Paradox in Fairness Audits?</a> - the same aggregate-vs-stratified divergence, framed as a reversal rather than a refinement.</li><li><a href="subgroup-fairness.html">What Is Subgroup Fairness (and Fairness Gerrymandering)?</a> - stratifying by other protected attributes to find hidden gaps, the opposite motivation from CDP.</li><li><a href="fairness-metric-conflicts.html">Why Fairness Metrics Conflict</a> - where conditional and unconditional parity sit among the impossibility results.</li></ul>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
+<ul><li><a href="../index.html#project-benefits"><code>Benefits Denial/</code></a> - the Adult Census Income audit above; conditioning the <code>sex</code> income gap on education preserves it, conditioning on marital status removes it.</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - a credit audit where loan amount and credit history are candidate &quot;business necessity&quot; factors to condition an age gap on.</li></ul>
+<h3 id="further-reading">Further Reading</h3>
+<ul><li><a href="https://arxiv.org/abs/1701.08230" target="_blank" rel="noreferrer noopener">Corbett-Davies, S., Pierson, E., Feller, A., Goel, S., Huq, A. (2017): Algorithmic Decision Making and the Cost of Fairness, <em>KDD 2017</em></a> - introduces conditional statistical parity and shows how the choice of conditioning variables trades off against error rates.</li><li><a href="https://arxiv.org/abs/2005.05906" target="_blank" rel="noreferrer noopener">Wachter, S., Mittelstadt, B., Russell, C. (2021): Why Fairness Cannot Be Automated, <em>Computer Law and Security Review</em>, 41</a> - argues that the &quot;legitimate factor&quot; choice at the heart of conditional parity mirrors, and cannot be separated from, EU non-discrimination law&#x27;s contextual reasoning.</li><li><a href="https://arxiv.org/abs/1706.02744" target="_blank" rel="noreferrer noopener">Kilbertus, N., Rojas-Carulla, M., Parascandolo, G., Hardt, M., Janzing, D., Scholkopf, B. (2017): Avoiding Discrimination through Causal Reasoning, <em>NeurIPS 2017</em></a> - frames &quot;which variables may we condition on&quot; as a causal-graph question rather than a statistical one.</li></ul>
+<hr>
+<p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
+  </main>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('explainerThemeToggle');
+      const html = document.documentElement;
+      const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+      function syncTheme() {
+        const current = html.getAttribute('data-theme') || systemPref;
+        toggle.textContent = current === 'light' ? '☾' : '☀';
+        toggle.setAttribute('aria-label', current === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+        toggle.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
+      }
+
+      syncTheme();
+
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme') || systemPref;
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('fc-theme', next);
+        syncTheme();
+      });
+    })();
+  </script>
+</body>
+</html>

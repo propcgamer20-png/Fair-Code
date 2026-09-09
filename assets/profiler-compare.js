@@ -383,7 +383,28 @@
       '<span class="l">' + esc(side.name) + '</span></div>';
   }
 
+  // A dimension auto-detected to different kinds on each side (or age-banded
+  // on only one side) has its drift comparison skipped by the engine, which
+  // leaves psi/tvd/drift_level at 0/0/'none'. Rendering that as a "none drift"
+  // badge asserts a measurement that never happened - often right next to a
+  // real score change. Show a "comparison skipped" card instead (#519).
+  function kindMismatchReason(cd) {
+    return cd.kind_a !== cd.kind_b
+      ? 'detected as ' + esc(cd.kind_a) + ' vs ' + esc(cd.kind_b) +
+        ' on the two datasets'
+      : 'age values banded on one dataset, raw on the other';
+  }
+
   function driftCard(cd) {
+    if (cd.kind_mismatch) {
+      return '<div class="drift-card"><div class="drift-card-head"><div>' +
+        '<span class="dim-name">' + esc(cd.name) + '</span>' +
+        '<span class="dim-kind">' + esc(cd.kind_a) + ' / ' + esc(cd.kind_b) + '</span>' +
+        '<span class="drift-badge skipped">comparison skipped</span>' +
+        '</div><span class="drift-metrics">' + kindMismatchReason(cd) +
+        ' · score ' + cd.dimension_score_a + '→' + cd.dimension_score_b +
+        ' (' + signed(cd.dimension_score_delta, 0) + ')</span></div></div>';
+    }
     var head = '<div class="drift-card-head"><div>' +
       '<span class="dim-name">' + esc(cd.name) + '</span>' +
       '<span class="dim-kind">' + esc(cd.kind) + '</span>' +
@@ -459,6 +480,17 @@
       cardsHtml = '<p class="section-note">No demographic dimension is present in both datasets to compare.</p>';
     } else {
       cardsHtml = cmp.dimensions.map(function (cd) {
+        if (cd.kind_mismatch) {
+          return '<section class="drift-card"><div class="drift-card-head">' +
+            '<h2>' + esc(cd.name) + ' <span class="kind">' + esc(cd.kind_a) +
+            ' / ' + esc(cd.kind_b) + '</span> ' +
+            '<span class="drift-badge skipped">comparison skipped</span></h2>' +
+            '<div class="drift-metrics">' + kindMismatchReason(cd) +
+            ' · score ' + cd.dimension_score_a + '→' + cd.dimension_score_b +
+            ' (' + signed(cd.dimension_score_delta, 0) + ')</div></div>' +
+            '<p class="section-note">Drift metrics are not computed when a ' +
+            'dimension is detected as a different kind on each side.</p></section>';
+        }
         var maxShare = 0;
         cd.groups.forEach(function (g) { maxShare = Math.max(maxShare, g.share_a, g.share_b); });
         if (maxShare <= 0) maxShare = 1;
@@ -532,6 +564,7 @@
       '.drift-badge.none { background:var(--accent3); color:#fff; } ' +
       '.drift-badge.moderate { background:var(--warn); color:#fff; } ' +
       '.drift-badge.significant { background:var(--accent); color:#fff; } ' +
+      '.drift-badge.skipped { background:var(--muted); color:#fff; } ' +
       '.drift-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:16px 0; } ' +
       '.drift-card-head { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:12px; } ' +
       '.drift-card-head h2 { margin:0; font-size:18px; } ' +
@@ -620,7 +653,7 @@
       engine: 'js',
       dataset_hash_a: hashA.digest,
       dataset_hash_b: hashB.digest,
-      params: Object.assign({}, currentOpts),
+      params: E.publicParams(currentOpts),
       overrides: Object.assign({}, currentOverrides)
     };
     if (hashA.note !== null) provenance.dataset_hash_a_note = hashA.note;

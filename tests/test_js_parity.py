@@ -37,6 +37,26 @@ def test_sheetjs_cdn_url_matches():
     assert engine_url == cli_url
 
 
+def test_compare_card_renderers_special_case_kind_mismatch():
+    """driftCard() and buildCompareHtmlReport()'s per-dimension section must
+    both read cd.kind_mismatch, so a skipped comparison isn't drawn as a
+    "none drift" badge next to a real score change (#519). Source-level check
+    (mirrors test_sheetjs_cdn_url_matches) - these renderers are DOM-coupled
+    and have no unit harness."""
+    src = (REPO_ROOT / "assets" / "profiler-compare.js").read_text(encoding="utf-8")
+
+    drift_card = src[src.index("function driftCard("):]
+    drift_card = drift_card[: drift_card.index("\n  }\n")]
+    assert "kind_mismatch" in drift_card
+    assert "comparison skipped" in drift_card
+
+    report = src[src.index("function buildCompareHtmlReport("):]
+    assert "if (cd.kind_mismatch)" in report
+    # the skipped badge is styled in both the live css and the report's own <style>
+    assert ".drift-badge.skipped" in src
+    assert ".drift-badge.skipped" in (REPO_ROOT / "assets" / "profiler.css").read_text(encoding="utf-8")
+
+
 # Real audit datasets are already tracked in their own audit folders - reuse
 # them instead of keeping a second multi-megabyte copy under tests/fixtures.
 CSV_PATHS = {
@@ -195,6 +215,64 @@ def test_python_js_profiler_parity_rejects_negative_age_sentinels(tmp_path):
     assert age["missing_pct"] == 0.4
 
 
+def test_python_js_na_token_parity_on_literal_na_and_none(tmp_path):
+    """NA_TOKENS / isMissing() must match pandas' default STR_NA_VALUES
+    exactly and case-sensitively: literal "None" is missing, bare lowercase
+    "na" is a real category. The JS engine used to have both backwards and
+    lower-cased the cell before comparing (#491)."""
+    csv = tmp_path / "na_test.csv"
+    csv.write_text(
+        "status,x\n"
+        "active,1\ninactive,2\nna,3\nna,4\nNone,5\nNone,6\n"
+        "active,7\ninactive,8\nactive,9\ninactive,10\n",
+        encoding="utf-8",
+    )
+
+    python_result = profile(read_table(str(csv)))
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    javascript_result = json.loads(completed.stdout)
+
+    python_result = dict(python_result)
+    javascript_result = dict(javascript_result)
+    python_result.pop("flags", None)
+    javascript_result.pop("flags", None)
+    assert javascript_result == python_result
+
+    status = next(d for d in python_result["dimensions"] if d["name"] == "status")
+    labels = {g["label"] for g in status["groups"]}
+    assert "na" in labels          # bare lowercase "na" is NOT a pandas NA token
+    assert "None" not in labels    # "None" IS a pandas NA token
+    assert status["missing_pct"] == 0.2
+
+
+def test_python_js_public_params_parity_for_a_defaulted_run():
+    """A web-profiler export with no threshold ever touched must still record
+    the 7 resolved defaults in provenance.params, matching the CLI/MCP path -
+    E.publicParams({}) mirrors provenance.public_params(_resolve_opts(None)) (#490)."""
+    from faircode.profiler import _resolve_opts
+    from faircode.provenance import public_params
+
+    expected = public_params(_resolve_opts(None))
+
+    script = (
+        "require(process.argv[1]);"
+        "process.stdout.write(JSON.stringify(globalThis.FairCodeProfiler.publicParams({})));"
+    )
+    completed = subprocess.run(
+        ["node", "-e", script, str(REPO_ROOT / "assets" / "profiler-engine.js")],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    assert json.loads(completed.stdout) == expected
+    assert set(expected) == {
+        "cross", "imbalance_flag", "intersection_floor", "min_group_size",
+        "min_share", "missing_flag", "reference_flag",
+    }
+    assert "reference" not in expected
+
+
 def test_python_js_profiler_parity_with_overrides_cross_and_thresholds(tmp_path):
     """Non-default options - --map/--cross/--reference/thresholds - only ever
     had cross-engine parity coverage for their default-off path (issue #376).
@@ -232,6 +310,58 @@ def test_python_js_profiler_parity_with_overrides_cross_and_thresholds(tmp_path)
                for d in python_result["dimensions"])
     assert python_result["intersections"][0]["dims"] == ["age", "race"]
     assert any("reference" in d for d in python_result["dimensions"])
+
+
+def test_python_js_reject_out_of_range_min_share_parity(tmp_path):
+    """Both engines reject an out-of-range tunable (min_share=1.5) rather
+    than silently producing a self-contradictory report (#511)."""
+    csv = CSV_PATHS["small.csv"]
+
+    with pytest.raises(ValueError, match="min_share must be between 0 and 1"):
+        profile(pd.read_csv(csv), opts={"min_share": 1.5})
+
+    opts_path = tmp_path / "opts.json"
+    opts_path.write_text(json.dumps({"opts": {"min_share": 1.5}}), encoding="utf-8")
+
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv), str(opts_path)],
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert completed.returncode != 0
+    assert "min_share must be between 0 and 1" in completed.stderr
+
+
+def test_python_js_intersection_parity_keeps_non_numeric_age_sentinels(tmp_path):
+    """labelize() gives a non-numeric age sentinel its own crosstab label on
+    both engines, instead of mapping it to null and dropping the row (#524)."""
+    csv = tmp_path / "age_sentinels.csv"
+    ages = ["25", "30", "45", "unknown", "unknown", "unknown",
+            "prefer not to say", "22", "33", "41"] * 3
+    sexes = ["M", "F"] * 15
+    csv.write_text(
+        "age,sex\n" + "\n".join(a + "," + s for a, s in zip(ages, sexes)) + "\n",
+        encoding="utf-8",
+    )
+
+    opts = {"cross": ["age", "sex"]}
+    python_result = profile(pd.read_csv(csv, dtype={"age": str}), opts=opts)
+
+    opts_path = tmp_path / "opts.json"
+    opts_path.write_text(json.dumps({"opts": opts}), encoding="utf-8")
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv), str(opts_path)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    javascript_result = json.loads(completed.stdout)
+
+    python_result = dict(python_result)
+    javascript_result = dict(javascript_result)
+    python_result.pop("flags", None)
+    javascript_result.pop("flags", None)
+    assert javascript_result == python_result
+
+    a_labels = {c["a"] for c in python_result["intersections"][0]["cells"]}
+    assert "prefer not to say" in a_labels
 
 
 def test_python_js_cross_parity_on_unmatched_column(tmp_path):
@@ -279,6 +409,43 @@ def test_python_js_reference_parity_on_unmatched_column(tmp_path):
     )
     assert completed.returncode != 0
     assert "reference file's column(s) don't match any profiled dimension: totally_wrong_col" in completed.stderr
+
+
+def test_python_js_parse_reference_mixed_scale_parity(tmp_path):
+    """parse_reference / parseReference decide percent-vs-fraction per column,
+    not once across the whole table, so a reference file mixing conventions
+    between columns parses identically on both engines (#513)."""
+    from faircode.profiler import parse_reference
+
+    ref_df = pd.DataFrame({
+        "column": ["sex", "sex", "race", "race", "race"],
+        "group": ["Female", "Male", "White", "Black", "Other"],
+        "share": [0.6, 0.4, 70, 20, 10],
+    })
+    py_result = parse_reference(ref_df)
+    assert py_result == {
+        "sex": {"Female": 0.6, "Male": 0.4},
+        "race": {"White": 0.7, "Black": 0.2, "Other": 0.1},
+    }
+
+    table_json = tmp_path / "table.json"
+    table_json.write_text(json.dumps({
+        "columns": list(ref_df.columns),
+        "rows": ref_df.to_dict(orient="records"),
+    }), encoding="utf-8")
+
+    script = (
+        "const fs=require('fs');"
+        "require(process.argv[1]);"
+        "const t=JSON.parse(fs.readFileSync(process.argv[2],'utf-8'));"
+        "process.stdout.write(JSON.stringify(globalThis.FairCodeProfiler.parseReference(t)));"
+    )
+    completed = subprocess.run(
+        ["node", "-e", script,
+         str(REPO_ROOT / "assets" / "profiler-engine.js"), str(table_json)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    assert json.loads(completed.stdout) == py_result
 
 
 def test_python_js_json_parity_inconsistent_keys():

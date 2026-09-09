@@ -6521,7 +6521,7 @@ df['cluster'] = km.fit_predict(Xs)
 
 `sex`, `race`, and `native.country` never appear in `feature_cols`. The clustering step has no way to "see" them. Whatever split it produces has to come entirely from the other nine columns.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 Running the code above on the UCI Adult Census Income dataset (32,561 records, the same file the Benefits Denial audit trains on) produces two clusters of size 17,680 and 14,881. Neither `sex`, `race`, nor `native.country` was part of the clustering input, so the composition of each cluster along those attributes was checked after the fact, not fed in beforehand:
 
@@ -11367,6 +11367,890 @@ A false negative and a false positive are rarely equally costly (see [False Posi
 * [Berk, R. et al. (2018): Fairness in Criminal Justice Risk Assessments](https://arxiv.org/abs/1703.09207) - introduces Treatment Equality alongside the broader family of statistical fairness criteria and the trade-offs between them.
 * [Angwin, J. et al. (2016): Machine Bias (ProPublica)](https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing) - the COMPAS investigation whose finding (opposite-skewed error types across race) is the real-world pattern Treatment Equality was formalized to measure.
 * [Barocas, S., Hardt, M., Narayanan, A. (2019): *Fairness and Machine Learning*](https://fairmlbook.org/classification.html) - situates Treatment Equality among the full family of classification-based fairness criteria.
+
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
+
+---
+
+# What Is Simpson's Paradox in Fairness Audits?
+URL: https://www.thefaircode.xyz/explainers/simpsons-paradox.html
+Summary: Learn why an aggregate fairness metric is a weighted average of within-stratum rates, so pooling groups of different sizes can manufacture or flip a disparity. Uses the Benefits Denial (Adult Census) audit: the aggregate sex income gap of +19.6 pp collapses to roughly +3 pp within marital-status strata and reverses to -0.9 pp inside the largest one.
+
+# What Is Simpson's Paradox in Fairness Audits?
+
+> *A model can look fair in aggregate while every disaggregated subgroup shows the opposite pattern, or look unfair in aggregate when no subgroup does - because pooling groups of different sizes and base rates lets the mix, not the model, drive the headline number.*
+
+## The One-Sentence Definition
+
+**Simpson's Paradox** is a statistical phenomenon in which a trend or association that holds within every subgroup of the data reverses, disappears, or appears out of nowhere once the subgroups are combined into a single aggregate, because the subgroups differ in size and in their baseline rates.
+
+## Why It Matters
+
+Almost every fairness metric in this repo is a single aggregate number: one `demographic_parity_diff`, one selection-rate gap, one accuracy-equality figure per audit. That number is computed by pooling every row for a protected group and comparing the pooled rate to another group's pooled rate.
+
+Pooling is not neutral. When a protected group is distributed differently across the strata of some other variable - an occupation, a marital status, a loan product, a hospital - than the comparison group is, the aggregate comparison silently reweights those strata. The result is a headline gap that can be several times larger than any gap that actually exists within a stratum, can point the opposite direction from every stratum, or can vanish entirely.
+
+This is distinct from [intersectional bias](intersectional-bias.md), which is about a compounding gap that only appears at the *intersection* of two attributes and is hidden when you check one attribute at a time. Simpson's Paradox is the reverse direction: a gap that appears (or flips) in the *aggregate* and is not present, or is present with the opposite sign, once you disaggregate. Both are failures of looking at the data at the wrong level, but they pull in opposite directions, and a serious audit has to check for both.
+
+Simpson's Paradox does not tell you which view is correct. It only tells you that the aggregate and the disaggregated pictures disagree, which means the aggregate number alone cannot be trusted as a fairness finding without knowing why they disagree.
+
+## How It Works
+
+Let `Y` be a binary outcome (1 = the favorable outcome), `G` a protected group, and `S` a stratifying variable with levels `s`. The aggregate rate for a group is a weighted average of its within-stratum rates, where the weights are how that group is distributed across strata:
+
+```
+P(Y = 1 | G = g) = sum over s of  P(S = s | G = g) * P(Y = 1 | G = g, S = s)
+```
+
+Two things vary between groups in that sum: the within-stratum rates `P(Y = 1 | G = g, S = s)`, and the stratum weights `P(S = s | G = g)`. The aggregate gap between two groups blends both. If the weights differ enough, the weight term can dominate and the aggregate gap stops reflecting the within-stratum rates at all.
+
+### A minimal reversal
+
+Consider a hiring screen with two departments. Within each department the callback rate for Group A is higher than for Group B:
+
+| Department | Group A callbacks | Group B callbacks |
+|---|---|---|
+| Engineering (easy to pass) | 70 / 80 = **87.5%** | 18 / 20 = **90.0%** |
+| Design (hard to pass) | 2 / 20 = **10.0%** | 8 / 80 = **10.0%** |
+| **Pooled** | 72 / 100 = **72.0%** | 26 / 100 = **26.0%** |
+
+Within Engineering, Group B does slightly better (90.0% vs 87.5%); within Design the two are tied (10.0% vs 10.0%). Neither department favors Group A. Yet the pooled rate shows Group A ahead by 46 points, because 80% of Group A's applicants are in the high-callback department and 80% of Group B's are in the low-callback one. The pooled 46-point "gap" is entirely a fact about where each group applied, not about how either group was treated inside a department.
+
+## Concrete Example: Benefits Denial - Audit 05
+
+`Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows), where the target is `income == '>50K'` and `sex` is a declared protected attribute. These are the dataset's own outcome rates (not a model's predictions), which is the base rate a demographic-parity check on the labels compares.
+
+**Aggregate:**
+
+| Group | n | P(income > 50K) |
+|---|---:|---:|
+| Male | 21,790 | **30.6%** |
+| Female | 10,771 | **10.9%** |
+| Gap (M - F) | | **+19.6 pp** |
+
+Now stratify by `marital.status`. The single largest stratum, `Married-civ-spouse`, holds 14,976 rows - 46% of the entire dataset:
+
+| Stratum | Male n | Male rate | Female n | Female rate | Gap (M - F) |
+|---|---:|---:|---:|---:|---:|
+| Married-civ-spouse | 13,319 | 44.6% | 1,657 | 45.5% | **-0.9 pp** |
+| Never-married | 5,916 | 5.5% | 4,767 | 3.5% | +2.0 pp |
+| Divorced | 1,771 | 16.0% | 2,672 | 6.7% | +9.3 pp |
+| Widowed | 168 | 23.2% | 825 | 5.6% | +17.6 pp |
+| Separated | 394 | 12.4% | 631 | 2.7% | +9.8 pp |
+
+Collapsed to just married vs not-married, the gap shrinks from +19.6 pp to **+3.0 pp** (married) and **+3.9 pp** (not married). And inside `Married-civ-spouse` - nearly half the data - the sign **reverses**: women are 0.9 points ahead.
+
+The mechanism is the stratum weights. Women are 52% of the "not married" pool, which has an overall high-income rate of 6.5%, but only 12% of the "married" pool, which has an overall rate of 43.7%. The aggregate comparison places most men in the high-earning stratum and splits women toward the low-earning one, so roughly 16 of the 19.6 aggregate points come from *where* each group sits, not from a within-stratum difference in outcome rates.
+
+Whether `marital.status` is a legitimate thing to condition on here is a separate, normative question - see [Conditional Demographic Parity](conditional-demographic-parity.md) and the Limitations section below. The point Simpson's Paradox makes is narrower: the +19.6 pp aggregate figure, reported on its own, describes the dataset's composition at least as much as it describes any disparity in outcomes.
+
+```python
+import pandas as pd
+
+df = pd.read_csv("Benefits Denial/adult.csv")
+df["high_income"] = (df["income"] == ">50K").astype(int)
+
+
+def sex_gap(frame):
+    male = frame.loc[frame["sex"] == "Male", "high_income"].mean()
+    female = frame.loc[frame["sex"] == "Female", "high_income"].mean()
+    return male, female, male - female
+
+
+print("aggregate:", sex_gap(df))
+# (0.3057, 0.1095, 0.1962)
+
+married = df[df["marital.status"] == "Married-civ-spouse"]
+print("married-civ-spouse:", sex_gap(married))
+# (0.4458, 0.4550, -0.0092)  <- sign reversed
+```
+
+## Detection Code
+
+The following module compares a rate gap computed in aggregate against the same gap computed within each stratum of a chosen variable, and reports whether the aggregate sign matches the strata, whether it is inflated, or whether it reverses.
+
+```python
+import numpy as np
+import pandas as pd
+
+
+def simpsons_check(
+    df: pd.DataFrame,
+    outcome_col: str,
+    group_col: str,
+    advantaged: str,
+    disadvantaged: str,
+    stratify_col: str,
+    min_stratum_size: int = 100,
+    min_group_in_stratum: int = 30,
+) -> dict:
+    """
+    Compare the (advantaged - disadvantaged) outcome-rate gap in aggregate
+    against the same gap within each stratum of stratify_col.
+
+    outcome_col must be 0/1. Returns a dict with the aggregate gap, a table
+    of per-stratum gaps (sample-size weighted), the weighted-average
+    within-stratum gap, and a verdict:
+
+      "consistent"        aggregate agrees in sign and rough size with strata
+      "inflated"          same sign, but |aggregate| far exceeds the weighted
+                          within-stratum gap (aggregation is amplifying it)
+      "sign_reversal"     aggregate sign is opposite the weighted within gap,
+                          or opposite the majority of strata by sample size
+    """
+    d = df[[outcome_col, group_col, stratify_col]].dropna()
+    d = d[d[group_col].isin([advantaged, disadvantaged])]
+
+    def gap(frame):
+        a = frame.loc[frame[group_col] == advantaged, outcome_col]
+        b = frame.loc[frame[group_col] == disadvantaged, outcome_col]
+        if len(a) == 0 or len(b) == 0:
+            return np.nan, len(a), len(b)
+        return a.mean() - b.mean(), len(a), len(b)
+
+    agg_gap, n_adv, n_dis = gap(d)
+
+    rows = []
+    for value, sub in d.groupby(stratify_col):
+        if len(sub) < min_stratum_size:
+            continue
+        g, na, nb = gap(sub)
+        if np.isnan(g) or min(na, nb) < min_group_in_stratum:
+            continue
+        rows.append({"stratum": value, "n": len(sub), "gap": g,
+                     "n_advantaged": na, "n_disadvantaged": nb})
+
+    strata = pd.DataFrame(rows).sort_values("n", ascending=False)
+    if strata.empty:
+        return {"verdict": "insufficient_data", "aggregate_gap": agg_gap,
+                "strata": strata}
+
+    weights = strata["n"] / strata["n"].sum()
+    weighted_within_gap = float((strata["gap"] * weights).sum())
+
+    same_sign = np.sign(agg_gap) == np.sign(weighted_within_gap)
+    majority_n_opposite = strata.loc[
+        np.sign(strata["gap"]) != np.sign(agg_gap), "n"
+    ].sum() > strata["n"].sum() / 2
+
+    if not same_sign or majority_n_opposite:
+        verdict = "sign_reversal"
+    elif abs(agg_gap) > 2 * abs(weighted_within_gap) + 0.05:
+        verdict = "inflated"
+    else:
+        verdict = "consistent"
+
+    return {
+        "verdict": verdict,
+        "aggregate_gap": float(agg_gap),
+        "weighted_within_stratum_gap": weighted_within_gap,
+        "n_advantaged": int(n_adv),
+        "n_disadvantaged": int(n_dis),
+        "strata": strata.reset_index(drop=True),
+    }
+
+
+def print_simpsons_report(result: dict) -> None:
+    print(f"Verdict: {result['verdict']}")
+    print(f"  aggregate gap (adv - dis):       {result['aggregate_gap']:+.4f}")
+    if "weighted_within_stratum_gap" in result:
+        print(f"  weighted within-stratum gap:     "
+              f"{result['weighted_within_stratum_gap']:+.4f}")
+        print("\n  per-stratum gaps (largest first):")
+        for _, row in result["strata"].iterrows():
+            flip = "  <- opposite sign" if (
+                np.sign(row["gap"]) != np.sign(result["aggregate_gap"])
+            ) else ""
+            print(f"    {str(row['stratum'])[:24]:24s} "
+                  f"n={int(row['n']):6d}  gap={row['gap']:+.4f}{flip}")
+
+
+# Usage on the Benefits Denial audit:
+# import pandas as pd
+# df = pd.read_csv("Benefits Denial/adult.csv")
+# df["high_income"] = (df["income"] == ">50K").astype(int)
+# print_simpsons_report(simpsons_check(
+#     df, "high_income", "sex", "Male", "Female", "marital.status"))
+```
+
+Run against `Benefits Denial/adult.csv` with `stratify_col="marital.status"`, this reports `inflated`, not `sign_reversal` - even though `Married-civ-spouse` (46% of the sample) reverses sign on its own, `sign_reversal` requires either the *weighted-average* within-stratum gap to disagree in sign with the aggregate, or a strict majority (over 50% of rows, not just the largest single stratum) to be opposite-signed. Neither holds here: the weighted within-stratum gap (`+0.024`) agrees in sign with the aggregate (`+0.196`), and the other five strata's combined weight still outweighs `Married-civ-spouse`'s 46%. What the aggregate figure is doing instead is amplifying a real, same-direction effect roughly eightfold (`0.196` vs. `0.024`), which is exactly what `inflated` means - a single large, sign-reversed stratum is a real and worth-noting finding on its own, but it isn't sufficient by itself to call the aggregate a fabrication; that requires weighing every stratum, not eyeballing the biggest one.
+
+## Limitations and Trade-offs
+
+### 1. There is no single correct level of aggregation
+
+Simpson's Paradox flags a disagreement; it does not adjudicate it. Whether the aggregate or the within-stratum view is the "real" fairness finding depends on whether the stratifying variable is a legitimate explanation for the outcome difference or is itself part of the discrimination. Conditioning on a variable that is a proxy for the protected attribute launders the disparity away (see [Proxy Variables](proxy-variables.md)); conditioning on a genuinely exogenous factor removes a confound. That judgment is normative and domain-specific, not statistical.
+
+### 2. Choosing the stratifying variable is a modeling decision
+
+You will not find a reversal for every variable. The detection code above tests one variable at a time; running it across many candidate strata invites finding a reversal by chance, especially with small strata. A reported reversal is only meaningful for a variable there is an independent reason to care about.
+
+### 3. Small strata produce unstable per-group rates
+
+Disaggregation shrinks sample sizes fast. A stratum where one group has 30 members will have a within-stratum rate with a wide confidence interval, and its "gap" can flip sign across dataset splits from noise alone. The `min_group_in_stratum` guard mitigates but does not eliminate this.
+
+### 4. Continuous confounders need binning, and the bins matter
+
+The example used a categorical stratifier. For a continuous confounder (age, income, tenure) you have to choose bin edges, and coarse or misaligned bins can hide a reversal that finer bins would show, or manufacture one. Report the binning alongside the result.
+
+## Related Concepts
+
+* [What Is Intersectional Bias?](intersectional-bias.md) - the opposite failure: a compounding gap visible only at the intersection of two attributes, hidden when each is checked alone.
+* [What Is Conditional Demographic Parity?](conditional-demographic-parity.md) - the fairness metric built specifically around checking parity *within* strata of a chosen legitimate factor.
+* [What Is a Confounding Variable?](confounding-variable.md) - the underlying causal structure that makes Simpson's reversals possible.
+* [What Is the Base Rate Fallacy?](base-rate-fallacy.md) - a related error about ignoring prior probabilities when reading a conditional rate.
+* [What Is a Proxy Variable?](proxy-variables.md) - why conditioning on the wrong variable can hide real discrimination instead of explaining it.
+
+## Related Projects in This Repo
+
+* [`Benefits Denial/`](../Benefits%20Denial/) - the Adult Census Income audit used above; the aggregate `sex` income gap is roughly five times any within-marital-status gap and reverses inside the largest stratum.
+* [`Healthcare Readmission/`](../Healthcare%20Readmission/) - a multi-hospital readmission audit where per-facility case mix is a natural stratifier for an aggregate readmission-rate gap.
+
+## Further Reading
+
+* [Bickel, P. J., Hammel, E. A., O'Connell, J. W. (1975): Sex Bias in Graduate Admissions: Data from Berkeley, *Science*, 187(4175), 398-404](https://www.science.org/doi/10.1126/science.187.4175.398) - the canonical worked example: Berkeley's aggregate admit rate favored men, but department by department it did not.
+* [Simpson, E. H. (1951): The Interpretation of Interaction in Contingency Tables, *Journal of the Royal Statistical Society B*, 13(2), 238-241](https://www.jstor.org/stable/2984065) - the paper the effect is named after.
+* [Pearl, J. (2014): Comment: Understanding Simpson's Paradox, *The American Statistician*, 68(1), 8-13](https://ftp.cs.ucla.edu/pub/stat_ser/r414.pdf) - why the paradox is a causal question, not a statistical one, and why no purely statistical rule resolves it.
+
+---
+
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
+
+---
+
+# What Is Conditional Demographic Parity?
+URL: https://www.thefaircode.xyz/explainers/conditional-demographic-parity.html
+Summary: Learn how conditional demographic parity refines plain demographic parity by stratifying on an explicitly chosen legitimate factor, and why the choice of that factor decides the answer. Uses the Benefits Denial (Adult Census) audit: conditioning the +19.6 pp sex income gap on education leaves it at +18.4 pp, while conditioning on marital status removes about 84% of it.
+
+# What Is Conditional Demographic Parity?
+
+> *Plain demographic parity asks whether two groups get positive outcomes at the same rate. Conditional demographic parity asks whether they get them at the same rate once you hold a chosen "legitimate" factor fixed - and the choice of that factor decides the answer.*
+
+## The One-Sentence Definition
+
+**Conditional demographic parity** (CDP) requires equal positive-outcome rates across protected groups *within* each stratum of one or more explicitly chosen legitimate factors, rather than across the whole population at once.
+
+## Why It Matters
+
+Plain [demographic parity](demographic-parity.md) requires `P(Y_hat = 1 | G = A) = P(Y_hat = 1 | G = B)` unconditionally. Two things go wrong with that in practice:
+
+- It is satisfied by a model that is equally useless for everyone (predict the base rate, ignore the features), so passing it is not evidence of a good model.
+- It is violated by a model that legitimately uses a lawful, non-proxy factor - years of experience in a hiring model, loan amount in a credit model - that happens to correlate with a protected group. The violation may be entirely explained by that factor, not by the protected attribute.
+
+Conditional demographic parity is the standard refinement for the second problem. You pick one or more conditioning factors `L` that you are willing to treat as a legitimate basis for outcome differences, stratify the population by `L`, and check demographic parity *within* each stratum:
+
+```
+P(Y_hat = 1 | G = A, L = l) = P(Y_hat = 1 | G = B, L = l)   for every level l
+```
+
+If the groups reach parity within every stratum of `L`, the aggregate gap was "explained by `L`". If a gap persists within strata, `L` does not account for it.
+
+This is a real, commonly used construction - it is the fairness analogue of adding a control variable to a regression, and it is close to what US disparate-impact analysis does when it asks whether a challenged practice is "job related and consistent with business necessity". It is not a synonym for plain demographic parity, and it is not the same as [intersectional](intersectional-bias.md) or [subgroup](subgroup-fairness.md) fairness, which stratify by *other protected attributes* to find hidden gaps rather than by a legitimate factor to explain one.
+
+## How It Works
+
+Start from the identity that makes the aggregate gap decomposable. For each group `g`:
+
+```
+P(Y_hat = 1 | G = g) = sum over l of  P(L = l | G = g) * P(Y_hat = 1 | G = g, L = l)
+```
+
+The aggregate rate is a weighted average of within-stratum rates, weighted by how group `g` is distributed across the strata of `L`. Subtracting the two groups' aggregate rates gives a gap with two sources: different within-stratum rates (`P(Y_hat = 1 | G = g, L = l)` differs by `g`), and different stratum weights (`P(L = l | G = g)` differs by `g`).
+
+Conditional demographic parity zeroes out the second source by construction: it only compares groups at the same value of `L`. What is left is the within-stratum gap. A sample-size-weighted average of the within-stratum gaps is the part of the aggregate gap that stratifying on `L` does *not* remove.
+
+The catch is entirely in the choice of `L`. If `L` is a genuine exogenous factor, the within-stratum gap is the disparity net of a real confounder. If `L` is a [proxy](proxy-variables.md) for the protected attribute, conditioning on it absorbs the discrimination into the "legitimate" term and the within-stratum gap understates the real harm. CDP gives you a knob; it does not tell you where to set it.
+
+## Concrete Example: Benefits Denial - Audit 05
+
+`Benefits Denial/` audits the Adult Census Income dataset (`adult.csv`, 32,561 rows). The target is `income == '>50K'` and `sex` is a declared protected attribute. Using the dataset's own outcome rates (the base rate a label-level demographic parity check compares):
+
+**Unconditional:**
+
+| Group | n | P(income > 50K) |
+|---|---:|---:|
+| Male | 21,790 | 30.6% |
+| Female | 10,771 | 10.9% |
+| Gap (M - F) | | **+19.6 pp** |
+
+Now apply CDP with two different choices of legitimate factor `L`.
+
+### L = education level (`education.num`, 16 levels)
+
+| education.num | n | Gap (M - F) |
+|---:|---:|---:|
+| 9 (HS grad) | 10,501 | +13.7 pp |
+| 10 (some college) | 7,291 | +19.5 pp |
+| 13 (Bachelors) | 5,355 | +29.4 pp |
+| 14 (Masters) | 1,723 | +32.3 pp |
+| 15 (Prof-school) | 576 | +33.1 pp |
+| 16 (Doctorate) | 413 | +20.1 pp |
+
+Sample-weighted within-stratum gap: **+18.4 pp**. Conditioning on education removes almost none of the aggregate gap - within every education level men are markedly more likely to be high earners, and at the top three levels the gap is *larger* than the unconditional +19.6. CDP conditioned on education says: the disparity is not an artifact of women being less educated in this dataset.
+
+### L = marital status (`marital.status`)
+
+| marital.status | n | Gap (M - F) |
+|---|---:|---:|
+| Married-civ-spouse | 14,976 | -0.9 pp |
+| Never-married | 10,683 | +2.0 pp |
+| Divorced | 4,443 | +9.3 pp |
+| Widowed | 993 | +17.6 pp |
+
+Sample-weighted within-stratum gap: roughly **+2 pp**, and inside the single largest stratum the sign reverses (women 0.9 points ahead). Conditioning on marital status makes most of the aggregate gap disappear.
+
+### The two answers disagree, and that is the point
+
+Same protected attribute, same dataset, same +19.6 pp aggregate. Condition on education and the gap stands. Condition on marital status and it nearly vanishes. CDP did not resolve the fairness question - it moved it to a new one: *is marital status a legitimate basis for a 20-point income difference between men and women, or is it a proxy for a sex-role division of unpaid labor that the outcome variable should not be conditioned on?* That is a normative and legal question, not a statistical one, and CDP's output is only as defensible as the answer to it. (This is the same aggregate-vs-stratified divergence covered from the other direction in [Simpson's Paradox](simpsons-paradox.md).)
+
+```python
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("Benefits Denial/adult.csv")
+df["high_income"] = (df["income"] == ">50K").astype(int)
+
+
+def within_stratum_gap(frame, condition_col):
+    rows = []
+    for level, sub in frame.groupby(condition_col):
+        m = sub.loc[sub["sex"] == "Male", "high_income"]
+        f = sub.loc[sub["sex"] == "Female", "high_income"]
+        if len(m) < 30 or len(f) < 30:
+            continue
+        rows.append((level, len(sub), m.mean() - f.mean()))
+    tbl = pd.DataFrame(rows, columns=["level", "n", "gap"])
+    weighted = np.average(tbl["gap"], weights=tbl["n"])
+    return tbl, weighted
+
+
+for col in ("education.num", "marital.status"):
+    _, w = within_stratum_gap(df, col)
+    print(f"condition on {col:16s}: weighted within-stratum gap = {w:+.4f}")
+# condition on education.num   : weighted within-stratum gap = +0.1844
+# condition on marital.status  : weighted within-stratum gap = +0.0243
+```
+
+## Detection Code
+
+The following module computes the unconditional demographic parity gap, the conditional (within-stratum) gap for a chosen legitimate factor, and the fraction of the unconditional gap that conditioning explains away.
+
+```python
+import numpy as np
+import pandas as pd
+
+
+def conditional_demographic_parity(
+    df: pd.DataFrame,
+    outcome_col: str,
+    group_col: str,
+    advantaged: str,
+    disadvantaged: str,
+    condition_cols: list[str],
+    min_group_in_stratum: int = 30,
+) -> dict:
+    """
+    Compare the unconditional demographic parity gap for (advantaged -
+    disadvantaged) against the gap computed within each stratum defined by
+    cross-tabulating condition_cols.
+
+    outcome_col must be 0/1. Returns a dict with:
+      unconditional_gap        aggregate P(Y=1|adv) - P(Y=1|dis)
+      conditional_gap          sample-size-weighted mean of within-stratum gaps
+      explained_fraction       1 - conditional_gap / unconditional_gap, i.e.
+                               how much of the aggregate gap stratifying removed
+      strata                   per-stratum table (level, n, gap)
+
+    A strata row is skipped if either group has fewer than
+    min_group_in_stratum members in it (its within-stratum rate would be too
+    noisy to compare).
+    """
+    d = df[[outcome_col, group_col, *condition_cols]].dropna()
+    d = d[d[group_col].isin([advantaged, disadvantaged])]
+
+    def gap(frame):
+        a = frame.loc[frame[group_col] == advantaged, outcome_col]
+        b = frame.loc[frame[group_col] == disadvantaged, outcome_col]
+        if len(a) == 0 or len(b) == 0:
+            return np.nan, len(a), len(b)
+        return a.mean() - b.mean(), len(a), len(b)
+
+    uncond_gap, _, _ = gap(d)
+
+    rows = []
+    for level, sub in d.groupby(condition_cols if len(condition_cols) > 1
+                                else condition_cols[0]):
+        g, na, nb = gap(sub)
+        if np.isnan(g) or min(na, nb) < min_group_in_stratum:
+            continue
+        rows.append({"level": level, "n": len(sub), "gap": g})
+
+    strata = pd.DataFrame(rows).sort_values("n", ascending=False)
+    if strata.empty:
+        return {"unconditional_gap": float(uncond_gap),
+                "conditional_gap": np.nan, "explained_fraction": np.nan,
+                "strata": strata}
+
+    cond_gap = float(np.average(strata["gap"], weights=strata["n"]))
+    explained = (1.0 - cond_gap / uncond_gap) if uncond_gap != 0 else np.nan
+
+    return {
+        "unconditional_gap": float(uncond_gap),
+        "conditional_gap": cond_gap,
+        "explained_fraction": float(explained),
+        "strata": strata.reset_index(drop=True),
+    }
+
+
+def print_cdp_report(result: dict, condition_label: str) -> None:
+    print(f"Conditioning factor: {condition_label}")
+    print(f"  unconditional DP gap:        {result['unconditional_gap']:+.4f}")
+    print(f"  conditional (within) DP gap: {result['conditional_gap']:+.4f}")
+    if not np.isnan(result["explained_fraction"]):
+        print(f"  fraction of gap explained:   "
+              f"{result['explained_fraction']:.1%}")
+    print("  per-stratum gaps (largest first):")
+    for _, row in result["strata"].iterrows():
+        print(f"    {str(row['level'])[:28]:28s} n={int(row['n']):6d}  "
+              f"gap={row['gap']:+.4f}")
+
+
+# Usage on the Benefits Denial audit:
+# import pandas as pd
+# df = pd.read_csv("Benefits Denial/adult.csv")
+# df["high_income"] = (df["income"] == ">50K").astype(int)
+# print_cdp_report(conditional_demographic_parity(
+#     df, "high_income", "sex", "Male", "Female", ["education.num"]),
+#     "education.num")
+# print_cdp_report(conditional_demographic_parity(
+#     df, "high_income", "sex", "Male", "Female", ["marital.status"]),
+#     "marital.status")
+```
+
+Against `Benefits Denial/adult.csv` this reports an `explained_fraction` near `0.06` for `education.num` (conditioning removes almost nothing) and near `0.88` for `marital.status` (conditioning removes most of the gap) - the same +19.6 pp aggregate, two incompatible readings.
+
+## Limitations and Trade-offs
+
+### 1. The conditioning set is a value judgment, not a statistical choice
+
+Everything CDP reports is downstream of which factors you declared "legitimate". There is no test that tells you whether marital status, or occupation, or prior loan history, is a fair thing to condition on. Pick a factor that is genuinely a proxy for the protected attribute and CDP will confidently report that the disparity is "explained", which is exactly the [proxy-variable](proxy-variables.md) trap.
+
+### 2. Conditioning can only ever shrink or hold the gap you can attribute, never validate the factor
+
+A small within-stratum gap means the aggregate gap co-varies with `L`. It does not mean `L` *causes* the outcome difference, and it does not mean using `L` is lawful or ethical. Those require an argument outside the data.
+
+### 3. Strata multiply fast and thin out
+
+Conditioning on one categorical factor is usually fine; conditioning on two or three cross-tabulated factors produces many strata with tiny per-group counts, unstable within-stratum rates, and a weighted gap dominated by a few large cells. Keep the conditioning set minimal and report per-stratum sample sizes.
+
+### 4. Continuous conditioning factors require binning
+
+`education.num` above is discrete. A continuous factor (age, income, tenure) has to be binned, and the bin edges change the answer. Coarse bins can leave residual confounding inside each bin; fine bins run into the small-strata problem in point 3.
+
+### 5. It does not fix the "equally useless model" hole
+
+Like plain demographic parity, CDP is a rate comparison. A model that is equally bad within every stratum still passes. CDP tightens demographic parity against one specific failure (a legitimate confounder); it does not turn it into a sufficiency or calibration guarantee.
+
+## Related Concepts
+
+* [What Is Demographic Parity?](demographic-parity.md) - the unconditional metric CDP refines.
+* [What Is a Proxy Variable?](proxy-variables.md) - why conditioning on the wrong factor launders discrimination instead of explaining it.
+* [What Is Simpson's Paradox in Fairness Audits?](simpsons-paradox.md) - the same aggregate-vs-stratified divergence, framed as a reversal rather than a refinement.
+* [What Is Subgroup Fairness (and Fairness Gerrymandering)?](subgroup-fairness.md) - stratifying by other protected attributes to find hidden gaps, the opposite motivation from CDP.
+* [Why Fairness Metrics Conflict](fairness-metric-conflicts.md) - where conditional and unconditional parity sit among the impossibility results.
+
+## Related Projects in This Repo
+
+* [`Benefits Denial/`](../Benefits%20Denial/) - the Adult Census Income audit above; conditioning the `sex` income gap on education preserves it, conditioning on marital status removes it.
+* [`German Credit Lending/`](../German%20Credit%20Lending/) - a credit audit where loan amount and credit history are candidate "business necessity" factors to condition an age gap on.
+
+## Further Reading
+
+* [Corbett-Davies, S., Pierson, E., Feller, A., Goel, S., Huq, A. (2017): Algorithmic Decision Making and the Cost of Fairness, *KDD 2017*](https://arxiv.org/abs/1701.08230) - introduces conditional statistical parity and shows how the choice of conditioning variables trades off against error rates.
+* [Wachter, S., Mittelstadt, B., Russell, C. (2021): Why Fairness Cannot Be Automated, *Computer Law and Security Review*, 41](https://arxiv.org/abs/2005.05906) - argues that the "legitimate factor" choice at the heart of conditional parity mirrors, and cannot be separated from, EU non-discrimination law's contextual reasoning.
+* [Kilbertus, N., Rojas-Carulla, M., Parascandolo, G., Hardt, M., Janzing, D., Scholkopf, B. (2017): Avoiding Discrimination through Causal Reasoning, *NeurIPS 2017*](https://arxiv.org/abs/1706.02744) - frames "which variables may we condition on" as a causal-graph question rather than a statistical one.
+
+---
+
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
+
+---
+
+# What Is Subgroup Fairness (and Fairness Gerrymandering)?
+URL: https://www.thefaircode.xyz/explainers/subgroup-fairness.html
+Summary: Learn how a model can satisfy a fairness metric on each protected attribute individually yet fail on an algorithmically-discoverable subgroup, and how a brute-force subgroup scan differs from this repo's fixed-pair --cross. Uses the Healthcare Readmission audit: the gender readmission gap is 0.19 pp overall but -5.15 pp inside the Asian patient subgroup.
+
+# What Is Subgroup Fairness (and Fairness Gerrymandering)?
+
+> *A model can pass a fairness check on race, pass it on sex, pass it on age, and still fail badly on some combination like "women over 50 in a particular region" that nobody thought to check by hand. Subgroup fairness is what you get when you stop hand-picking the groups and search for the one where the guarantee breaks.*
+
+## The One-Sentence Definition
+
+**Subgroup fairness** requires a fairness metric to hold not just on each protected attribute checked individually, but across a large, structured class of subgroups defined by combinations of attributes and features - and **fairness gerrymandering** is the failure mode where a model satisfies every marginal check while hiding a large disparity inside one of those combinations.
+
+## Why It Matters
+
+Checking `race`, then `sex`, then `age` separately gives you three guarantees, one per axis. Adding a hand-chosen pair, the way this repo's `--cross` flag does for a single intersection (SPEC section 4), gives you a fourth. None of that is the same as a guarantee over *every* combinatorially definable subgroup.
+
+The gap between "fair on each attribute I checked" and "fair on every subgroup" is exploitable, and not only by an adversary. A model trained to minimize a marginal fairness violation - equalize selection rates by race, and by sex - has no incentive to equalize them for `race x sex x age-band` cells it was never scored on. It can push the disparity into those cells precisely because doing so is invisible to the marginal metrics. Kearns et al. (2018) named this **fairness gerrymandering**, by analogy to how an oddly shaped electoral district can hide a population imbalance that looks fine at the state level.
+
+This is the more general, adversarial version of [intersectional bias](intersectional-bias.md). Intersectional bias is about checking one specific human-chosen pair (Black women, say) and finding a compounding gap. Subgroup fairness replaces "the pair a human picked" with "an automated search over a whole hypothesis class of subgroups" - for example, every group definable by a linear threshold over the features - looking for the subgroup where a fairness constraint is violated by the most.
+
+## How It Works
+
+Fix a fairness metric - selection rate, false positive rate, whatever the audit uses. For a subgroup `g` (a subset of the population picked out by some rule over attributes and features), define its violation as how far that metric inside `g` sits from the population value:
+
+```
+violation(g) = | metric(g) - metric(overall) |   weighted by how large g is
+```
+
+Marginal fairness only bounds `violation(g)` for `g` in a short list: `g = {race = A}`, `g = {sex = F}`, and so on. Subgroup fairness bounds it for `g` in a much larger class `G` - all subgroups definable by a rule of a chosen form (conjunctions of a few attributes, or a linear threshold over features).
+
+You cannot enumerate `G` when it is large, so the audit is framed as a search: an **auditor** tries to find the `g` in `G` with the biggest violation; if it finds one above a threshold, the model fails. Kearns et al. formalize this as a two-player game between a learner (trying to build a model with no high-violation subgroup) and an auditor (trying to find one). The practical brute-force version, for a small feature set, is just: enumerate every combination of a few columns' values and check the metric in each cell.
+
+The reason this is worth doing rather than just checking more pairs by hand: the number of subgroups grows combinatorially, and the worst one is rarely the one an auditor would have guessed.
+
+## Concrete Example: Healthcare Readmission - Audit 06
+
+`Healthcare Readmission/` audits the UCI diabetes 130-hospitals dataset (`diabetic_data.csv`, 101,766 encounters). The target is `readmitted == '<30'` (readmission within 30 days), and `gender`, `race`, and `age` are declared protected attributes. Using the dataset's own readmission rates (the base rate a label-level demographic parity check compares):
+
+**Marginal check on `gender` - passes:**
+
+| Group | n | Readmit < 30 |
+|---|---:|---:|
+| Female | 54,708 | 11.25% |
+| Male | 47,055 | 11.06% |
+| Gap | | 0.18 pp (ratio 0.984) |
+
+A 0.18-point gap clears the EEOC four-fifths rule (ratio 0.984, well above 0.80) and any reasonable demographic parity tolerance. On the `gender` axis alone, this dataset looks clean.
+
+**Now `gender x race` - the gender gap inside each race stratum:**
+
+| Race | Female rate | Male rate | Gender gap (F - M) | Subgroup n |
+|---|---:|---:|---:|---:|
+| Caucasian | 11.49% | 11.07% | +0.42 pp | 76,099 |
+| AfricanAmerican | 11.08% | 11.43% | -0.34 pp | 19,210 |
+| Hispanic | 9.16% | 11.85% | **-2.69 pp** | 2,037 |
+| Asian | 7.55% | 12.69% | **-5.15 pp** | 641 |
+
+Among Asian patients, women are readmitted at 7.55% and men at 12.69% - a 5.15-point gap and a four-fifths ratio of 0.595, a clear violation, pointing the opposite direction from the (negligible) marginal gender gap. Among Hispanic patients the gender gap is -2.69 pp, also a reversal and also larger than the marginal. The `gender` guarantee that held at the population level does not hold once you condition on race, and no single-attribute check would have surfaced that.
+
+Two honest caveats, both of which the Limitations section expands:
+
+- The Asian subgroup has n = 641. That is above this repo's default `min_group_size` of 100, but small enough that a 5-point rate is not a precise estimate - exactly the case this repo's small-sample warnings exist for.
+- This is on raw labels, not model predictions. The gerrymandering concern is strongest for a *model* that was optimized against marginal fairness metrics; a raw-label reversal like this is evidence that the phenomenon is present in the data the models are trained on.
+
+This repo's `--cross` flag (or the MCP `profile_dataset` `cross` option) computes exactly one such pairwise combination - the specific pair you name. It does not perform an open-ended search. Subgroup fairness is what you would need on top of it: a scan over many candidate subgroups, not one.
+
+```python
+import pandas as pd
+
+df = pd.read_csv("Healthcare Readmission/diabetic_data.csv", low_memory=False)
+df["y"] = (df["readmitted"] == "<30").astype(int)
+
+# marginal gender check - looks fine
+by_sex = df.groupby("gender")["y"].mean()
+print(by_sex["Female"] - by_sex["Male"])          # +0.0018
+
+# the same gap inside the Asian stratum - a 5-point violation
+asian = df[df["race"] == "Asian"]
+by_sex_asian = asian.groupby("gender")["y"].mean()
+print(by_sex_asian["Female"] - by_sex_asian["Male"])   # -0.0515
+```
+
+## Detection Code
+
+The following module runs a brute-force subgroup scan: it enumerates every combination of values over a chosen set of columns, computes a rate metric inside each cell, and reports the cells whose deviation from the population rate exceeds a threshold - the manual, small-feature-set version of an auditor. It is contrasted with the single fixed pair `--cross` checks.
+
+```python
+import itertools
+
+import numpy as np
+import pandas as pd
+
+
+def subgroup_scan(
+    df: pd.DataFrame,
+    outcome_col: str,
+    subgroup_cols: list[str],
+    max_depth: int = 2,
+    min_subgroup_size: int = 100,
+    deviation_threshold: float = 0.05,
+) -> pd.DataFrame:
+    """
+    Brute-force fairness-gerrymandering audit over subgroups defined by
+    conjunctions of up to max_depth of the subgroup_cols.
+
+    outcome_col must be 0/1. For every conjunction (col_a = v_a AND col_b = v_b
+    AND ...) with at least min_subgroup_size rows, computes:
+      rate            P(outcome = 1) inside the subgroup
+      deviation       rate - overall_rate
+      four_fifths     min(rate, overall) / max(rate, overall)
+    and returns the subgroups whose |deviation| >= deviation_threshold,
+    sorted by a size-weighted deviation so a large, badly-off subgroup ranks
+    above a tiny one.
+
+    This is exhaustive only because subgroup_cols is small. A real subgroup-
+    fairness auditor searches a parameterized hypothesis class (e.g. linear
+    thresholds over features) instead of enumerating cells - see Kearns et
+    al. (2018).
+    """
+    overall = df[outcome_col].mean()
+    n_total = len(df)
+    results = []
+
+    for depth in range(1, max_depth + 1):
+        for cols in itertools.combinations(subgroup_cols, depth):
+            grouped = df.groupby(list(cols))[outcome_col].agg(["mean", "count"])
+            for key, row in grouped.iterrows():
+                if row["count"] < min_subgroup_size:
+                    continue
+                rate = row["mean"]
+                deviation = rate - overall
+                ff = (min(rate, overall) / max(rate, overall)
+                      if max(rate, overall) > 0 else np.nan)
+                results.append({
+                    "subgroup": dict(zip(cols, key if depth > 1 else (key,))),
+                    "n": int(row["count"]),
+                    "rate": float(rate),
+                    "deviation": float(deviation),
+                    "four_fifths_ratio": float(ff),
+                    "weighted_deviation": abs(deviation) * (row["count"] / n_total),
+                })
+
+    out = pd.DataFrame(results)
+    if out.empty:
+        return out
+    flagged = out[out["deviation"].abs() >= deviation_threshold]
+    return flagged.sort_values("weighted_deviation", ascending=False).reset_index(drop=True)
+
+
+def compare_to_fixed_cross(df, outcome_col, pair):
+    """What this repo's --cross gives you: the metric for that ONE pair,
+    every cell, no search, no ranking by violation."""
+    return df.groupby(list(pair))[outcome_col].agg(["mean", "count"]).round(4)
+
+
+# Usage on the Healthcare Readmission audit:
+# import pandas as pd
+# df = pd.read_csv("Healthcare Readmission/diabetic_data.csv", low_memory=False)
+# df["y"] = (df["readmitted"] == "<30").astype(int)
+# print(subgroup_scan(df, "y", ["gender", "race", "age"], max_depth=2))
+# # the gender x race = (Asian, Female) cell surfaces with deviation ~ -0.036
+```
+
+## Limitations and Trade-offs
+
+### 1. A full combinatorial search is expensive and overfits noise
+
+Enumerating every conjunction of `k` columns is exponential in `k`, and the search rewards finding the most extreme cell - which, for small subgroups, is often the noisiest one rather than the most unfair one. This repo's `min_group_size` default (100) and its "small group (metric may be unreliable)" warnings exist for exactly this reason. A flagged subgroup with 60 members and a 15-point deviation may be sampling noise; the same deviation at n = 5,000 is a finding.
+
+### 2. The hypothesis class is a design choice, and it bounds what you can catch
+
+An auditor that searches conjunctions of categorical attributes will not find a gerrymandered group defined by a linear threshold over continuous features, and vice versa. "Subgroup fair with respect to class G" is only as strong as G is expressive, and a richer G costs more compute and overfits harder.
+
+### 3. Passing a subgroup audit is not the same as being fair
+
+Kearns et al.'s guarantee is that no subgroup *in the searched class* has a large violation. A disparity that lives in a subgroup outside the class, or that only appears under a different metric, is still invisible. Subgroup fairness widens the net; it does not make it infinite.
+
+### 4. Fixing a flagged subgroup can move the disparity, not remove it
+
+Constraining the model to equalize a metric inside a discovered subgroup can push the imbalance into an adjacent, not-yet-searched subgroup - the same whack-a-mole that motivates the learner-auditor game in the first place. Iterating the game to convergence is the intended fix; a one-shot patch of the worst cell is not.
+
+## Related Concepts
+
+* [What Is Intersectional Bias?](intersectional-bias.md) - checking one specific, human-chosen combination of attributes; subgroup fairness is the open-ended search version.
+* [What Is Individual Fairness?](individual-fairness.md) - the opposite pole: "similar individuals treated similarly" rather than any group-rate comparison.
+* [What Is Simpson's Paradox in Fairness Audits?](simpsons-paradox.md) - why an aggregate rate can disagree with its disaggregated cells.
+* [Why Fairness Metrics Conflict](fairness-metric-conflicts.md) - the impossibility results that also constrain what a subgroup audit can promise.
+* [What Is the Base Rate Fallacy?](base-rate-fallacy.md) - why small subgroups produce volatile rate estimates.
+
+## Related Projects in This Repo
+
+* [`Healthcare Readmission/`](../Healthcare%20Readmission/) - the audit above; `gender` is clean marginally but the gender gap reaches -5 pp inside the Asian stratum.
+* [`COMPAS/`](../COMPAS/) - `--cross race age` on this audit is a single fixed intersection; a subgroup scan would search race, sex, age, and custody-status combinations at once.
+
+## Further Reading
+
+* [Kearns, M., Neel, S., Roth, A., Wu, Z. S. (2018): Preventing Fairness Gerrymandering: Auditing and Learning for Subgroup Fairness, *ICML 2018* (PMLR 80)](https://arxiv.org/abs/1711.05144) - defines fairness gerrymandering and gives the learner-auditor game for auditing and enforcing subgroup fairness.
+* [Kearns, M., Neel, S., Roth, A., Wu, Z. S. (2019): An Empirical Study of Rich Subgroup Fairness for Machine Learning, *FAT\* 2019*](https://arxiv.org/abs/1808.08166) - the follow-up experiments showing the method works on real datasets and what it costs.
+* [Hebert-Johnson, U., Kim, M. P., Reingold, O., Rothblum, G. (2018): Multicalibration: Calibration for the (Computationally-Identifiable) Masses, *ICML 2018*](https://arxiv.org/abs/1711.08513) - a closely related guarantee (calibration, not selection rate) over a large class of subgroups.
+
+---
+
+*Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
+
+---
+
+# What Is Differential Privacy (and Its Tension With Fairness)?
+URL: https://www.thefaircode.xyz/explainers/differential-privacy.html
+Summary: Learn how DP-SGD's gradient clipping and noise addition disproportionately degrade accuracy for minority subgroups, so adding a privacy guarantee to a bias-mitigation pipeline is not free. Illustrative example from Bagdasaryan, Poursaeed and Shmatikov (NeurIPS 2019), plus a runnable DP-SGD noise-injection toy; this repo trains no DP model, so no frozen numbers are quoted.
+
+# What Is Differential Privacy (and Its Tension With Fairness)?
+
+> *Differential privacy adds calibrated noise during training so no single person's data changes the model much. That protection is not free, and it is not evenly distributed: the accuracy it costs falls hardest on exactly the underrepresented groups a fairness audit is trying to protect.*
+
+## The One-Sentence Definition
+
+**Differential privacy (DP)** is a formal guarantee that the output of an analysis (here, a trained model) is almost unchanged whether or not any one individual's record was included, achieved during training by clipping each example's gradient contribution and adding random noise, with the strength of the guarantee set by a privacy budget **epsilon** (smaller epsilon = more noise = stronger privacy).
+
+## Why It Matters
+
+A bias-mitigation pipeline and a privacy requirement are often imposed on the same model by different stakeholders - a fairness team and a data-protection officer - who assume the two goals compose for free. They do not.
+
+The standard training algorithm for a DP model, **DP-SGD**, does two things to every gradient step: it **clips** each per-example gradient to a fixed norm, and it **adds Gaussian noise** proportional to that norm. Both operations interact badly with class imbalance:
+
+- Underrepresented groups tend to be the ones a model has not yet fit well, so their examples produce **large gradients** - the ones clipping cuts down the most. The majority's already-small gradients pass through nearly untouched.
+- The noise is added to the batch-averaged gradient regardless of composition. A signal that is a small fraction of the batch (the minority's contribution) is **drowned by the noise** at a lower epsilon than the majority's signal is.
+
+The result, documented by Bagdasaryan, Poursaeed and Shmatikov (2019), is that the accuracy drop from adding DP is "not borne equally": it is substantially larger for underrepresented classes and subgroups, and **if the original model was already unfair, DP makes it more unfair**. This is the same shape as [the fairness-accuracy trade-off](fairness-accuracy-tradeoff.md) - closing one gap opens another - except the axis being traded against fairness is privacy, not overall accuracy.
+
+## How It Works
+
+DP-SGD replaces the plain gradient step with:
+
+```
+1. compute per-example gradients g_i for the minibatch
+2. clip:   g_i  <-  g_i / max(1, ||g_i|| / C)          # cap the L2 norm at C
+3. sum, then add noise:   g  <-  (sum_i g_i  +  N(0, sigma^2 C^2 I)) / B
+4. step:   w  <-  w - lr * g
+```
+
+`C` is the clipping norm and `sigma` the noise multiplier; together with the number of steps and the sampling rate they determine epsilon (via a privacy accountant). Smaller epsilon needs a larger `sigma`.
+
+Why this is disparate:
+
+- **Clipping is a per-example ceiling.** An example the model already predicts well has a small gradient and is unaffected. An example the model gets wrong - disproportionately from a group with little training data - has a large gradient that gets scaled down, so its correction is weakened. Over many steps the majority keeps learning at full strength while the minority's updates are throttled.
+- **Noise has a fixed scale but the useful signal does not.** In a batch that is 90% majority, the minority's contribution to the summed gradient is roughly a tenth of the total before noise. The noise term `N(0, sigma^2 C^2)` is the same size either way, so it overwhelms the minority direction while the majority direction still stands out. As `sigma` rises (epsilon falls), the minority signal disappears first.
+
+A minimal way to see the mechanism: train a logistic model with DP-SGD on data where 10% of rows follow a different feature-to-label rule than the other 90%, and read out accuracy per group as `sigma` increases. The majority accuracy holds; the minority accuracy falls faster and further. The Detection Code section gives a runnable version.
+
+## Concrete Illustration (from the literature, not a Fair Code run)
+
+**This repo's benchmark harness does not train any DP model** - there is no `epsilon` in `faircode/strategies.py` and no DP row in `results/`. Every number in this section is from the published study below, quoted so the pattern is concrete, not reproduced here.
+
+Bagdasaryan et al. (2019), *Differential Privacy Has Disparate Impact on Model Accuracy* (NeurIPS 2019), trained the same models with and without DP-SGD across several tasks:
+
+- A **gender-classification model** on facial images: adding DP reduced accuracy far more for darker-skinned faces (an underrepresented group in the training set) than for lighter-skinned faces, widening an accuracy gap that already existed in the non-private model.
+- A **sentiment-analysis model** on tweets: DP reduced accuracy more on text written in African-American English than on the majority dialect.
+- Across tasks, the finding held: "the reduction in accuracy incurred by deep learning models with differential privacy disproportionately impacts underrepresented subgroups," and the effect grows as epsilon shrinks. Their summary of the mechanism is that **the gradient clipping and noise addition of DP-SGD "disproportionately affect" the subgroups whose gradients are largest and whose share of the data is smallest** - i.e. "the poor get poorer."
+
+The relevance to this repo: every audit here is built around a protected group that is, in its dataset, the smaller or worse-served one (younger applicants, minority defendants, one insurance tier). Those are precisely the groups DP-SGD costs the most accuracy. "We added a privacy guarantee" is therefore not evidence of "we did not make the fairness gap worse" - it needs its own per-group check.
+
+## Detection Code
+
+A self-contained, dependency-light DP-SGD toy: per-example gradient clipping plus Gaussian noise on a logistic model, with a per-group accuracy readout, run across a sweep of noise multipliers. It is illustrative - it shows the *mechanism*, not a calibrated epsilon.
+
+```python
+import numpy as np
+
+
+def make_imbalanced_data(n=6000, minority_frac=0.10, seed=0):
+    """90% majority + 10% minority, where the minority's label depends on a
+    different set of features - so the minority needs its own signal to be
+    learned, and that signal is what clipping + noise erode first."""
+    rng = np.random.default_rng(seed)
+    n_min = int(n * minority_frac)
+    group = np.array([1] * n_min + [0] * (n - n_min))   # 1 = minority
+    rng.shuffle(group)
+    x = rng.normal(size=(n, 6))
+    w_majority = np.array([1.5, -1.0, 0.7, 0.0, 0.0, 0.0])
+    w_minority = np.array([0.0, 0.0, 0.0, 1.5, -1.0, 0.7])
+    logits = np.where(group == 1, x @ w_minority, x @ w_majority)
+    y = (rng.random(n) < 1.0 / (1.0 + np.exp(-logits))).astype(int)
+    return x, y, group
+
+
+def dp_sgd_logreg(x, y, steps=4000, batch=64, lr=0.5,
+                  clip_norm=1.0, noise_multiplier=0.0, seed=1):
+    """DP-SGD for logistic regression. noise_multiplier is 'sigma': 0 means
+    clip-only (no privacy), larger means smaller epsilon."""
+    rng = np.random.default_rng(seed)
+    n, d = x.shape
+    w = np.zeros(d)
+    for _ in range(steps):
+        idx = rng.integers(0, n, batch)
+        xb, yb = x[idx], y[idx]
+        p = 1.0 / (1.0 + np.exp(-(xb @ w)))
+        per_example = (p - yb)[:, None] * xb                     # B x d
+        norms = np.linalg.norm(per_example, axis=1, keepdims=True)
+        per_example = per_example / np.maximum(1.0, norms / clip_norm)   # clip
+        grad = per_example.sum(axis=0)
+        if noise_multiplier > 0:
+            grad = grad + rng.normal(scale=noise_multiplier * clip_norm, size=d)
+        w -= lr * grad / batch
+    return w
+
+
+def accuracy_by_group(w, x, y, group):
+    pred = (x @ w > 0).astype(int)
+    maj = ((pred == y) & (group == 0)).sum() / (group == 0).sum()
+    minority = ((pred == y) & (group == 1)).sum() / (group == 1).sum()
+    return maj, minority
+
+
+def sweep(seeds=range(6)):
+    x_tr, y_tr, g_tr = make_imbalanced_data(seed=0)
+    x_te, y_te, g_te = make_imbalanced_data(n=4000, seed=99)
+
+    def mean_acc(**kw):
+        rows = [accuracy_by_group(dp_sgd_logreg(x_tr, y_tr, seed=s, **kw),
+                                  x_te, y_te, g_te) for s in seeds]
+        return np.mean(rows, axis=0)
+
+    print(f"{'setting':<28}{'majority':>10}{'minority':>10}{'gap':>8}")
+    maj, minr = mean_acc(noise_multiplier=0.0)
+    print(f"{'clip only (no privacy)':<28}{maj:>10.3f}{minr:>10.3f}{maj - minr:>+8.3f}")
+    for sigma in (1.0, 2.0, 4.0, 8.0):
+        maj, minr = mean_acc(noise_multiplier=sigma)
+        print(f"{f'DP-SGD sigma={sigma}':<28}{maj:>10.3f}{minr:>10.3f}{maj - minr:>+8.3f}")
+
+
+# sweep()
+# The majority column stays roughly flat as sigma grows; the minority column
+# and the gap move against the minority. Swap in a real dataset + a privacy
+# accountant (e.g. Opacus, tensorflow-privacy) to attach an epsilon to each row.
+```
+
+## Limitations and Trade-offs
+
+### 1. Epsilon has no universally correct value
+
+There is no threshold at which a model is "private enough". Deployed systems have used epsilon from below 1 (strong) to over 10 (weak); the choice trades re-identification risk against utility and against the fairness cost described here, and it is a policy decision, not a statistical one - the same shape as choosing a fairness metric.
+
+### 2. DP protects against a specific threat, not against bias
+
+The DP guarantee is about **membership inference and individual re-identification**: an attacker cannot tell whether a particular person was in the training set. It says nothing about whether the labels are biased, whether the sampling was biased, or whether the model discriminates. A perfectly private model can be perfectly unfair. DP and fairness are orthogonal guarantees that happen to interfere.
+
+### 3. The disparate impact can sometimes be mitigated, at a cost
+
+Per-group clipping norms, adaptive clipping, or fair-DP training objectives can reduce the gap DP-SGD opens, but they add hyperparameters, can weaken the privacy accounting, and are not standard in off-the-shelf DP training libraries. Assume the vanilla DP-SGD behavior unless a mitigation is explicitly in place and measured.
+
+### 4. The toy here is a mechanism demo, not a calibrated result
+
+The Detection Code has no privacy accountant, so its `sigma` values do not map to a real epsilon, and its synthetic data exaggerates the minority's distinctness for clarity. Treat it as an illustration of *why* the effect happens; for a real number, run DP-SGD with an accountant on a real dataset and measure per-group accuracy directly.
+
+## Related Concepts
+
+* [What Is the Fairness-Accuracy Trade-off?](fairness-accuracy-tradeoff.md) - the same "closing one gap opens another" structure, with accuracy rather than privacy on the other axis.
+* [What Is Class Imbalance?](class-imbalance.md) - why an underrepresented group's signal is a small share of each batch, the property DP-SGD's noise exploits.
+* [Mitigation Strategies](mitigation-strategies.md) - this repo's five bias-mitigation strategies, none of which is DP; adding DP on top would need its own per-group evaluation.
+* Membership inference - the attack DP is designed to prevent: given a trained model, deciding whether a specific record was in its training set. DP bounds how well any such attack can do.
+* [What Is Underdiagnosis Bias?](underdiagnosis-bias.md) - another case where a technique aimed at one problem quietly worsens per-group outcomes.
+
+## Related Projects in This Repo
+
+* [`Healthcare Readmission/`](../Healthcare%20Readmission/) - a clinical model where a real deployment would plausibly face a patient-privacy requirement; the smallest race and age subgroups are the ones DP-SGD would cost the most.
+* [`German Credit Lending/`](../German%20Credit%20Lending/) - younger applicants are the protected, smaller group; a DP-trained credit model would degrade for them fastest as epsilon tightens.
+
+## Further Reading
+
+* [Bagdasaryan, E., Poursaeed, O., Shmatikov, V. (2019): Differential Privacy Has Disparate Impact on Model Accuracy, *Advances in Neural Information Processing Systems 32 (NeurIPS 2019)*](https://arxiv.org/abs/1905.12101) - the paper this explainer's central claim comes from; shows the DP accuracy cost is larger for underrepresented subgroups across image, text, and tabular tasks.
+* [Abadi, M. et al. (2016): Deep Learning with Differential Privacy, *ACM CCS 2016*](https://arxiv.org/abs/1607.00133) - the original DP-SGD algorithm (per-example clipping + Gaussian noise + moments accountant).
+* [Dwork, C., Roth, A. (2014): The Algorithmic Foundations of Differential Privacy, *Foundations and Trends in Theoretical Computer Science*, 9(3-4)](https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf) - the standard reference for the epsilon definition and its properties.
+* [Cummings, R., Gupta, V., Kimpara, D., Morgenstern, J. (2019): On the Compatibility of Privacy and Fairness, *FairUMAP 2019*](https://arxiv.org/abs/1907.00212) - a formal look at when the two guarantees can and cannot be satisfied together.
+
+---
 
 *Part of [The Fair Code Project](https://instagram.com/thefaircodeproject) - exposing and fixing algorithmic bias with real data and open code.*
 

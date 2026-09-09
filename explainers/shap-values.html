@@ -189,28 +189,28 @@
       <p class="explainer-lede">Use SHAP to trace which inputs pushed a prediction up or down, and where explanation can still be misleading.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-are-shap-values">Explainer: What Are SHAP Values?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-are-shap-values">Explainer: What Are SHAP Values?</h2>
 <blockquote><p><em>The reason &quot;the model said so&quot; is not an explanation - and what to do instead.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>SHAP values</strong> (SHapley Additive exPlanations) are a method for explaining individual predictions made by any machine learning model - they tell you exactly how much each feature contributed to a specific output, in a unit you can reason about.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most AI systems deployed in high-stakes domains - criminal justice, hiring, lending, healthcare - are black boxes. They produce a score or a decision, and they don&#x27;t explain why. This is not just an inconvenience. It is a fairness problem.</p>
 <p>If you cannot inspect how a model arrived at a decision, you cannot:</p>
 <ul><li>Detect whether a protected attribute or proxy variable drove the outcome</li><li>Challenge a decision that affected you</li><li>Comply with regulations that require explainability (GDPR Article 22, EEOC, ECOA)</li><li>Audit the system for bias before deployment</li></ul>
 <p>SHAP values make the black box transparent. They are grounded in cooperative game theory - specifically, Shapley values - which provide a mathematically principled way to attribute credit (or blame) across features. Unlike simpler techniques, SHAP values are consistent, locally accurate, and model-agnostic.</p>
 <hr>
-<h2 id="the-intuition-fair-credit-attribution">The Intuition: Fair Credit Attribution</h2>
+<h3 id="the-intuition-fair-credit-attribution">The Intuition: Fair Credit Attribution</h3>
 <p>Imagine three people - Alice, Bob, and Carol - collaborate on a project that earns $300,000. Who gets credit for what? The Shapley value from game theory answers this by asking: <em>on average, across every possible ordering in which these people could join the project, how much does each person&#x27;s addition increase the outcome?</em></p>
 <p>SHAP applies this same logic to features. For a single prediction:</p>
 <ul><li>Your model outputs a score of 0.82 (high recidivism risk)</li><li>SHAP asks: across all possible subsets of features, how much does each feature shift the prediction away from the average?</li><li>The result is a signed contribution value for every feature - positive means it pushed the prediction up, negative means it pushed it down</li></ul>
 <p><strong>The key property:</strong> the SHAP values for all features sum exactly to the difference between the model&#x27;s prediction and the global average prediction.</p>
 <pre><code>model_output = base_value + shap(age) + shap(custody_status) + shap(race) + ...</code></pre>
 <hr>
-<h2 id="real-world-proof-compas-analysis">Real-World Proof: COMPAS Analysis</h2>
+<h3 id="real-world-proof-compas-analysis">Real-World Proof: COMPAS Analysis</h3>
 <p>We applied SHAP to the <a href="https://github.com/propublica/compas-analysis" target="_blank" rel="noreferrer noopener">ProPublica COMPAS dataset</a> to inspect what the biased model was actually using.</p>
-<h3 id="setup">Setup</h3>
+<h4 id="setup">Setup</h4>
 <pre><code class="language-python">import shap
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -230,7 +230,7 @@ model.fit(X_train, y_train)
 # Compute SHAP values
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_test)</code></pre>
-<h3 id="what-shap-revealed">What SHAP Revealed</h3>
+<h4 id="what-shap-revealed">What SHAP Revealed</h4>
 <pre><code>--- MEAN ABSOLUTE SHAP VALUES (biased model) ---
 
 Feature                     Mean |SHAP|
@@ -242,7 +242,7 @@ Sex_Code_Text_Male          0.0412
 MaritalStatus_Single        0.0298</code></pre>
 <p><strong>The model&#x27;s single largest driver was race.</strong> The second largest was custody status - a known proxy for race. Together they accounted for more than 60% of total feature influence.</p>
 <p>Without SHAP, you would not know this. The model&#x27;s accuracy numbers alone tell you nothing about which features drove individual predictions.</p>
-<h3 id="after-the-fix-fair-model-shap">After the Fix - Fair Model SHAP</h3>
+<h4 id="after-the-fix-fair-model-shap">After the Fix - Fair Model SHAP</h4>
 <pre><code class="language-python"># Fair feature set (race + proxy removed)
 X_fair = pd.get_dummies(df[[&#x27;Sex_Code_Text&#x27;, &#x27;MaritalStatus&#x27;]])
 model_fair = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -259,10 +259,10 @@ Sex_Code_Text_Male          0.0489
 MaritalStatus_Married       0.0214</code></pre>
 <p>Race is gone from the feature set. The model now distributes influence across legitimate remaining features. SHAP confirms the fix worked - not just at the aggregate fairness gap level, but at the level of individual decision logic.</p>
 <hr>
-<h2 id="how-to-use-shap-in-practice">How to Use SHAP in Practice</h2>
-<h3 id="installation">Installation</h3>
+<h3 id="how-to-use-shap-in-practice">How to Use SHAP in Practice</h3>
+<h4 id="installation">Installation</h4>
 <pre><code class="language-bash">pip install shap</code></pre>
-<h3 id="for-tree-models-random-forest-xgboost-lightgbm">For Tree Models (Random Forest, XGBoost, LightGBM)</h3>
+<h4 id="for-tree-models-random-forest-xgboost-lightgbm">For Tree Models (Random Forest, XGBoost, LightGBM)</h4>
 <pre><code class="language-python">import shap
 
 # TreeExplainer is fast and exact for tree-based models
@@ -271,11 +271,11 @@ shap_values = explainer.shap_values(X_test)
 
 # shap_values shape: [n_samples, n_features] for binary classification (class 1)
 # For multi-class: list of arrays, one per class</code></pre>
-<h3 id="for-any-model-model-agnostic">For Any Model (Model-Agnostic)</h3>
+<h4 id="for-any-model-model-agnostic">For Any Model (Model-Agnostic)</h4>
 <pre><code class="language-python"># KernelExplainer works with any model; slower but universal
 explainer = shap.KernelExplainer(model.predict_proba, shap.sample(X_train, 100))
 shap_values = explainer.shap_values(X_test[:10])</code></pre>
-<h3 id="explaining-a-single-prediction">Explaining a Single Prediction</h3>
+<h4 id="explaining-a-single-prediction">Explaining a Single Prediction</h4>
 <pre><code class="language-python">def explain_decision(model, explainer, X_test, sample_idx):
     &quot;&quot;&quot;
     Return a sorted explanation for one prediction.
@@ -294,7 +294,7 @@ shap_values = explainer.shap_values(X_test[:10])</code></pre>
 
 # Example output for a high-risk COMPAS score:
 # [(&#x27;race_African-American&#x27;, +0.21), (&#x27;CustodyStatus_Jail&#x27;, +0.18), ...]</code></pre>
-<h3 id="bias-audit-using-shap">Bias Audit Using SHAP</h3>
+<h4 id="bias-audit-using-shap">Bias Audit Using SHAP</h4>
 <pre><code class="language-python">def shap_bias_audit(shap_values, feature_names, protected_features):
     &quot;&quot;&quot;
     Flag any protected attribute or known proxy in the top drivers.
@@ -317,25 +317,25 @@ protected = [&#x27;race&#x27;, &#x27;gender&#x27;, &#x27;age&#x27;, &#x27;Custod
 audit = shap_bias_audit(shap_values[1], X_test.columns, protected)
 print(audit.head(10))</code></pre>
 <hr>
-<h2 id="shap-vs-other-explainability-methods">SHAP vs Other Explainability Methods</h2>
+<h3 id="shap-vs-other-explainability-methods">SHAP vs Other Explainability Methods</h3>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Method</th><th>Scope</th><th>Consistency</th><th>Model-Agnostic</th><th>Speed</th></tr></thead><tbody><tr><td><strong>SHAP</strong></td><td>Local + Global</td><td>✓ Mathematically guaranteed</td><td>✓ Yes</td><td>Medium–Fast</td></tr><tr><td>LIME</td><td>Local only</td><td>✗ Approximate</td><td>✓ Yes</td><td>Slow</td></tr><tr><td>Feature Importance (Gini)</td><td>Global only</td><td>✗ Biased toward high-cardinality</td><td>✗ Tree models only</td><td>Fast</td></tr><tr><td>Permutation Importance</td><td>Global only</td><td>Reasonable</td><td>✓ Yes</td><td>Medium</td></tr></tbody></table></div>
 <p>SHAP is the only method that is <strong>locally accurate</strong> (values sum exactly to the prediction), <strong>consistent</strong> (if a feature matters more, its SHAP value will be higher), and <strong>unified</strong> across model types. For fairness auditing specifically, local accuracy is essential - you need to know what drove <em>this specific decision</em>, not just what matters on average.</p>
 <hr>
-<h2 id="limitations">Limitations</h2>
+<h3 id="limitations">Limitations</h3>
 <p><strong>1. SHAP values explain the model, not the world.</strong> If your model is trained on biased data, SHAP will faithfully explain the biased decision. High SHAP for a legitimate feature doesn&#x27;t mean the feature is fair - it means the model used it heavily. Use SHAP alongside the proxy variable audit, not instead of it.</p>
 <p><strong>2. Correlation is not causation.</strong> SHAP measures how much each feature shifted the prediction. It does not tell you whether that feature <em>should</em> shift the prediction. A model can assign high SHAP to zip code without zip code being a valid criterion for the decision.</p>
 <p><strong>3. Computational cost at scale.</strong> KernelExplainer is slow for large datasets. TreeExplainer is fast for tree-based models, but SHAP for deep neural networks (DeepExplainer, GradientExplainer) is approximate and can be expensive.</p>
 <p><strong>4. SHAP values can mislead with correlated features.</strong> When two features are highly correlated (like <code>age</code> and <code>employment_tenure</code>), SHAP distributes the shared contribution between them in ways that can understate either feature&#x27;s individual influence. This is one more reason to run proxy variable detection <em>before</em> computing SHAP - so you already know which features are collinear.</p>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>Explainability is not a nice-to-have. It is the mechanism by which accountability becomes possible. A person denied a loan, flagged as high-risk in a courtroom, or rejected by a hiring algorithm has a legitimate interest in knowing why. A company deploying these systems has a legal and ethical obligation to be able to answer that question.</p>
 <p>SHAP values do not fix bias. Removing protected attributes and proxy variables fixes bias. What SHAP does is make the model&#x27;s reasoning visible - so you can catch problems before deployment, explain decisions to the people affected by them, and demonstrate to auditors and regulators that the system is operating as intended.</p>
 <p>The pipeline is not complete until you can explain every decision the model makes.</p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - The biased and fair models where SHAP reveals race as the top driver</li><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - Gender + age influence exposed via feature attribution</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - Age and tenure SHAP contributions before and after mitigation</li><li><a href="proxy-variables.html"><code>explainers/proxy-variables.md</code></a> - What proxy variables are and how to detect them</li><li><a href="sampling-bias.html"><code>explainers/sampling-bias.md</code></a> - Why your training data may not represent the people your model affects</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noreferrer noopener">Lundberg &amp; Lee: A Unified Approach to Interpreting Model Predictions (NeurIPS 2017)</a> - the original SHAP paper</li><li><a href="https://shap.readthedocs.io/" target="_blank" rel="noreferrer noopener">SHAP Documentation and Examples</a></li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas &amp; Hardt: Fairness and Machine Learning</a> - Chapter 6 covers interpretability in the context of fairness</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

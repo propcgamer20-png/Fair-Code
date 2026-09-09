@@ -189,26 +189,26 @@
       <p class="explainer-lede">Break down how layered models learn patterns, why they are hard to inspect, and why fairness audits matter even more.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-happens-inside-a-neural-network">Explainer: What Happens Inside a Neural Network?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-happens-inside-a-neural-network">Explainer: What Happens Inside a Neural Network?</h2>
 <blockquote><p><em>The reason a model can redline a neighborhood, deny a loan, or flag a face - without anyone writing a single rule to do it.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p>A <strong>neural network</strong> is a stack of mathematical layers that repeatedly transforms an input (a resume, a face, a credit application) into a prediction - learning which patterns to amplify and which to ignore by adjusting millions of internal weights during training.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most people treat neural networks as black boxes. You put data in, a decision comes out, and what happens in between is someone else&#x27;s problem.</p>
 <p>That attitude is how algorithmic bias gets deployed at scale.</p>
 <p>The network doesn&#x27;t discriminate by accident. It discriminates because of what it learned - from data that reflected a stratified world - and understanding <em>how</em> it learns is the only way to understand <em>what</em> it learns. You can&#x27;t audit what you don&#x27;t understand.</p>
 <p>This explainer is not theory. It&#x27;s the mechanics, so you can follow what the models in this repo are actually doing when they deny someone bail or reject a job application.</p>
 <hr>
-<h2 id="the-three-part-loop-every-network-runs">The Three-Part Loop Every Network Runs</h2>
+<h3 id="the-three-part-loop-every-network-runs">The Three-Part Loop Every Network Runs</h3>
 <p>Every neural network - from a two-layer hiring classifier to a billion-parameter language model - runs the same fundamental loop:</p>
 <pre><code>Forward pass  →  Compute loss  →  Backward pass (update weights)</code></pre>
 <p>Repeat this thousands of times on your training data, and the network learns. The tragedy is that &quot;learns&quot; means &quot;learns to replicate patterns in the training data&quot; - including patterns that encode race, gender, or class.</p>
 <hr>
-<h2 id="part-1-the-forward-pass">Part 1: The Forward Pass</h2>
+<h3 id="part-1-the-forward-pass">Part 1: The Forward Pass</h3>
 <p>The forward pass is how the network turns an input into a prediction.</p>
-<h3 id="neurons-and-weights">Neurons and Weights</h3>
+<h4 id="neurons-and-weights">Neurons and Weights</h4>
 <p>Each neuron takes a set of inputs, multiplies each by a <strong>weight</strong>, sums them, then passes the result through an <strong>activation function</strong>.</p>
 <pre><code class="language-python">import numpy as np
 
@@ -229,7 +229,7 @@ def relu(z):
     &quot;&quot;&quot;
     return max(0, z)</code></pre>
 <p>The weight is everything. A high weight on <code>zip_code</code> means the network has learned that zip code is predictive - not because zip codes are fair inputs, but because zip codes correlate with whatever outcome existed in the training data, which was shaped by decades of redlining.</p>
-<h3 id="layers">Layers</h3>
+<h4 id="layers">Layers</h4>
 <p>A single neuron can only draw a straight line through the data. Layers stack neurons in sequence, letting each layer learn more abstract representations of the input.</p>
 <pre><code>Input Layer        Hidden Layer 1      Hidden Layer 2      Output Layer
 ─────────────      ──────────────      ──────────────      ────────────
@@ -239,7 +239,7 @@ def relu(z):
 [marital_status]</code></pre>
 <p>By the final layer, the network has compressed raw input features into an abstract representation it uses to make the prediction. The problem: that representation can be heavily contaminated by proxy variables without any indication in the output.</p>
 <hr>
-<h2 id="part-2-computing-loss">Part 2: Computing Loss</h2>
+<h3 id="part-2-computing-loss">Part 2: Computing Loss</h3>
 <p>After a forward pass, the network has a prediction. It compares that prediction to the true label using a <strong>loss function</strong>.</p>
 <pre><code class="language-python">def binary_cross_entropy(y_true, y_pred):
     &quot;&quot;&quot;
@@ -263,7 +263,7 @@ loss = binary_cross_entropy(y_true=0, y_pred=0.87)
 # → loss ≈ 2.04  (large - model was badly wrong)</code></pre>
 <p>The network&#x27;s only goal is to minimize this number across all training examples. It has no concept of fairness. It doesn&#x27;t know it&#x27;s making bail decisions. It will learn whatever pattern drives that number down - including racial proxies.</p>
 <hr>
-<h2 id="part-3-the-backward-pass-backpropagation">Part 3: The Backward Pass (Backpropagation)</h2>
+<h3 id="part-3-the-backward-pass-backpropagation">Part 3: The Backward Pass (Backpropagation)</h3>
 <p>This is where the network learns. After computing the loss, it works backwards through every layer, calculating how much each weight contributed to the error and nudging it in the direction that reduces loss.</p>
 <pre><code class="language-python">def gradient_descent_step(weights, gradients, learning_rate=0.01):
     &quot;&quot;&quot;
@@ -273,9 +273,9 @@ loss = binary_cross_entropy(y_true=0, y_pred=0.87)
     return weights - learning_rate * gradients</code></pre>
 <p>Repeat this across thousands of training examples and the weights converge - the network has &quot;learned.&quot; What it&#x27;s actually done is encode statistical patterns from the training data into its weights. If those patterns are biased, the weights are biased. If you then deploy the model, you&#x27;ve deployed the bias.</p>
 <hr>
-<h2 id="real-world-proof-hiring-bias">Real-World Proof: Hiring Bias</h2>
+<h3 id="real-world-proof-hiring-bias">Real-World Proof: Hiring Bias</h3>
 <p>We tested this directly using the <a href="../index.html#project-hiring">AI Fair Recruitment dataset</a>.</p>
-<h3 id="what-we-did">What We Did</h3>
+<h4 id="what-we-did">What We Did</h4>
 <p><strong>Step 1 - Biased model (gender + proxy <code>age</code> included):</strong></p>
 <pre><code class="language-python">features = [
     &#x27;gender&#x27;,
@@ -298,13 +298,13 @@ loss = binary_cross_entropy(y_true=0, y_pred=0.87)
 ]</code></pre>
 <p><strong>Results:</strong></p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Hire Rate</th></tr></thead><tbody><tr><td>Male candidates</td><td>54.1%</td></tr><tr><td>Female candidates</td><td>54.0%</td></tr><tr><td><strong>Fairness gap</strong></td><td><strong>0.1%</strong></td></tr></tbody></table></div>
-<h3 id="summary">Summary</h3>
+<h4 id="summary">Summary</h4>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Approach</th><th>Fairness Gap</th><th>Reduction</th></tr></thead><tbody><tr><td>Biased model</td><td>20.9%</td><td>-</td></tr><tr><td>Remove gender only</td><td>~18%</td><td>Minimal</td></tr><tr><td>Remove gender + proxy</td><td>0.1%</td><td><strong>99.5%</strong></td></tr></tbody></table></div>
 <p><strong>The network&#x27;s architecture didn&#x27;t change. The training procedure didn&#x27;t change. Only the inputs changed - and the bias disappeared.</strong></p>
 <hr>
-<h2 id="how-to-inspect-what-a-network-learned">How to Inspect What a Network Learned</h2>
+<h3 id="how-to-inspect-what-a-network-learned">How to Inspect What a Network Learned</h3>
 <p>Neural networks are not fully interpretable, but you can probe them.</p>
-<h3 id="shap-values-attributing-predictions-to-features">SHAP Values: Attributing Predictions to Features</h3>
+<h4 id="shap-values-attributing-predictions-to-features">SHAP Values: Attributing Predictions to Features</h4>
 <p>SHAP (SHapley Additive exPlanations) decomposes any prediction into a contribution from each input feature.</p>
 <pre><code class="language-python">import shap
 from sklearn.ensemble import RandomForestClassifier
@@ -321,7 +321,7 @@ shap_values = explainer.shap_values(X_test)
 # custody_status contributed +0.19
 # ...</code></pre>
 <p>If a protected attribute or its known proxy appears at the top of the SHAP rankings, the model is using it - regardless of what the feature list says it&#x27;s &quot;supposed&quot; to be doing.</p>
-<h3 id="feature-importance-coarser-but-faster">Feature Importance: Coarser But Faster</h3>
+<h4 id="feature-importance-coarser-but-faster">Feature Importance: Coarser But Faster</h4>
 <pre><code class="language-python">import pandas as pd
 
 importances = pd.Series(
@@ -336,7 +336,7 @@ print(importances)
 # ...</code></pre>
 <p>Any feature at the top that you know correlates with a protected attribute is a proxy variable. Remove it and retrain.</p>
 <hr>
-<h2 id="the-architecture-in-one-diagram">The Architecture in One Diagram</h2>
+<h3 id="the-architecture-in-one-diagram">The Architecture in One Diagram</h3>
 <pre><code>RAW FEATURES             HIDDEN LAYERS              PREDICTION
 ────────────────         ───────────────────────    ──────────────────────
 age ──────────────┐
@@ -353,16 +353,16 @@ sex ──────────────┘
                          these weights to minimize loss</code></pre>
 <p>The network has no fairness objective. It has one objective: minimize loss on the training set. If the training set encodes historical discrimination, minimizing loss means learning that discrimination.</p>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>Neural networks are not neutral calculators. They are compression algorithms for historical patterns. Feed them data from a world shaped by redlining, over-policing, occupational segregation, and lending exclusion - and they will compress those patterns into their weights and reproduce them as predictions.</p>
 <p>The architecture is not the problem. The weights are the problem. And the weights are determined by the data.</p>
 <p>This is why the work in this repository matters: not to fix the math, but to fix the inputs. Remove the protected attributes. Audit every remaining feature for correlation with those attributes. Retrain. Measure the gap again.</p>
 <p><strong>A neural network will learn exactly what you teach it. The question is whether you&#x27;re paying attention to what that is.</strong></p>
 <hr>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - Full hiring bias audit: 97.3% gap reduction after removing gender + age proxy</li><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - Lending bias: 73.6% gap reduction after removing age + employment tenure proxy</li><li><a href="../index.html#project-insurance"><code>Insurance Denial/</code></a> - Healthcare bias: 60–72% reduction after removing BMI, smoking status, and diabetes status as proxies</li><li><a href="../index.html#project-benefits"><code>Benefits Denial/</code></a> - Welfare eligibility: 46–88% gap reduction across race, sex, and national origin</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noreferrer noopener">3Blue1Brown: Neural Networks (YouTube, 2017)</a> - the best visual introduction to how networks learn</li><li><a href="https://www.deeplearningbook.org/" target="_blank" rel="noreferrer noopener">Goodfellow, Bengio &amp; Courville: Deep Learning (MIT Press)</a> - the canonical textbook, free online</li><li><a href="https://arxiv.org/abs/1705.07874" target="_blank" rel="noreferrer noopener">Lundberg &amp; Lee: A Unified Approach to Interpreting Model Predictions (NeurIPS, 2017)</a> - the SHAP paper</li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas &amp; Hardt: Fairness and Machine Learning</a> - the standard reference for algorithmic fairness</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

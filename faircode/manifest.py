@@ -57,17 +57,35 @@ class TargetSpec:
         if self.method == "isin" and self.values is None:
             raise ValueError(f"{self.column}: target method 'isin' needs a 'values' field")
 
-    def compute(self, df: pd.DataFrame) -> pd.Series:
+    def compute(self, df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+        """Returns (y, known_mask) - both boolean/int Series aligned to df.
+
+        known_mask is False for rows this target can't classify (a
+        missing/NaN label), mirroring
+        ProtectedAttribute.disadvantaged_mask() below, so the caller can
+        drop them instead of a NaN label silently becoming a plain
+        negative-class (0) row. NaN == value, NaN in [...], and
+        NaN > median all evaluate to False in pandas regardless of method,
+        so known_mask is always just col.notna() - computed once up front
+        rather than per-method.
+        """
         col = df[self.column]
+        known = col.notna()
         if self.method == "binary":
-            return col.astype(int)
-        if self.method == "equals":
-            return (col == self.value).astype(int)
-        if self.method == "isin":
-            return col.isin(self.values).astype(int)
-        if self.method == "above_median":
-            return (col > col.median()).astype(int)
-        raise ValueError(f"unknown target method: {self.method!r}")
+            # .astype(int) alone raises IntCastingNaNError on a NaN cell;
+            # fillna(0) first so a genuinely missing label no longer
+            # crashes here instead of being excluded via known_mask like
+            # every other method already was.
+            y = col.fillna(0).astype(int)
+        elif self.method == "equals":
+            y = (col == self.value).astype(int)
+        elif self.method == "isin":
+            y = col.isin(self.values).astype(int)
+        elif self.method == "above_median":
+            y = (col > col.median()).astype(int)
+        else:
+            raise ValueError(f"unknown target method: {self.method!r}")
+        return y, known
 
 
 @dataclass

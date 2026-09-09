@@ -433,15 +433,22 @@ def test_get_benchmark_results_filters_to_matching_rows():
     assert row["significant"] is True
 
 
-def test_get_benchmark_results_performance_kind_ignores_protected_attribute_filter():
-    # results_performance.csv has no protected_attribute column - a filter
-    # naming it should be silently ignored, not raise or return zero rows.
-    result = _get_benchmark_results_impl(
-        kind="performance", audit="compas", model="logistic_regression",
-        protected_attribute="race")
+def test_get_benchmark_results_rejects_filter_on_column_absent_from_kind():
+    # results_performance.csv has no protected_attribute column. Silently
+    # dropping the filter handed the caller the whole unfiltered table back
+    # with no signal their filter was ignored (#512); it now raises, like
+    # profile_dataset/compare_datasets do for an unknown overrides column.
+    with pytest.raises(ValueError, match="protected_attribute.*performance"):
+        _get_benchmark_results_impl(
+            kind="performance", audit="compas", model="logistic_regression",
+            protected_attribute="race")
 
-    assert result["total_matches"] > 0
-    assert all(row["audit"] == "compas" for row in result["results"])
+    # The same filter against the fairness kind, which does have the column,
+    # still works.
+    ok = _get_benchmark_results_impl(
+        kind="fairness", audit="compas", model="logistic_regression",
+        protected_attribute="race")
+    assert ok["total_matches"] > 0
 
 
 def test_get_benchmark_results_nan_cells_become_none():

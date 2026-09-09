@@ -189,28 +189,28 @@
       <p class="explainer-lede">Understand how under-sampling, over-sampling, and skewed collection pipelines can distort what a model learns.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-sampling-bias">Explainer: What Is Sampling Bias?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-sampling-bias">Explainer: What Is Sampling Bias?</h2>
 <blockquote><p><em>The reason your AI works great in the lab and fails on the people who need it most.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Sampling bias</strong> occurs when the data used to train an AI system doesn&#x27;t accurately represent the population it will be deployed on - so the model learns patterns that don&#x27;t generalize, performing well for over-represented groups and failing for under-represented ones.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Most people assume that if you have a large dataset, the model will be fair. This is wrong.</p>
 <p>Size doesn&#x27;t equal representativeness. A dataset of 10 million records is still biased if 9.8 million of them come from the same demographic. The model doesn&#x27;t know what it hasn&#x27;t seen. It optimizes for the distribution it was trained on - and when that distribution doesn&#x27;t match the real world, the people left out pay the price.</p>
 <p>This is called <strong>sampling bias</strong>, and it shows up in facial recognition systems that fail on darker skin tones, clinical tools that miss diagnoses in women, and NLP models that perform worse on dialects outside Standard American English. In each case, the data collection process systematically excluded certain groups - and the model inherited that exclusion.</p>
 <hr>
-<h2 id="common-forms-of-sampling-bias">Common Forms of Sampling Bias</h2>
+<h3 id="common-forms-of-sampling-bias">Common Forms of Sampling Bias</h3>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Form</th><th>What It Means</th><th>Real Example</th></tr></thead><tbody><tr><td><strong>Underrepresentation</strong></td><td>A demographic group appears far less in training data than in the real world</td><td>Facial recognition trained mostly on light-skinned faces</td></tr><tr><td><strong>Selection bias</strong></td><td>Data is collected from a non-random subset of the population</td><td>Clinical AI trained on hospital records from affluent ZIP codes</td></tr><tr><td><strong>Historical bias</strong></td><td>Past data reflects past inequities; the model learns the inequity, not the truth</td><td>Hiring models trained on 10 years of male-dominated engineering hires</td></tr><tr><td><strong>Survivorship bias</strong></td><td>Only &quot;successful&quot; cases make it into the dataset; failures are invisible</td><td>Loan models trained only on approved applicants, never denied ones</td></tr><tr><td><strong>Temporal bias</strong></td><td>Training data is from a time period that no longer reflects current reality</td><td>A model trained on 2005 internet text used today</td></tr><tr><td><strong>Measurement bias</strong></td><td>The same underlying reality is measured differently for different groups</td><td>Over-policing means more arrest records for Black communities - not higher crime rates</td></tr></tbody></table></div>
 <hr>
-<h2 id="real-world-proof-mit-gender-shades">Real-World Proof: MIT Gender Shades</h2>
+<h3 id="real-world-proof-mit-gender-shades">Real-World Proof: MIT Gender Shades</h3>
 <p>The clearest documented case of sampling bias in AI is the Gender Shades study (Joy Buolamwini &amp; Timnit Gebru, 2018).</p>
 <p>Three commercial facial recognition systems were tested on a dataset specifically balanced across gender and skin tone. The results showed that every system performed dramatically worse on darker-skinned women - not because the algorithms were explicitly programmed to fail them, but because the training datasets were overwhelmingly composed of lighter-skinned faces.</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Group</th><th>Error Rate (best system)</th><th>Error Rate (worst system)</th></tr></thead><tbody><tr><td>Lighter-skinned males</td><td>~0.8%</td><td>~3.4%</td></tr><tr><td>Lighter-skinned females</td><td>~1.7%</td><td>~7.1%</td></tr><tr><td>Darker-skinned males</td><td>~10.8%</td><td>~16.0%</td></tr><tr><td>Darker-skinned females</td><td><strong>~20.8%</strong></td><td><strong>~34.7%</strong></td></tr></tbody></table></div>
 <p>The gap between best-case (lighter males) and worst-case (darker females) was <strong>up to 34 percentage points</strong> - from the same model, on the same task, because of who was and wasn&#x27;t in the training data.</p>
 <p>The fix was not a new algorithm. It was a more representative dataset.</p>
 <hr>
-<h2 id="simulating-sampling-bias">Simulating Sampling Bias</h2>
+<h3 id="simulating-sampling-bias">Simulating Sampling Bias</h3>
 <p>The following example simulates what happens when you train on an unbalanced sample and test on a balanced one. This mirrors the real-world failure mode exactly.</p>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
@@ -265,7 +265,7 @@ print(f&quot;\nAccuracy gap: {abs(results.loc[&#x27;A&#x27;,&#x27;accuracy&#x27;
 print(f&quot;Positive rate gap: {abs(results.loc[&#x27;A&#x27;,&#x27;positive_rate&#x27;] - results.loc[&#x27;B&#x27;,&#x27;positive_rate&#x27;]):.4f}&quot;)</code></pre>
 <p><strong>What you&#x27;ll see:</strong> Group B - the undersampled group - has measurably lower accuracy and a distorted positive rate, despite having nearly identical underlying skill scores. The bias is entirely a function of who was in the training data, not who deserves to be hired.</p>
 <hr>
-<h2 id="how-to-detect-sampling-bias">How to Detect Sampling Bias</h2>
+<h3 id="how-to-detect-sampling-bias">How to Detect Sampling Bias</h3>
 <pre><code class="language-python">import pandas as pd
 from scipy.stats import chi2_contingency
 
@@ -309,7 +309,7 @@ print(result)
 # Options: oversample, collect more data, apply sample weights, or use fairness-aware training.</code></pre>
 <p>Run this before any training run. A group flagged <code>UNDERREPRESENTED</code> means the model will have less signal to learn from for that group - and more opportunity to get it wrong.</p>
 <hr>
-<h2 id="how-to-mitigate-it">How to Mitigate It</h2>
+<h3 id="how-to-mitigate-it">How to Mitigate It</h3>
 <p>Detecting sampling bias is step one. Fixing it requires one of the following strategies, chosen based on how severe the imbalance is and how much data you can realistically collect:</p>
 <p><strong>1. Collect more data</strong> - the cleanest fix. Go get more samples from underrepresented groups before training. Not always possible, but always preferable when it is.</p>
 <p><strong>2. Oversample</strong> - repeat underrepresented examples during training so the model sees them more often. Simple and effective for moderate imbalances.</p>
@@ -332,16 +332,16 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, stratify=df[&#x27;group&#x27;], random_state=42
 )</code></pre>
 <hr>
-<h2 id="the-bigger-picture">The Bigger Picture</h2>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
 <p>Sampling bias is not a technical accident. It reflects who had access to the systems that generated the data in the first place. Facial recognition datasets are biased toward lighter-skinned faces because the researchers who collected them moved in predominantly lighter-skinned professional environments. Clinical AI is biased toward wealthy patients because hospitals in wealthy ZIP codes have better electronic health record infrastructure. NLP models are biased toward Standard American English because that&#x27;s what most of the training corpus is written in.</p>
 <p>The data you have is a record of the world as it was - including which people were visible, documented, and deemed worth measuring. A model trained on that data will reproduce those visibility decisions at scale.</p>
 <p><strong>You cannot fix a representativeness problem with a better algorithm. You fix it with better data - or you disclose the limitation and restrict deployment accordingly.</strong></p>
 <hr>
-<h2 id="relationship-to-other-concepts">Relationship to Other Concepts</h2>
+<h3 id="relationship-to-other-concepts">Relationship to Other Concepts</h3>
 <p>Sampling bias is distinct from - but connected to - other fairness failure modes:</p>
 <ul><li><strong>Proxy variables</strong> encode protected attributes through correlated features. Sampling bias encodes them through who was included in the data at all. Both must be audited independently. See <a href="proxy-variables.html"><code>proxy-variables.md</code></a>.</li><li><strong>Demographic parity</strong> (coming soon) measures whether positive prediction rates are equal across groups. Sampling bias is one of the root causes of demographic parity violations.</li><li><strong>Measurement bias</strong> is a sibling concept: the same feature (e.g., arrest records) means different things for different groups because it&#x27;s collected differently. Sampling bias is about <em>who</em> is counted; measurement bias is about <em>how</em> they&#x27;re counted.</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="http://proceedings.mlr.press/v81/buolamwini18a.html" target="_blank" rel="noreferrer noopener">Buolamwini &amp; Gebru: Gender Shades (2018)</a> - the foundational study on facial recognition sampling bias</li><li><a href="https://science.sciencemag.org/content/366/6464/447" target="_blank" rel="noreferrer noopener">Obermeyer et al.: Dissecting racial bias in an algorithm used to manage the health of populations (Science, 2019)</a> - survivorship and selection bias in clinical AI</li><li><a href="https://dl.acm.org/doi/10.1145/3442188.3445922" target="_blank" rel="noreferrer noopener">Bender et al.: On the Dangers of Stochastic Parrots (2021)</a> - sampling bias in large language model training corpora</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

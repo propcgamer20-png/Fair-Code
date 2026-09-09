@@ -28,8 +28,11 @@ that is what the `unfair.py` / `fair.py` audits do. The Profiler answers a diffe
 Token boundaries are what stop `age` from matching `Agency_Text` or `Language`.
 
 A keyword matches a token by **exact match** when the keyword is <4 chars, or **prefix match** when
-it is ≥4 chars (prefix, not substring - so `age` never matches `agency`, but `statecode` matches
-`state`). Classify by the **first** keyword list that matches any token (order matters):
+it is ≥4 chars (prefix, not substring - so `age` never matches `agency`, but `zipcode` matches
+`zip`). A small set of keywords (`race`, `state`, `city`, `region`, `country` -
+`detect.EXACT_ONLY_KEYWORDS`) are exact-match-only regardless of length, since their common prefixes
+false-positive too easily (`statecode` would otherwise match `state`, `statement`/`stateless` would
+too). Classify by the **first** keyword list that matches any token (order matters):
 
 | Dimension   | Keywords                                                                 |
 |-------------|--------------------------------------------------------------------------|
@@ -320,7 +323,9 @@ under-sampling relative to who a model will actually serve. Supplied via `--refe
 
 **Format** - a long-format table with three columns (headers case-insensitive; `column`/`dimension`,
 `group`/`value`/`label`, `share`/`expected`/`percent`). Shares may be fractions (`0.51`) or
-percentages (`51`) - if any value exceeds `1.5` the whole table is read as percentages. Parsed into
+percentages (`51`) - the scale is decided per column (rows grouped by the `column` identifier): if
+any of a column's values exceeds `1.5` that column is read as percentages, so a reference file that
+mixes conventions between columns still parses each column correctly. Parsed into
 `{column: {group: expected_share}}`.
 
 ```
@@ -418,10 +423,10 @@ parity obligation of its own - there is no equivalent MCP surface for the JS eng
 The first three tools accept `overrides` (the section 1 `{column: kind}` map, as a JSON object rather
 than repeated `--map COL=KIND` strings) and the relevant section 7 thresholds by name.
 `profile_dataset` also accepts `cross` and `reference_path`, matching `profile`'s `--cross` and
-`--reference`; `compare_datasets` does not, matching `compare`'s own flag set. `proxy_hints` only
-exposes `min_share`/`min_group_size` - the two thresholds that feed dimension detection - since
-`intersection_floor`/`imbalance_flag`/`missing_flag` affect intersections/flags, which this tool
-never touches.
+`--reference`; `compare_datasets` does not, matching `compare`'s own flag set. `proxy_hints` takes no
+threshold parameters at all - only `path`, `overrides`, and `held_out_with` - since it only surfaces
+candidate proxy pairs for a human/agent to review, not a scored or filtered result the section 7
+thresholds would narrow.
 
 An anticipated failure (an unreadable path, an unknown `overrides` column, `proxy_hints` without
 the `proxy` extra installed) is raised inside the tool as a plain Python exception and converted to

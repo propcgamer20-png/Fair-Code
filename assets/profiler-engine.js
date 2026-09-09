@@ -36,6 +36,28 @@
     reference: null   // {column: {group: expected_share}} baseline (SPEC 8)
   };
 
+  // SPEC section 7 tunables that must fall in [0, 1]. Mirrors
+  // faircode.profiler._UNIT_INTERVAL_OPTS.
+  var UNIT_INTERVAL_OPTS = ['min_share', 'intersection_floor', 'missing_flag', 'reference_flag'];
+
+  function validateOpts(o) {
+    // Reject out-of-range tunables instead of silently producing a
+    // self-contradictory report (#511). Mirrors _validate_opts in the
+    // Python engine.
+    UNIT_INTERVAL_OPTS.forEach(function (k) {
+      var v = o[k];
+      if (v !== null && v !== undefined && !(v >= 0 && v <= 1)) {
+        throw new Error(k + ' must be between 0 and 1, got ' + v);
+      }
+    });
+    if (o.imbalance_flag !== null && o.imbalance_flag !== undefined && o.imbalance_flag < 1) {
+      throw new Error('imbalance_flag must be >= 1, got ' + o.imbalance_flag);
+    }
+    if (o.min_group_size !== null && o.min_group_size !== undefined && o.min_group_size < 1) {
+      throw new Error('min_group_size must be >= 1, got ' + o.min_group_size);
+    }
+  }
+
   function resolveOpts(opts) {
     var o = {};
     Object.keys(DEFAULT_OPTS).forEach(function (k) { o[k] = DEFAULT_OPTS[k]; });
@@ -44,7 +66,27 @@
         if (opts[k] !== null && opts[k] !== undefined) o[k] = opts[k];
       });
     }
+    validateOpts(o);
     return o;
+  }
+
+  // Parsed data structures that carry their own provenance field elsewhere -
+  // echoing them into params would be noise. Mirrors
+  // faircode.provenance._OPAQUE_PARAMS.
+  var OPAQUE_PARAMS = { reference: 1 };
+
+  // The resolved knobs as actually applied (defaults included), minus the
+  // opaque parsed structures, key-sorted. Mirrors
+  // faircode.provenance.public_params(faircode.profiler._resolve_opts(opts)),
+  // so a web-profiler export's provenance.params matches the CLI/MCP path
+  // even when the user never touched a threshold input (#490).
+  function publicParams(opts) {
+    var resolved = resolveOpts(opts);
+    var out = {};
+    Object.keys(resolved).sort().forEach(function (k) {
+      if (!OPAQUE_PARAMS[k]) out[k] = resolved[k];
+    });
+    return out;
   }
   // Comparison / drift (SPEC section 8)
   var PSI_EPSILON = 0.0001;
@@ -53,18 +95,21 @@
   var PSI_SIGNIFICANT = 0.25;
   var SCORE_DROP_FLAG = 5;
 
-  // Pandas-style missing tokens, so JS null-handling matches read_csv defaults.
+  // Pandas' default na_values (pandas.io.parsers.readers.STR_NA_VALUES),
+  // matched EXACTLY and case-sensitively so JS null-handling is bit-for-bit
+  // identical to loaders.py's plain pd.read_csv(). Notably: "None" IS in this
+  // set (pandas treats it as missing), while bare lowercase "na" and "none"
+  // are NOT - the previous list had both backwards, and lower-cased the cell
+  // before comparing, which also erased pandas' own case-sensitivity
+  // ("NA" is missing, "na" is not). See #491.
   var NA_TOKENS = {
-  '': 1,
-  'na': 1,
-  'n/a': 1,
-  'nan': 1,
-  'null': 1,
-  // Intentionally exclude "none" to match the Python profiler.
-  // In this project, pd.read_csv() preserves the literal string "none"
-  // as a categorical value, so treating it as missing breaks Python↔JS
-  // parity (see credit_customers.csv).
-};
+    '': 1,
+    '#N/A': 1, '#N/A N/A': 1, '#NA': 1,
+    '-1.#IND': 1, '-1.#QNAN': 1, '-NaN': 1, '-nan': 1,
+    '1.#IND': 1, '1.#QNAN': 1, '<NA>': 1,
+    'N/A': 1, 'NA': 1, 'NULL': 1, 'NaN': 1, 'None': 1,
+    'n/a': 1, 'nan': 1, 'null': 1,
+  };
 
   // ── Keyword lists - MUST mirror faircode/detect.py ─────────────────────
   var KEYWORDS = [
@@ -368,7 +413,8 @@
   }
   function isMissing(v) {
     if (v === null || v === undefined) return true;
-    return NA_TOKENS.hasOwnProperty(String(v).trim().toLowerCase());
+    // Case-sensitive, matching pandas' STR_NA_VALUES exactly (no lower-casing).
+    return NA_TOKENS.hasOwnProperty(String(v).trim());
   }
 
   // ── Column detection (SPEC section 1) ──────────────────────────────────
@@ -450,6 +496,18 @@
       }
     }
     return AGE_BANDS[AGE_BANDS.length - 1] + '+';
+  }
+
+  // True only for free text with no embedded number at all (e.g. "unknown",
+  // "prefer not to say") - SPEC.md section 2's "anything else: treat as
+  // categorical" rule for a per-value age rule. False for null/undefined
+  // and for any numeric value, including one embedded in a string - even a
+  // number outside the valid age range, like a -1/999 sentinel, still
+  // counts as "has a number" here and is routed to missing/null, matching
+  // this profiler's prior behavior for range-invalid numeric sentinels.
+  function isCategoricalAgeSentinel(value) {
+    if (value === null || value === undefined || typeof value === 'number') return false;
+    return !/[+-]?\d+(?:\.\d+)?/.test(String(value));
   }
 
   var AGE_BAND_LABELS = {};
@@ -593,8 +651,20 @@
         var counts = {}, nullCount = 0;
         for (i = 0; i < nums.length; i++) {
           var b = ageBand(nums[i]);
-          if (b === null) nullCount++;
-          else counts[b] = (counts[b] || 0) + 1;
+          if (b !== null) {
+            counts[b] = (counts[b] || 0) + 1;
+          } else if (isCategoricalAgeSentinel(rows[i][name])) {
+            // Non-numeric free text (e.g. "unknown", "prefer not to say") -
+            // SPEC.md section 2's "anything else: treat as categorical"
+            // rule. Distinct from a genuinely missing cell or an
+            // out-of-range numeric sentinel (both still go to nullCount
+            // below): gets its own group instead of silently folding into
+            // missing_pct.
+            var label = String(rows[i][name]).trim();
+            counts[label] = (counts[label] || 0) + 1;
+          } else {
+            nullCount++;
+          }
         }
         var res = analyzeGroups(counts, nTotal, nullCount, skew, minShareThreshold, minGroupSize);
         res.name = name; res.kind = kind;
@@ -623,7 +693,16 @@
         if (ageToNumeric(rows[i][name]) !== null) { any = true; break; }
       }
       if (any) {
-        for (i = 0; i < rows.length; i++) out.push(ageBand(ageToNumeric(rows[i][name])));
+        for (i = 0; i < rows.length; i++) {
+          var value = rows[i][name];
+          var num = ageToNumeric(value);
+          // Non-numeric age sentinels get their own categorical label here
+          // too, matching dimension()'s main breakdown - otherwise they map
+          // to null and intersections() drops those rows, so the crosstab
+          // and the main groups disagree (#524).
+          out.push(num !== null ? ageBand(num)
+                   : (isCategoricalAgeSentinel(value) ? String(value) : null));
+        }
         return out;
       }
     }
@@ -832,11 +911,21 @@
       if (isNaN(share)) return;
       raw.push([String(row[colC]).trim(), String(row[grpC]).trim(), share]);
     });
-    var scale = raw.some(function (r) { return r[2] > 1.5; }) ? 100 : 1;
-    var reference = {};
+    // Percent-vs-fraction scale is decided per column (grouped by the column
+    // identifier), not once across the whole table: a reference file that
+    // mixes conventions between columns would otherwise get the wrong scale
+    // applied to whichever column didn't trigger the heuristic. Mirrors
+    // faircode.profiler.parse_reference.
+    var byCol = {};
     raw.forEach(function (r) {
-      if (!reference[r[0]]) reference[r[0]] = {};
-      reference[r[0]][r[1]] = r[2] / scale;
+      (byCol[r[0]] = byCol[r[0]] || []).push([r[1], r[2]]);
+    });
+    var reference = {};
+    Object.keys(byCol).forEach(function (col) {
+      var pairs = byCol[col];
+      var scale = pairs.some(function (p) { return p[1] > 1.5; }) ? 100 : 1;
+      reference[col] = {};
+      pairs.forEach(function (p) { reference[col][p[0]] = p[1] / scale; });
     });
     return reference;
   }
@@ -1018,6 +1107,9 @@
                               sniffDelimiter: sniffDelimiter,
                               profile: profile, compare: compare,
                               parseReference: parseReference,
+                              // publicParams: resolved knobs for an export's
+                              // provenance.params, matching the Python path (#490).
+                              publicParams: publicParams,
                               // Exposed so the Profile/Compare threshold-input
                               // placeholders (issue #377) can be sourced from
                               // this single source of truth instead of a

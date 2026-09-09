@@ -190,22 +190,22 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>Statistical bias and societal bias share a word but mean very different things. A model with high statistical bias is just too simple, making mistakes on everyone. But a model with high variance - one that memorizes the training data perfectly - often memorizes the majority group&#x27;s patterns and fails the minority.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>The bias-variance trade-off</strong> is the tension between a model being too simple to capture real patterns (high statistical bias, or underfitting) and a model being so complex that it memorizes noise in the training data (high variance, or overfitting).</p>
-<h2 id="statistical-bias-vs-algorithmic-bias">Statistical Bias vs. Algorithmic Bias</h2>
+<h3 id="statistical-bias-vs-algorithmic-bias">Statistical Bias vs. Algorithmic Bias</h3>
 <p>Before applying this to fairness, we have to untangle the terminology:</p>
 <ul><li><strong>Statistical Bias (Underfitting):</strong> The model&#x27;s assumptions are too rigid. It misses the true underlying relationship in the data. Think of drawing a straight line through a curved scatterplot.</li><li><strong>Algorithmic/Societal Bias:</strong> The model&#x27;s decisions systematically disadvantage a specific demographic group, regardless of whether the model is statistically &quot;accurate.&quot;</li></ul>
 <p>A model can have low statistical bias (it fits the data perfectly) while exhibiting high algorithmic bias (it learned a prejudiced pattern).</p>
-<h2 id="why-it-matters-for-fairness">Why It Matters for Fairness</h2>
+<h3 id="why-it-matters-for-fairness">Why It Matters for Fairness</h3>
 <p>When you tune a model&#x27;s complexity, you are not just trading off overall accuracy. You are deciding <em>who</em> bears the cost of the model&#x27;s errors.</p>
 <p>An <strong>underfit model</strong> (high statistical bias) is a blunt instrument. It relies on overly simplistic rules, spreading errors somewhat broadly across the entire population. It fails equally.</p>
 <p>An <strong>overfit model</strong> (high variance) is where fairness often breaks down silently. Because the training data usually contains a majority demographic group, an overfit model will dedicate its complexity to memorizing the nuanced, specific patterns of that majority group. It learns to predict them perfectly. But when it encounters a minority group applicant - whose valid patterns might look different or who are underrepresented in the training data - the brittle, overly complex rules fail to generalize.</p>
 <p>The result? The model performs flawlessly on the majority (low error) but makes wild, inaccurate predictions for the minority (high error), leading to severe algorithmic bias on unseen test data.</p>
-<h2 id="concrete-example-ai-fair-recruitment">Concrete Example: AI Fair Recruitment</h2>
+<h3 id="concrete-example-ai-fair-recruitment">Concrete Example: AI Fair Recruitment</h3>
 <p>Consider an automated hiring screening tool like the one in Audit 02 (AI Fair Recruitment). The training data predominantly consists of male applicants who followed traditional career paths.</p>
 <p>If we train a very simple model (like a Decision Tree with <code>max_depth=1</code>), it might just hire everyone with more than 5 years of experience. This is <strong>underfitting</strong>. It misses talented juniors and over-indexes on tenure. The error rate is high for both men and women.</p>
 <p>If we train a highly complex model (like an unconstrained Random Forest or deep neural network), it might start combining 15 different features - memorizing that &quot;people who play golf, went to State University, and know C++&quot; are great hires. This is <strong>overfitting</strong>. Since men make up the majority of the training data, the model memorizes male-specific career trajectories. When a highly qualified woman applies with a slightly different background, the model rejects her because she doesn&#x27;t match the hyper-specific, memorized majority pattern. The model generalizes beautifully for men, but fails terribly for women.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>You can detect if high variance is hurting a minority group by comparing the model&#x27;s accuracy on the training set versus the test set, broken down by demographic group. A large train-test gap for the minority group indicates the model overfit the majority and generalized poorly to the minority.</p>
 <pre><code class="language-python">import pandas as pd
 from sklearn.metrics import accuracy_score
@@ -252,18 +252,18 @@ def check_variance_by_group(model, X_train, y_train, X_test, y_test, group_col):
 # Usage example:
 # gap_report = check_variance_by_group(rf_model, X_train, y_train, X_test, y_test, &quot;gender&quot;)
 # print(gap_report)</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-tuning-complexity-does-not-fix-bad-data">1. Tuning complexity does not fix bad data</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-tuning-complexity-does-not-fix-bad-data">1. Tuning complexity does not fix bad data</h4>
 <p>You cannot hyperparameter-tune your way out of a fundamentally biased dataset. If your historical labels are discriminatory (see <a href="label-bias.html">Label Bias</a>), an optimally tuned model will just learn to perfectly replicate that discrimination.</p>
-<h3 id="2-the-baseline-error-might-still-be-unequal">2. The baseline error might still be unequal</h3>
+<h4 id="2-the-baseline-error-might-still-be-unequal">2. The baseline error might still be unequal</h4>
 <p>Even if you find the perfect &quot;sweet spot&quot; in the bias-variance trade-off where the train-test gap is minimal for all groups, the base error rate for the minority group might still be higher simply because the model has less data to learn from them.</p>
-<h3 id="3-accuracy-gaps-are-not-the-only-measure-of-fairness">3. Accuracy gaps are not the only measure of fairness</h3>
+<h4 id="3-accuracy-gaps-are-not-the-only-measure-of-fairness">3. Accuracy gaps are not the only measure of fairness</h4>
 <p>This detection method focuses on accuracy drops. However, a model might maintain high accuracy for a minority group but still fail on Demographic Parity or Equalized Odds.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="distribution-shift.html">Distribution Shift</a> - when the test data looks fundamentally different from the training data, exposing the brittleness of an overfit model.</li><li><a href="model-drift.html">Model Drift</a> - how a model&#x27;s generalization quality degrades over time as the real world moves away from the training patterns it memorized.</li><li><a href="ml-bias.html">What Is Machine Learning Bias?</a> - the four entry points for bias, showing how training data composition forces these trade-offs.</li><li><a href="sampling-bias.html">Sampling Bias</a> - why minority groups often lack enough data to build stable patterns, leading to the high-variance failures described above.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-hiring"><code>AI Fair Recruitment/</code></a> - the hiring audit where complex models can easily learn to proxy gender through hyper-specific resume traits.</li><li><a href="../index.html#project-compas"><code>COMPAS/</code></a> - the recidivism audit demonstrating how risk models fail to generalize equally across racial groups.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://arxiv.org/abs/1610.02413" target="_blank" rel="noreferrer noopener">Hardt, M., Price, E., Srebro, N. (2016): Equality of Opportunity in Supervised Learning</a> - discusses how different groups might require different model complexities, and how forcing a single predictor can harm minority groups.</li><li><a href="https://arxiv.org/abs/1805.12002" target="_blank" rel="noreferrer noopener">Chen, I., Johansson, F. D., Sontag, D. (2018): Why Is My Classifier Discriminatory?</a> - decomposes fairness metrics into bias, variance, and noise components, showing that minority group discrimination is often driven by high variance due to low sample size.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>

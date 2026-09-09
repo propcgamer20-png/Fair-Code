@@ -152,9 +152,37 @@ def test_age_interval_threshold_rejects_a_typo_d_disadvantaged_value():
 # ── TargetSpec / RowFilter / ProtectedAttribute behaviour ───────────────────
 def test_target_spec_methods():
     df = pd.DataFrame({"income": [10, 60, 30, 90], "flag": ["yes", "no", "yes", "no"]})
-    assert TargetSpec("income", "above_median").compute(df).tolist() == [0, 1, 0, 1]
-    assert TargetSpec("flag", "equals", value="yes").compute(df).tolist() == [1, 0, 1, 0]
-    assert TargetSpec("flag", "isin", values=["yes"]).compute(df).tolist() == [1, 0, 1, 0]
+    assert TargetSpec("income", "above_median").compute(df)[0].tolist() == [0, 1, 0, 1]
+    assert TargetSpec("flag", "equals", value="yes").compute(df)[0].tolist() == [1, 0, 1, 0]
+    assert TargetSpec("flag", "isin", values=["yes"]).compute(df)[0].tolist() == [1, 0, 1, 0]
+
+
+def test_target_spec_methods_all_report_known_true_with_no_missing_labels():
+    df = pd.DataFrame({"income": [10, 60, 30, 90], "flag": ["yes", "no", "yes", "no"]})
+    assert TargetSpec("income", "above_median").compute(df)[1].tolist() == [True] * 4
+    assert TargetSpec("flag", "equals", value="yes").compute(df)[1].tolist() == [True] * 4
+    assert TargetSpec("flag", "isin", values=["yes"]).compute(df)[1].tolist() == [True] * 4
+
+
+@pytest.mark.parametrize("method,kwargs", [
+    ("binary", {}),
+    ("equals", {"value": 1}),
+    ("isin", {"values": [1]}),
+    ("above_median", {}),
+])
+def test_target_spec_excludes_missing_labels_via_known_mask(method, kwargs):
+    # Regression test for #488: a NaN row used to silently become a plain
+    # negative-class (0) row for equals/isin/above_median (NaN == value,
+    # NaN in [...], and NaN > median are all False in pandas), and raised
+    # IntCastingNaNError for binary - inconsistent, and neither excludes
+    # the row the way ProtectedAttribute.disadvantaged_mask() already does
+    # for an unknown protected-attribute value.
+    df = pd.DataFrame({"outcome": [1, 0, 1, float("nan"), 0]})
+    y, known = TargetSpec("outcome", method, **kwargs).compute(df)
+    assert known.tolist() == [True, True, True, False, True]
+    # The excluded row's y value is a don't-care placeholder - what matters
+    # is that known_mask flags it, not what y happens to be there.
+    assert len(y) == len(df)
 
 
 def test_row_filter_isin_and_notna():

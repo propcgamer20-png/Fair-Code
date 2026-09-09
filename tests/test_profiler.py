@@ -130,6 +130,37 @@ def test_negative_age_sentinels_are_missing_instead_of_an_elderly_group():
     assert dim["missing_pct"] == 0.6667
 
 
+def test_non_numeric_age_sentinels_get_their_own_categorical_group():
+    # Regression test for #487: free-text age responses with no embedded
+    # number ("unknown", "prefer not to say") used to silently fold into
+    # missing_pct, indistinguishable from a genuinely blank cell -
+    # contradicting SPEC.md section 2's "anything else: treat as
+    # categorical" rule.
+    df = pd.DataFrame({"age": [25, 30, 45, "unknown", "unknown", "unknown",
+                                "prefer not to say", 22, 33, 41]})
+
+    dim = profile(df)["dimensions"][0]
+
+    labels = {group["label"]: group["count"] for group in dim["groups"]}
+    assert labels["unknown"] == 3
+    assert labels["prefer not to say"] == 1
+    assert dim["missing_pct"] == 0.0
+    assert dim["n_groups"] == 5
+
+
+def test_non_numeric_age_sentinels_are_distinct_from_genuine_missing_cells():
+    # A real None/NaN cell must still count toward missing_pct, not get
+    # folded into a categorical sentinel group alongside real free text.
+    df = pd.DataFrame({"age": [25, 30, 45, None, float("nan"), "unknown",
+                                22, 33, 41, 29]})
+
+    dim = profile(df)["dimensions"][0]
+
+    labels = {group["label"]: group["count"] for group in dim["groups"]}
+    assert labels["unknown"] == 1
+    assert dim["missing_pct"] == 0.2
+
+
 def test_skewness_symmetric_is_zero():
     assert abs(_skewness([1, 2, 3, 4, 5])) < 1e-9
 
@@ -277,6 +308,22 @@ def test_imbalance_flag_tunable():
                    for f in profile(df, opts={"imbalance_flag": 5.0})["flags"])
 
 
+@pytest.mark.parametrize("opts, message", [
+    ({"min_share": 1.5}, "min_share must be between 0 and 1"),
+    ({"min_share": -0.1}, "min_share must be between 0 and 1"),
+    ({"intersection_floor": 2.0}, "intersection_floor must be between 0 and 1"),
+    ({"missing_flag": 5.0}, "missing_flag must be between 0 and 1"),
+    ({"imbalance_flag": 0.5}, "imbalance_flag must be >= 1"),
+    ({"min_group_size": 0}, "min_group_size must be >= 1"),
+])
+def test_out_of_range_tunables_raise_instead_of_contradicting_themselves(opts, message):
+    # min_share=1.5 used to be accepted silently: every group flagged
+    # "under-represented" while overall_score/grade stayed 100/"A" (#511).
+    df = pd.DataFrame({"sex": ["M"] * 50 + ["F"] * 50})
+    with pytest.raises(ValueError, match=message):
+        profile(df, opts=opts)
+
+
 # ── Choosable intersection pair (issue #58) ──────────────────────────────────
 def test_cross_selects_intersection_pair():
     df = pd.DataFrame({
@@ -307,6 +354,23 @@ def test_parse_reference_fraction_and_percent():
                                         "group": ["m", "f"], "share": [40, 60]}))
     assert frac == {"sex": {"m": 0.4, "f": 0.6}}
     assert pct == {"sex": {"m": 0.4, "f": 0.6}}  # percentages normalized to fractions
+
+
+def test_parse_reference_mixed_scale_is_decided_per_column():
+    # A reference file assembled from multiple sources: `sex` given as
+    # fractions, `race` given as percentages, in the same file. The
+    # percent-vs-fraction decision used to be made once across the whole
+    # table, so `race`'s 70 pushed a global scale=100 onto `sex`'s already
+    # correct 0.6/0.4, corrupting them to 0.006/0.004 (#513).
+    ref = parse_reference(pd.DataFrame({
+        "column": ["sex", "sex", "race", "race", "race"],
+        "group": ["Female", "Male", "White", "Black", "Other"],
+        "share": [0.6, 0.4, 70, 20, 10],
+    }))
+    assert ref == {
+        "sex": {"Female": 0.6, "Male": 0.4},
+        "race": {"White": 0.7, "Black": 0.2, "Other": 0.1},
+    }
 
 
 def test_parse_reference_percent_string_values():
@@ -363,6 +427,45 @@ def test_intersections_labelize_respects_date_guard():
         ("15/05/1980", "F"),
         ("15/05/1990", "M"),
     }
+
+
+def test_intersections_labelize_keeps_non_numeric_age_sentinels():
+    # #524: _dimension()'s main breakdown gives "unknown"/"prefer not to say"
+    # their own categorical group, but _intersections()'s labelize() used to
+    # map them to None, so pd.crosstab dropped those rows entirely - the
+    # crosstab and the main groups then disagreed about the same dataset.
+    df = pd.DataFrame({
+        "age": [25, 30, 45, "unknown", "unknown", "unknown",
+                "prefer not to say", 22, 33, 41] * 3,
+        "sex": ["M", "F"] * 15,
+    })
+
+    result = profile(df, opts={"cross": ["age", "sex"]})
+
+    age_dim = next(d for d in result["dimensions"] if d["name"] == "age")
+    main_labels = {g["label"] for g in age_dim["groups"]}
+    assert {"unknown", "prefer not to say"} <= main_labels
+
+    crosstab_a_labels = {c["a"] for c in result["intersections"][0]["cells"]}
+    # a genuinely-missing (NaN) age cell would still be absent here, but a
+    # present sentinel value must now appear as its own crosstab row
+    assert "prefer not to say" in crosstab_a_labels
+
+
+def test_intersections_labelize_still_drops_genuinely_missing_age_cells():
+    # The flip side: a real blank / range-invalid age cell must still be
+    # absent from the crosstab (mapped to None), not turned into a group.
+    df = pd.DataFrame({
+        "age": [25, 30, 45, None, float("nan"), -1, 22, 33, 41, 29] * 3,
+        "sex": ["M", "F"] * 15,
+    })
+
+    result = profile(df, opts={"cross": ["age", "sex"]})
+
+    crosstab_a_labels = {c["a"] for c in result["intersections"][0]["cells"]}
+    assert "nan" not in crosstab_a_labels
+    assert "-1" not in crosstab_a_labels
+    assert "None" not in crosstab_a_labels
 
 
 def test_date_column_dropped_not_garbage():

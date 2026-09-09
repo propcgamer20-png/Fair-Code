@@ -189,18 +189,18 @@
       <p class="explainer-lede">Check whether predicted probabilities match real-world frequencies across groups and where calibration can still fail.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-calibration">Explainer: What is Calibration?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-calibration">Explainer: What is Calibration?</h2>
 <blockquote><p><em>The reason a model can be &quot;equally accurate&quot; for everyone - and still treat them unequally.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p>A model is <strong>calibrated</strong> for a group if its predicted probabilities actually match real-world outcomes - so when it says &quot;70% risk,&quot; roughly 70% of people in that group actually experience the outcome.</p>
 <hr>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Most people evaluate AI models on accuracy. Calibration is a different question: <em>do the scores mean the same thing across demographic groups?</em></p>
 <p>If a risk-scoring system assigns a &quot;70% recidivism risk&quot; score to Black defendants and a &quot;70% risk&quot; score to White defendants, calibration asks: does 70% actually mean 70% for <em>both</em> groups? If the model is miscalibrated for one group - say, 70% translates to 50% actual recidivism for White defendants but 80% for Black defendants - then identical scores are producing fundamentally different real-world stakes depending on who receives them.</p>
 <p>This is called <strong>differential calibration</strong>, and it&#x27;s one of the central problems exposed by the ProPublica COMPAS investigation. It&#x27;s also why calibration is often in direct conflict with other fairness metrics like equalized odds - you frequently cannot satisfy both at the same time.</p>
 <hr>
-<h2 id="concrete-example-compas-recidivism-scores">Concrete Example: COMPAS Recidivism Scores</h2>
+<h3 id="concrete-example-compas-recidivism-scores">Concrete Example: COMPAS Recidivism Scores</h3>
 <p>The COMPAS risk tool, used in U.S. courts to inform bail and sentencing decisions, became the centre of a landmark fairness debate in 2016. ProPublica found that the tool made systematically different kinds of errors for Black and White defendants.</p>
 <p>Northpointe (the tool&#x27;s developer) responded that COMPAS <em>was</em> calibrated: among defendants scored &quot;high risk,&quot; roughly the same proportion reoffended regardless of race. That claim is true by the numbers. But calibration alone masked a different problem - the tool reached that calibration through asymmetric error rates. Black defendants were far more likely to be falsely labelled high risk (false positives), while White defendants were more likely to be falsely labelled low risk (false negatives).</p>
 <p>This is the <a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova (2017)</a> result in practice: <strong>when base rates differ between groups, you cannot simultaneously achieve calibration and equal false positive/false negative rates.</strong> You have to choose. COMPAS chose calibration. ProPublica measured the error rates. Both were right about what they measured.</p>
@@ -222,7 +222,7 @@ print(calibration_table)</code></pre>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Race</th><th>Score Band</th><th>Actual Recidivism Rate</th></tr></thead><tbody><tr><td>African-American</td><td>Low</td><td>0.33</td></tr><tr><td>African-American</td><td>Medium</td><td>0.53</td></tr><tr><td>African-American</td><td>High</td><td>0.67</td></tr><tr><td>Caucasian</td><td>Low</td><td>0.21</td></tr><tr><td>Caucasian</td><td>Medium</td><td>0.45</td></tr><tr><td>Caucasian</td><td>High</td><td>0.63</td></tr></tbody></table></div>
 <p>The High band converges (0.67 vs 0.63) - that&#x27;s the calibration Northpointe pointed to. But the Low band reveals the asymmetry: a &quot;Low risk&quot; score means something very different for a Black defendant (33% actual recidivism) than for a White defendant (21%). The same label, different stakes.</p>
 <hr>
-<h2 id="how-to-measure-calibration">How to Measure Calibration</h2>
+<h3 id="how-to-measure-calibration">How to Measure Calibration</h3>
 <p>Calibration is measured by comparing predicted probabilities to actual outcome rates within prediction bins. The standard approach is a <strong>calibration curve</strong> (also called a reliability diagram).</p>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
@@ -283,17 +283,17 @@ results = measure_calibration_by_group(
 calibration_gap(results)</code></pre>
 <p>A perfectly calibrated model produces a diagonal line from (0, 0) to (1, 1). A model that is calibrated for one group but not another will show one group&#x27;s curve hugging the diagonal while the other curves away - the gap between those curves is the differential calibration.</p>
 <hr>
-<h2 id="limitations-and-trade-offs">Limitations and Trade-offs</h2>
+<h3 id="limitations-and-trade-offs">Limitations and Trade-offs</h3>
 <p>Calibration is not a complete picture of fairness, and it has well-documented limitations.</p>
 <p><strong>1. Calibration can coexist with discriminatory error patterns.</strong> A model can be calibrated across groups while still generating far more false positives for one group than another. Northpointe&#x27;s defence of COMPAS is the canonical example. Calibration and equalised false positive/false negative rates are mathematically incompatible when base rates differ between groups - this is the Chouldechova (2017) impossibility result. See the <a href="fairness-metric-conflicts.html">Fairness Metric Conflicts explainer</a> for the full proof.</p>
 <p><strong>2. Calibration is sensitive to base rate differences.</strong> If Group A has a 20% base rate and Group B has a 40% base rate for the outcome, a model can be well-calibrated for both groups and still assign systematically higher scores to Group B - scores that reflect historical data patterns, not individual risk.</p>
 <p><strong>3. Calibration says nothing about whether the outcome itself is fair.</strong> A model perfectly calibrated on arrest rates is calibrated on a measure that reflects over-policing, not actual crime. The fairness of the calibration target matters as much as the calibration itself.</p>
 <p><strong>4. Small group sizes inflate calibration error estimates.</strong> With fewer samples, calibration curves are noisier. Always check sample size per bin before drawing conclusions about a subgroup&#x27;s calibration.</p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="proxy-variables.html">Proxy Variables</a> - features that encode protected attributes and corrupt training data before calibration is even measured</li><li><a href="equalized-odds.html">Equalized Odds</a> - the metric that measures false positive and false negative rates across groups; often in direct conflict with calibration</li><li><a href="fairness-metric-conflicts.html">Fairness Metric Conflicts</a> - the mathematical proof that calibration, demographic parity, and equalized odds cannot all be satisfied simultaneously when base rates differ</li><li><a href="../index.html#project-compas">COMPAS/</a> - the audit where calibration vs. equalized odds plays out in full with real data</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noreferrer noopener">ProPublica: Machine Bias (2016)</a> - the original investigation that triggered the calibration vs. error rate debate</li><li><a href="https://arxiv.org/abs/1703.00056" target="_blank" rel="noreferrer noopener">Chouldechova, A.: Fair Prediction with Disparate Impact (2017)</a> - the paper that proved the mathematical incompatibility between calibration and equal error rates</li><li><a href="https://fairmlbook.org/" target="_blank" rel="noreferrer noopener">Barocas, Hardt &amp; Narayanan: Fairness and Machine Learning (2023)</a> - Chapter 3 covers calibration in depth with formal definitions</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

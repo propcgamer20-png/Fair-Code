@@ -65,10 +65,31 @@ _DEFAULT_OPTS = {
 }
 
 
+_UNIT_INTERVAL_OPTS = ("min_share", "intersection_floor", "missing_flag", "reference_flag")
+
+
+def _validate_opts(o: dict) -> None:
+    """Reject out-of-range tunables (SPEC section 7) instead of silently
+    producing a self-contradictory report - e.g. min_share=1.5 flags every
+    group as under-represented while overall_score/grade stay 100/"A" (#511).
+    """
+    for key in _UNIT_INTERVAL_OPTS:
+        v = o.get(key)
+        if v is not None and not 0.0 <= v <= 1.0:
+            raise ValueError(f"{key} must be between 0 and 1, got {v!r}")
+    imbalance = o.get("imbalance_flag")
+    if imbalance is not None and imbalance < 1.0:
+        raise ValueError(f"imbalance_flag must be >= 1, got {imbalance!r}")
+    min_group_size = o.get("min_group_size")
+    if min_group_size is not None and min_group_size < 1:
+        raise ValueError(f"min_group_size must be >= 1, got {min_group_size!r}")
+
+
 def _resolve_opts(opts) -> dict:
     o = dict(_DEFAULT_OPTS)
     if opts:
         o.update({k: v for k, v in opts.items() if v is not None})
+    _validate_opts(o)
     return o
 
 
@@ -115,6 +136,21 @@ def _age_to_numeric(value):
             return None
         numeric = float(match.group())
     return numeric if math.isfinite(numeric) and numeric >= AGE_BANDS[0] else None
+
+
+def _is_categorical_age_sentinel(value) -> bool:
+    """True only for free text with no embedded number at all (e.g.
+    "unknown", "prefer not to say") - SPEC.md section 2's "anything else:
+    treat as categorical" rule for a per-value age rule. False for
+    None/NaN and for any numeric value, including one embedded in a
+    string - even a number outside the valid age range, like a -1/999
+    sentinel, still counts as "has a number" here and is routed to
+    missing/null, matching this profiler's prior behavior for
+    range-invalid numeric sentinels (see
+    test_negative_age_sentinels_are_missing_instead_of_an_elderly_group)."""
+    if value is None or isinstance(value, (int, float)):
+        return False
+    return re.search(r"[+-]?\d+(?:\.\d+)?", str(value)) is None
 
 
 def _age_band(num) -> str | None:
@@ -210,11 +246,22 @@ def _dimension(df: pd.DataFrame, name: str, kind: str,
         if numeric_vals:
             skewness = _skewness(numeric_vals)
             bands = [_age_band(n) for n in nums]
-            null_count = sum(1 for b in bands if b is None)
+            null_count = 0
             counts: dict = {}
-            for b in bands:
-                if b is not None:
-                    counts[b] = counts.get(b, 0) + 1
+            for value, band in zip(col, bands):
+                if band is not None:
+                    counts[band] = counts.get(band, 0) + 1
+                elif _is_categorical_age_sentinel(value):
+                    # Non-numeric free text (e.g. "unknown", "prefer not to
+                    # say") - SPEC.md section 2's "anything else: treat as
+                    # categorical" rule. Distinct from a genuinely missing
+                    # cell or an out-of-range numeric sentinel (both still
+                    # go to null_count below): gets its own group instead
+                    # of silently folding into missing_pct.
+                    label = str(value).strip()
+                    counts[label] = counts.get(label, 0) + 1
+                else:
+                    null_count += 1
             result = _analyze_groups(counts, n_total, null_count, skewness, min_share, min_group_size)
             result.update({"name": name, "kind": kind})
             return result
@@ -251,7 +298,17 @@ def _intersections(df: pd.DataFrame, dims: list[dict],
         if kind == "age" and not _looks_like_dates(df[name]):
             nums = [_age_to_numeric(v) for v in df[name]]
             if any(n is not None for n in nums):
-                return pd.Series([_age_band(n) for n in nums], index=df.index)
+                # Non-numeric age sentinels ("unknown", "prefer not to say")
+                # get their own categorical label here too, matching
+                # _dimension()'s main breakdown - otherwise labelize() maps
+                # them to None and pd.crosstab silently drops those rows, so
+                # the intersection view and the main groups disagree (#524).
+                labels = [
+                    _age_band(num) if num is not None
+                    else (str(value) if _is_categorical_age_sentinel(value) else None)
+                    for value, num in zip(df[name], nums)
+                ]
+                return pd.Series(labels, index=df.index)
         return df[name].astype("object")
 
     sa = labelize(a["name"], a["kind"])
@@ -359,8 +416,11 @@ def parse_reference(df: pd.DataFrame) -> dict:
     """Parse a long-format reference baseline into {column: {group: share}}.
 
     Expected headers (case-insensitive): a column identifier, a group/value, and
-    a share. Shares may be fractions (0.51) or percentages (51) - if any value
-    exceeds 1.5 the whole table is read as percentages. See SPEC section 8.
+    a share. Shares may be fractions (0.51) or percentages (51); the choice is
+    made per column (grouped by the column identifier) - if any of a column's
+    values exceeds 1.5 that column is read as percentages. Deciding it once
+    across the whole table corrupted a correctly-scaled column in a reference
+    file that mixes conventions between columns. See SPEC section 8.
     """
     lower = {str(c).strip().lower(): c for c in df.columns}
 
@@ -388,10 +448,15 @@ def parse_reference(df: pd.DataFrame) -> dict:
             continue
         raw.append((str(row[col_c]).strip(), str(row[grp_c]).strip(), share))
 
-    scale = 100.0 if any(s > 1.5 for _, _, s in raw) else 1.0
-    reference: dict = {}
+    by_col: dict = {}
     for col, grp, share in raw:
-        reference.setdefault(col, {})[grp] = share / scale
+        by_col.setdefault(col, []).append((grp, share))
+
+    reference: dict = {}
+    for col, pairs in by_col.items():
+        scale = 100.0 if any(s > 1.5 for _, s in pairs) else 1.0
+        for grp, share in pairs:
+            reference.setdefault(col, {})[grp] = share / scale
     return reference
 
 

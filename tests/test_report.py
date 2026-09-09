@@ -145,6 +145,25 @@ def test_to_html_renders_reference_baseline_section(mock_profile_result):
     assert "-5.0 pp" in html_out
 
 
+def test_to_html_reports_reference_groups_omitted_by_display_cap(mock_profile_result):
+    """Mirrors test_to_html_reports_groups_omitted_by_display_cap for the
+    reference-baseline sub-table, which was silently truncated with no
+    dim-more notice."""
+    mock_profile_result["dimensions"][0]["reference"] = {
+        "deviation": 0.1,
+        "groups": [
+            {"label": f"Group {i}", "expected": 1 / 15, "actual": 1 / 15, "delta": 0.0}
+            for i in range(15)
+        ],
+    }
+
+    html_out = to_html(mock_profile_result)
+
+    assert "Group 11" in html_out
+    assert "Group 12" not in html_out
+    assert '<div class="dim-more">… and 3 more groups</div>' in html_out
+
+
 def test_to_html_omits_reference_section_when_absent(mock_profile_result):
     html_out = to_html(mock_profile_result)
 
@@ -268,6 +287,25 @@ def test_to_terminal_truncates_a_long_reference_group_label(mock_profile_result)
     assert ref_label not in out
 
 
+def test_to_terminal_reports_reference_groups_omitted_by_display_cap(mock_profile_result):
+    """SPEC section 7: every report surface that truncates a group list must
+    state how many groups were omitted. The reference sub-table used to be
+    silently capped at DISPLAY_GROUPS with no notice."""
+    mock_profile_result["dimensions"][0]["reference"] = {
+        "deviation": 0.1,
+        "groups": [
+            {"label": f"Group {i}", "expected": 1 / 15, "actual": 1 / 15, "delta": 0.0}
+            for i in range(15)
+        ],
+    }
+
+    out = to_terminal(mock_profile_result)
+
+    assert "Group 11" in out
+    assert "Group 12" not in out
+    assert "… and 3 more groups" in out
+
+
 def test_to_terminal_renders_flags_section(mock_profile_result):
     out = to_terminal(mock_profile_result)
 
@@ -361,3 +399,31 @@ def test_compare_reports_unmeasured_score_without_formatting_none():
     assert "Overall score change: not available" in terminal_out
     assert "score change not available" in html_out
     assert "None" not in html_out
+
+
+def test_compare_does_not_render_negative_zero_share_delta():
+    """A tiny negative share_delta that rounds to 0.0 pp must not print as
+    '-0.0 pp' in either the terminal or the HTML compare report."""
+    result = {
+        "score_delta": 0,
+        "a": {"name": "A", "overall_score": 100, "n_rows": 10000, "grade": "A"},
+        "b": {"name": "B", "overall_score": 100, "n_rows": 10000, "grade": "A"},
+        "added_dimensions": [], "removed_dimensions": [], "flags": [],
+        "dimensions": [
+            {
+                "name": "Gender", "kind": "Demographic", "drift_level": "none",
+                "psi": 0.0, "tvd": 0.0,
+                "dimension_score_a": 100, "dimension_score_b": 100,
+                "dimension_score_delta": 0,
+                "groups": [
+                    {"label": "Female", "status": "shifted",
+                     "share_a": 0.5, "share_b": 0.4999, "share_delta": -0.0001},
+                    {"label": "Male", "status": "shifted",
+                     "share_a": 0.5, "share_b": 0.5001, "share_delta": 0.0001},
+                ],
+            }
+        ],
+    }
+
+    assert "-0.0 pp" not in compare_to_terminal(result)
+    assert "-0.0 pp" not in compare_to_html(result)

@@ -189,38 +189,38 @@
       <p class="explainer-lede">Understand why judges, recruiters, and clinicians follow AI scores even when they know the scores are biased - and how automation bias amplifies disparities beyond what the model alone produces. Includes detection code measuring disparity amplification in human-in-the-loop decisions, mitigation strategies, and the COMPAS courtroom case study.</p>
     </section>
 
-    <article class="explainer-content"><h1 id="explainer-what-is-automation-bias">Explainer: What Is Automation Bias?</h1>
+    <article class="explainer-content"><h2 id="explainer-what-is-automation-bias">Explainer: What Is Automation Bias?</h2>
 <blockquote><p><em>The tendency to trust an AI recommendation more than human judgment - even when the AI is wrong.</em></p></blockquote>
 <hr>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Automation bias</strong> is the cognitive tendency to defer to automated systems, treating their outputs as more objective, accurate, or authoritative than human judgment - even when the automation is known to be fallible, biased, or trained on flawed data.</p>
 <hr>
-<h2 id="why-this-matters">Why This Matters</h2>
+<h3 id="why-this-matters">Why This Matters</h3>
 <p>Automation bias is the bridge between a model&#x27;s statistical unfairness and its real-world harm. A model can have a documented 15% fairness gap, but if every decision-maker treats its output as a verdict rather than a signal, that gap becomes a discriminatory outcome at scale.</p>
 <p>This is not a theoretical risk. It has been documented in:</p>
 <ul><li><strong>Clinical decision support</strong>: Physicians override correct clinical judgment to follow AI alerts that are wrong 30-50% of the time</li><li><strong>Criminal sentencing</strong>: Judges follow algorithmic risk scores even when they privately disagree, because &quot;the computer says so&quot;</li><li><strong>Hiring</strong>: Recruiters filter resumes by AI rank without reviewing the underlying profiles</li><li><strong>Loan underwriting</strong>: Officers approve or deny based on score thresholds they cannot explain or contest</li></ul>
 <p>The bias in the model is a <em>statistical</em> problem. Automation bias is the <em>human</em> problem that lets it leave the lab.</p>
 <hr>
-<h2 id="common-manifestations">Common Manifestations</h2>
+<h3 id="common-manifestations">Common Manifestations</h3>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Pattern</th><th>Description</th><th>Real-World Consequence</th></tr></thead><tbody><tr><td><strong>Omission error</strong></td><td>Failing to act because the system didn&#x27;t flag it</td><td>High-risk patient discharged because no alert fired</td></tr><tr><td><strong>Commission error</strong></td><td>Acting on a system recommendation that contradicts evidence</td><td>Denying a qualified applicant because the score said &quot;high risk&quot;</td></tr><tr><td><strong>Default acceptance</strong></td><td>Treating the default output as the decision</td><td>Auto-approving or auto-denying based on threshold without review</td></tr><tr><td><strong>Authority transfer</strong></td><td>&quot;The algorithm is objective&quot; becomes a shield against accountability</td><td>No appeal path because &quot;the math decided&quot;</td></tr></tbody></table></div>
 <hr>
-<h2 id="real-world-proof-compas-in-the-courtroom">Real-World Proof: COMPAS in the Courtroom</h2>
+<h3 id="real-world-proof-compas-in-the-courtroom">Real-World Proof: COMPAS in the Courtroom</h3>
 <p>The COMPAS risk assessment is the canonical example. ProPublica&#x27;s 2016 analysis showed:</p>
 <ul><li>Black defendants were flagged high-risk at <strong>87%</strong> vs <strong>0.4%</strong> for white defendants</li><li>The fairness gap was <strong>86.77%</strong> before mitigation</li></ul>
 <p>But the deeper problem was not just the score - it was how the score was used. Judges in multiple states treated COMPAS as a sentencing guideline rather than a risk indicator. The Wisconsin Supreme Court (<em>State v. Loomis</em>, 2016) ruled that COMPAS could be used at sentencing <em>if</em> the court was informed of its limitations. In practice, the score was often treated as dispositive.</p>
 <blockquote><p><strong>Key insight</strong>: A biased model with no automation bias is a research artifact. A biased model with automation bias is a civil rights violation.</p></blockquote>
 <hr>
-<h2 id="why-humans-defer-to-machines">Why Humans Defer to Machines</h2>
-<h3 id="1-perceived-objectivity">1. Perceived Objectivity</h3>
+<h3 id="why-humans-defer-to-machines">Why Humans Defer to Machines</h3>
+<h4 id="1-perceived-objectivity">1. Perceived Objectivity</h4>
 <p>&quot;The algorithm doesn&#x27;t have prejudices.&quot; This confuses <em>lack of intent</em> with <em>lack of bias</em>. A model trained on biased data encodes that bias mathematically - it does not &quot;remove&quot; it.</p>
-<h3 id="2-cognitive-offloading">2. Cognitive Offloading</h3>
+<h4 id="2-cognitive-offloading">2. Cognitive Offloading</h4>
 <p>High-stakes decisions are mentally taxing. An AI score offers a cognitive shortcut: a single number that feels like a conclusion.</p>
-<h3 id="3-accountability-diffusion">3. Accountability Diffusion</h3>
+<h4 id="3-accountability-diffusion">3. Accountability Diffusion</h4>
 <p>&quot;If the algorithm recommended it, it&#x27;s not my fault.&quot; This is the moral hazard of automated decision support - it creates a responsibility gap.</p>
-<h3 id="4-complexity-theater">4. Complexity Theater</h3>
+<h4 id="4-complexity-theater">4. Complexity Theater</h4>
 <p>Black-box models (neural nets, gradient boosting) are presented as too complex to question. The opacity becomes a feature, not a bug - it discourages challenge.</p>
 <hr>
-<h2 id="detection-code-measuring-automation-bias-in-practice">Detection Code: Measuring Automation Bias in Practice</h2>
+<h3 id="detection-code-measuring-automation-bias-in-practice">Detection Code: Measuring Automation Bias in Practice</h3>
 <p>Automation bias is a human-factor phenomenon, but its <em>consequences</em> are measurable in model outputs when paired with human decisions.</p>
 <pre><code class="language-python">import pandas as pd
 import numpy as np
@@ -312,19 +312,19 @@ print(result)
 # }</code></pre>
 <p><strong>Interpretation</strong>: When humans defer to a biased model 80% of the time, the final decision gap (24%) exceeds the model&#x27;s own gap (18%). Automation bias <em>amplified</em> the disparity by 33%.</p>
 <hr>
-<h2 id="mitigation-strategies">Mitigation Strategies</h2>
+<h3 id="mitigation-strategies">Mitigation Strategies</h3>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Strategy</th><th>Mechanism</th><th>Limitation</th></tr></thead><tbody><tr><td><strong>Friction by design</strong></td><td>Require explicit override justification; show confidence intervals, not just scores</td><td>Adds workflow time; may be bypassed under pressure</td></tr><tr><td><strong>Counterfactual display</strong></td><td>&quot;If this applicant were male, the score would be X&quot;</td><td>Requires causal model; contested in court</td></tr><tr><td><strong>Blind review first</strong></td><td>Human evaluates case <em>before</em> seeing AI score</td><td>Not always feasible (e.g., triage)</td></tr><tr><td><strong>Disagreement logging</strong></td><td>Track every human-vs-model divergence for audit</td><td>Passive; does not prevent harm in real time</td></tr><tr><td><strong>Calibrated thresholds per group</strong></td><td>Different decision thresholds to equalize outcomes</td><td>Legal risk (disparate treatment); hard to justify</td></tr><tr><td><strong>Human-in-the-loop training</strong></td><td>Simulate edge cases where model is wrong; train reviewers to catch them</td><td>Resource-intensive; decay over time</td></tr></tbody></table></div>
 <hr>
-<h2 id="the-deeper-problem-automation-bias-as-a-design-choice">The Deeper Problem: Automation Bias as a Design Choice</h2>
+<h3 id="the-deeper-problem-automation-bias-as-a-design-choice">The Deeper Problem: Automation Bias as a Design Choice</h3>
 <p>Automation bias is not a bug in human cognition - it is a predictable response to how AI systems are <em>designed and presented</em>.</p>
 <ul><li>A score displayed as &quot;Risk: HIGH (92%)&quot; invites deference.</li><li>A score displayed as &quot;Model estimate: 0.62 [CI: 0.41-0.83], trained on data with known racial disparity of 15%, not validated for this population&quot; invites scrutiny.</li></ul>
 <p>The same model, two different interfaces. One produces automation bias. The other produces informed human judgment.</p>
 <p><strong>Fixing the model is necessary. Fixing the interface is equally necessary.</strong></p>
 <hr>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="ml-bias.html">What Is Machine Learning Bias?</a> - the four entry points through which bias enters a model</li><li><a href="proxy-variables.html">What Is a Proxy Variable?</a> - why removing protected attributes is not enough</li><li><a href="label-bias.html">What Is Label Bias?</a> - how historical decisions corrupt training labels</li><li><a href="confounding-variable.html">What Is a Confounding Variable?</a> - hidden causes that create spurious correlations</li><li><a href="ai-objectivity-myth.html">The Biggest Myth About AI Objectivity</a> - why &quot;it&#x27;s just math&quot; is not a defense</li></ul>
 <hr>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://doi.org/10.1136/amiajnl-2011-000089" target="_blank" rel="noreferrer noopener">Goddard, K., Roudsari, A., &amp; Wyatt, J.C. (2012): Automation Bias: A Systematic Review of Frequency, Effect Mediators, and Mitigators, Journal of the American Medical Informatics Association 19(1), 121-127</a> - the definitive literature review on automation bias in clinical settings</li><li><a href="https://doi.org/10.1006/ijhc.1999.0252" target="_blank" rel="noreferrer noopener">Skitka, L.J., Mosier, K.L., &amp; Burdick, M. (1999): Does Automation Bias Decision-Making?, International Journal of Human-Computer Studies 51(5), 991-1006</a> - the foundational experimental paper defining automation bias</li><li><a href="https://doi.org/10.1126/science.aax2342" target="_blank" rel="noreferrer noopener">Obermeyer, Z., Powers, B., Vogeli, C., &amp; Mullainathan, S. (2019): Dissecting Racial Bias in an Algorithm Used to Manage the Health of Populations, Science 366(6464), 447-453</a> - shows how an algorithm&#x27;s cost-prediction label created racial bias that clinicians then automated</li><li><a href="https://www.wicourts.gov/sc/opinion/DisplayDocument.pdf?content=pdf&amp;seqNo=188417" target="_blank" rel="noreferrer noopener">State v. Loomis, 881 N.W.2d 749 (Wis. 2016)</a> - Wisconsin Supreme Court ruling on COMPAS use at sentencing</li></ul>
 <hr>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>

@@ -250,7 +250,7 @@ def render_markdown(markdown_text, known_slugs):
             flush_paragraph()
             flush_list()
             flush_quote()
-            level = len(heading_match.group(1))
+            level = min(len(heading_match.group(1)) + 1, 6)  # +1 offset: hero h1 already exists
             heading_text = heading_match.group(2)
             base_id = slugify_heading(heading_text)
             next_count = heading_counts.get(base_id, 0) + 1

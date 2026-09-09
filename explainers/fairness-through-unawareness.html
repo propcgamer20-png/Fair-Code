@@ -190,18 +190,18 @@
     </section>
 
     <article class="explainer-content"><blockquote><p><em>Removing the protected attribute from a model&#x27;s inputs is the single most common first response to a fairness complaint - and on real data, it can leave the gap unchanged, or make it worse.</em></p></blockquote>
-<h2 id="the-one-sentence-definition">The One-Sentence Definition</h2>
+<h3 id="the-one-sentence-definition">The One-Sentence Definition</h3>
 <p><strong>Fairness through unawareness</strong> is the intuition that a model is fair simply because it does not use a protected attribute (race, sex, age) as an input - and it fails whenever other features carry enough correlated information to reconstruct what was removed.</p>
-<h2 id="why-it-matters">Why It Matters</h2>
+<h3 id="why-it-matters">Why It Matters</h3>
 <p>Dropping the protected attribute feels like the obvious fix, and it&#x27;s usually the first thing anyone tries: no race column, no racial bias. The reasoning has an intuitive appeal that makes it persistent even after it&#x27;s been shown not to hold - &quot;the model literally cannot see race&quot; sounds like a complete argument.</p>
 <p>It isn&#x27;t, because a protected attribute rarely travels alone. Zip code correlates with race through housing patterns. Name correlates with sex and ethnicity. Employment history and arrest records correlate with race through decades of unequal enforcement and access. A model doesn&#x27;t need the protected attribute itself if enough of its correlates are still sitting in the feature set - it can reconstruct the same decision boundary from the pieces left behind. This is exactly the mechanism <a href="proxy-variables.html">Proxy Variables</a> describes, and it&#x27;s why &quot;fairness through unawareness&quot; is treated in the fairness literature as a well-documented failure mode, not a live debate.</p>
 <p>This repo&#x27;s own benchmark harness names this exact strategy <code>unawareness</code> (S1 in the <a href="mitigation-strategies.html">mitigation strategies</a> ladder) and runs it on every audit specifically to measure how much it actually helps - which, as the real numbers below show, is not a fixed or guaranteed amount.</p>
-<h2 id="concrete-example-tenant-screening-audit-07">Concrete Example: Tenant Screening - Audit 07</h2>
+<h3 id="concrete-example-tenant-screening-audit-07">Concrete Example: Tenant Screening - Audit 07</h3>
 <p>The demographic parity gap for the baseline logistic regression model on race (disadvantaged: Black applicants, n=2,943; advantaged: White applicants, n=2,224), using the frozen numbers exactly as <code>faircode/benchmark.py</code> computed them:</p>
 <div class="explainer-table-wrap"><table class="explainer-table"><thead><tr><th>Strategy</th><th>Demographic Parity Diff</th><th>95% CI</th><th>p-value</th></tr></thead><tbody><tr><td>S0 baseline (race included)</td><td>0.060</td><td>[0.032, 0.086]</td><td>0.0</td></tr><tr><td>S1 unawareness (race dropped)</td><td>0.105</td><td>[0.077, 0.131]</td><td>0.0</td></tr></tbody></table></div>
 <p>Dropping race from the model&#x27;s inputs did not shrink the gap - it grew, from 6.0 points to 10.5 points, and both numbers are tightly estimated and clearly significant (large n, narrow CIs, p essentially 0). This is the opposite of what &quot;fairness through unawareness&quot; predicts.</p>
 <p>The core features still available to the model - <code>Supervision_Risk_Score_First</code>, prior-arrest-episode counts across felony/violent/property/drug categories, employment percentage - carry real correlation with race, a well-documented pattern from decades of unequal policing and enforcement. Removing race directly didn&#x27;t remove that correlation; it just meant the model could no longer see race as a labeled input while still learning from features that track it closely, and the resulting fitted model happened to rely on those correlates <em>more</em> once race itself stopped absorbing part of the signal. <code>faircode/strategies.py</code>&#x27;s next strategy, <code>unawareness_proxy_removal</code> (S2), goes further and drops the explicitly-listed proxy features too - see <a href="mitigation-strategies.html">Mitigation Strategies</a> for how that step, and the constraint-based strategies after it, actually move this specific gap.</p>
-<h2 id="detection-code">Detection Code</h2>
+<h3 id="detection-code">Detection Code</h3>
 <p>Checks whether dropping a column actually reduces its correlation with the rest of the feature set, instead of assuming it does.</p>
 <pre><code class="language-python">import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -257,20 +257,20 @@ def unawareness_gap_check(df, protected_column, feature_columns, group_disadvant
 #     group_disadvantaged=&quot;BLACK&quot;, group_advantaged=&quot;WHITE&quot;,
 # )
 # print(result)</code></pre>
-<h2 id="limitations">Limitations</h2>
-<h3 id="1-the-gap-can-move-in-either-direction-not-just-stay-the-same">1. The gap can move in either direction, not just &quot;stay the same&quot;</h3>
+<h3 id="limitations">Limitations</h3>
+<h4 id="1-the-gap-can-move-in-either-direction-not-just-stay-the-same">1. The gap can move in either direction, not just &quot;stay the same&quot;</h4>
 <p>As Tenant Screening shows, dropping the protected attribute can make the measured gap <em>larger</em>, not just fail to shrink it. There is no guarantee of direction, only that the outcome depends on exactly which correlated features remain and how the model reweights them.</p>
-<h3 id="2-proxy-removal-is-not-a-complete-fix-either">2. Proxy removal is not a complete fix either</h3>
+<h4 id="2-proxy-removal-is-not-a-complete-fix-either">2. Proxy removal is not a complete fix either</h4>
 <p>This repo&#x27;s own next strategy after unawareness, <code>unawareness_proxy_removal</code>, only removes a pre-defined, finite list of known proxies - see <a href="proxy-variables.html">Proxy Variables</a> for why an unlisted or newly-emerging proxy can slip through even that step.</p>
-<h3 id="3-it-removes-information-the-model-might-need-for-a-legitimate-reason">3. It removes information the model might need for a <em>legitimate</em> reason</h3>
+<h4 id="3-it-removes-information-the-model-might-need-for-a-legitimate-reason">3. It removes information the model might need for a <em>legitimate</em> reason</h4>
 <p>Some uses of a protected-adjacent attribute are lawful and relevant (age in certain insurance actuarial contexts, for instance); blanket removal without checking what else changes can trade one problem for a different, unexamined one.</p>
-<h3 id="4-it-provides-no-way-to-measure-whether-it-worked-without-checking-a-real-fairness-metric">4. It provides no way to measure whether it worked without checking a real fairness metric</h3>
+<h4 id="4-it-provides-no-way-to-measure-whether-it-worked-without-checking-a-real-fairness-metric">4. It provides no way to measure whether it worked without checking a real fairness metric</h4>
 <p>&quot;Unawareness&quot; alone gives no signal, on its own, about whether the resulting model is more or less fair - only comparing an actual gap metric before and after, as this repo&#x27;s benchmark harness does for every audit, can answer that.</p>
-<h2 id="related-concepts">Related Concepts</h2>
+<h3 id="related-concepts">Related Concepts</h3>
 <ul><li><a href="proxy-variables.html">Proxy Variables</a> - the mechanism (correlated features standing in for the removed attribute) that makes fairness through unawareness fail.</li><li><a href="mitigation-strategies.html">What Are Pre-, In-, and Post-Processing Fairness Mitigations?</a> - where &quot;unawareness&quot; sits as the first, weakest step in a five-strategy ladder, and what the stronger steps do differently.</li><li><a href="demographic-parity.html">What Is Demographic Parity?</a> - the metric used to measure the gap in the Tenant Screening example above.</li></ul>
-<h2 id="related-projects-in-this-repo">Related Projects in This Repo</h2>
+<h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-tenant"><code>Tenant Screening/</code></a> - the audit above, where dropping race increased the measured gap rather than closing it.</li><li><a href="../index.html#project-insurance"><code>Insurance Denial/</code></a> - a second real audit in this repo&#x27;s benchmark harness where the same <code>unawareness</code> strategy is applied and measured independently.</li></ul>
-<h2 id="further-reading">Further Reading</h2>
+<h3 id="further-reading">Further Reading</h3>
 <ul><li><a href="https://doi.org/10.1145/1401890.1401959" target="_blank" rel="noreferrer noopener">Pedreschi, D., Ruggieri, S., Turini, F. (2008): Discrimination-Aware Data Mining</a> - an early formal treatment of why removing a sensitive attribute doesn&#x27;t remove its statistical effect.</li><li><a href="https://arxiv.org/abs/1703.06856" target="_blank" rel="noreferrer noopener">Kusner, M. et al. (2017): Counterfactual Fairness</a> - proposes a causal alternative that explicitly accounts for what unawareness misses; see also <a href="counterfactual-fairness.html">Counterfactual Fairness</a>.</li><li><a href="https://fairmlbook.org/introduction.html" target="_blank" rel="noreferrer noopener">Barocas, S., Hardt, M., Narayanan, A. (2019): <em>Fairness and Machine Learning</em></a> - Chapter 1 covers &quot;fairness through unawareness&quot; directly as one of the field&#x27;s earliest and most persistently re-discovered mistakes.</li></ul>
 <p><em>Part of <a href="https://instagram.com/thefaircodeproject" target="_blank" rel="noreferrer noopener">The Fair Code Project</a> - exposing and fixing algorithmic bias with real data and open code.</em></p></article>
   </main>
