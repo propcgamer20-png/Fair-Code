@@ -211,7 +211,7 @@ features = [&#x27;race&#x27;, &#x27;CustodyStatus&#x27;, &#x27;age&#x27;, &#x27;
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 # Fairness Gap: 86.77%</code></pre>
-<p>Removing <code>race</code> alone barely moves the number, because <code>CustodyStatus</code> - a record of prior system contact - carries the same signal: communities that were over-policed historically generate more &quot;custody status&quot; records today, independent of actual reoffense risk. Only after <code>race</code> <em>and</em> <code>CustodyStatus</code> are both dropped does the gap fall to 15.69%, a 71% reduction. The model was never neutral. It was a faithful record of an unequal criminal justice system, expressed as a probability.</p>
+<p>Removing <code>race</code> alone barely moves the number, because <code>CustodyStatus</code> - a record of prior system contact - carries the same signal: communities that were over-policed historically generate more &quot;custody status&quot; records today, independent of actual reoffense risk. Only after <code>race</code> <em>and</em> <code>CustodyStatus</code> are both dropped does the gap fall to 15.69%, an 82% reduction. The model was never neutral. It was a faithful record of an unequal criminal justice system, expressed as a probability.</p>
 <h3 id="detection-code">Detection Code</h3>
 <p>This function checks whether a model&#x27;s outcome rates differ across protected groups by more than a configurable threshold, and flags features that correlate with the protected attribute strongly enough to explain the gap on their own.</p>
 <pre><code class="language-python">import pandas as pd

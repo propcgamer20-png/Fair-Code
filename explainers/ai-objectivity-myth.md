@@ -40,7 +40,7 @@ model.fit(X_train, y_train)
 # Fairness Gap: 86.77%
 ```
 
-Removing `race` alone barely moves the number, because `CustodyStatus` - a record of prior system contact - carries the same signal: communities that were over-policed historically generate more "custody status" records today, independent of actual reoffense risk. Only after `race` *and* `CustodyStatus` are both dropped does the gap fall to 15.69%, a 71% reduction. The model was never neutral. It was a faithful record of an unequal criminal justice system, expressed as a probability.
+Removing `race` alone barely moves the number, because `CustodyStatus` - a record of prior system contact - carries the same signal: communities that were over-policed historically generate more "custody status" records today, independent of actual reoffense risk. Only after `race` *and* `CustodyStatus` are both dropped does the gap fall to 15.69%, an 82% reduction. The model was never neutral. It was a faithful record of an unequal criminal justice system, expressed as a probability.
 
 ## Detection Code
 

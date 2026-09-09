@@ -19,7 +19,7 @@ python3 "Benefits Denial/fair.py"     # mitigated (protected attribute + proxies
 ## What the audit controls
 
 - Protected attribute(s): Sex, Race, Origin, Age
-- Proxy feature(s) removed in `fair.py`: Relationship, Marital Status, Hours, Occupation
+- Proxy feature(s) removed in `fair.py`: Relationship, Marital Status, Hours, Occupation, fnlwgt (census sampling weight)
 - Fairness metric: Demographic Parity (difference in positive-prediction rate between groups)
 
 ## Expected result (published, paper-aligned)

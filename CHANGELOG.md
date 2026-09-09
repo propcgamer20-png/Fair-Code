@@ -717,7 +717,7 @@ First release since **v1.1.0** (9 Jun 2026). The headline is the **Open Dataset 
 ### Added
 - Explainer: Reinforcement Learning - `reinforcement-learning.md` created by evanjain-dot (PR #48, commit a785ea95), added to `index.html`, `README.md`, and `CONTRIBUTING.md` (commit e3928af7)
   - Full explainer covering the three-part RL loop (state → action → reward → policy), reward function design as a political act, reward hacking, and the credit assignment problem
-  - Real-world proof using COMPAS as an RL-adjacent system: biased policy produces 86.77% Black/White fairness gap; removing race + `CustodyStatus` proxy reduces gap to 15.69% (71% reduction)
+  - Real-world proof using COMPAS as an RL-adjacent system: biased policy produces 86.77% Black/White fairness gap; removing race + `CustodyStatus` proxy reduces gap to 15.69% (82% reduction)
   - Results table: biased policy vs. race-only removal vs. race + proxy removal
   - Second case: YouTube recommendation engine using watch time as reward signal - documents asymmetric demographic consequences and outrage optimisation
   - `fairness_gap()` detection code with chi-squared proxy check for state representation audit

@@ -68,12 +68,12 @@ Each audit ships as both a pair of Python scripts (`unfair.py` / `fair.py`) for 
 
 | # | Domain | Protected Attribute | Proxies Removed | Gap Before → After | Reduction |
 |:-:|--------|--------------------|-----------------|--------------------|:---------:|
-| 01 | [Criminal Justice](#01--compas--criminal-justice-bias) | Race | Custody Status | 86.77% → 15.69% | **71%** |
+| 01 | [Criminal Justice](#01--compas--criminal-justice-bias) | Race | Custody Status | 86.77% → 15.69% | **82%** |
 | 02 | [Hiring](#02--ai-fair-recruitment--hiring-bias) | Gender | Age | 4.51% → 0.12% | **97.3%** |
 | 03 | [Lending](#03--german-credit-lending--lending-bias) | Age | Employment Tenure | 7.16% → 1.89% | **73.6%** |
 | 04 | [Healthcare](#04--insurance-denial--healthcare-bias) | Age, Gender | BMI, Smoker, Diabetic | Age: 7.93% → 3.18% | **60%** |
 | ↳  | | | | Gender: 5.44% → 1.54% | **72%** |
-| 05 | [Welfare](#05--benefits-denial--welfare-eligibility-bias) | Sex, Race, Origin, Age | Relationship, Marital Status, Hours, Occupation | Sex: 18.00% → 8.52% | **53%** |
+| 05 | [Welfare](#05--benefits-denial--welfare-eligibility-bias) | Sex, Race, Origin, Age | Relationship, Marital Status, Hours, Occupation, fnlwgt | Sex: 18.00% → 8.52% | **53%** |
 | ↳  | | | | Race: 12.75% → 6.90% | **46%** |
 | ↳  | | | | Origin: 4.40% → 0.52% | **88%** |
 | 06 | [Healthcare Readmission](#06--healthcare-readmission--clinical-bias) | Race, Gender, Age | Payer Code, Discharge Disposition, Medical Specialty, Prior Inpatient | Gender: 0.02% → 0.04% | **+100% ↑** |
@@ -371,7 +371,7 @@ X = pd.get_dummies(df[[
 | White Defendants | 69.02% |
 | **New Fairness Gap** | **15.69%** |
 
-**Result: 71% reduction in the fairness gap.**
+**Result: 82% reduction in the fairness gap.**
 
 > **Key insight:** Removing race alone isn't enough. Proxy variables like custody status carry the same racial signal because of historical over-policing of Black communities. Both the protected attribute *and* its proxies must be removed.
 
@@ -546,7 +546,7 @@ Automated welfare and benefits systems use income-prediction models to screen ap
 
 #### The Problem - `unfair.py`
 
-Trained with sex, race, age, and national origin directly, plus four proxy variables that reconstruct those attributes even after the protected columns are removed.
+Trained with sex, race, age, and national origin directly, plus five proxy variables that reconstruct those attributes even after the protected columns are removed.
 
 | Group | Ineligibility Flag Rate |
 |-------|:-----------------------:|
@@ -568,7 +568,7 @@ Trained with sex, race, age, and national origin directly, plus four proxy varia
 
 #### The Fix - `fair.py`
 
-Dropped all four protected attributes and all four proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
+Dropped all four protected attributes and all five proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
 
 ```python
 # THE FIX: Policy-defined economic signals only
@@ -586,6 +586,7 @@ features = [
     # marital.status removed ✓  (proxy: encodes sex via spousal status)
     # hours.per.week removed ✓  (proxy: encodes sex via caregiving gap)
     # occupation     removed ✓  (proxy: encodes race via occupational segregation)
+    # fnlwgt         removed ✓  (proxy: census sampling weight, no causal link)
 ]
 ```
 

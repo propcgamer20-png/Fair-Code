@@ -184,7 +184,7 @@ Even after correcting for Equalized Odds, models can still encode protected attr
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) - Full COMPAS analysis: biased model → fair model → 71% gap reduction. Equalized Odds violations visible in the raw model outputs.
+- [`COMPAS/`](../COMPAS/) - Full COMPAS analysis: biased model → fair model → 82% gap reduction. Equalized Odds violations visible in the raw model outputs.
 - [`explainers/proxy-variables.md`](proxy-variables.md) - Why AI stays biased even after you remove protected attributes
 - [`explainers/shap-values.md`](shap-values.md) - How to see exactly what drove an AI decision - and use that to catch bias
 

@@ -210,7 +210,7 @@
 <h3 id="concrete-example">Concrete Example</h3>
 <p>The COMPAS audit in this repository demonstrates a proxy form of target leakage. <code>CustodyStatus</code> - a feature describing whether a defendant is currently in custody - correlates with race at p &lt; 0.001 and with the recidivism label at p &lt; 0.001. It is not a neutral operational variable. It encodes the outcome of a prior criminal justice interaction, which itself encodes historical over-policing of Black communities. Including it in the model achieves an 86.77% Black/White fairness gap in positive prediction rates.</p>
 <p>This is the structural form of leakage: a feature that looks like a legitimate input but whose predictive power comes from downstream effects of the very outcome being predicted.</p>
-<p>Removing <code>CustodyStatus</code> alongside the protected race attribute reduces the gap to 15.69% - a 71% reduction.</p>
+<p>Removing <code>CustodyStatus</code> alongside the protected race attribute reduces the gap to 15.69% - an 82% reduction.</p>
 <pre><code class="language-python">import os
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier

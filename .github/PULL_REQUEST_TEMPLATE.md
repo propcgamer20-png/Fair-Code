@@ -31,7 +31,7 @@
 
 **After fairness gap:** <!-- e.g. 15.69% -->
 
-**Reduction:** <!-- e.g. 71% -->
+**Reduction:** <!-- e.g. 82% -->
 
 **Protected attribute(s):** <!-- e.g. Race -->
 
