@@ -17,15 +17,27 @@ def _script():
     return importlib.import_module("scripts.check_generated_files_current")
 
 
-def _fake_run(ls_files_output, show_returncode=0, show_stdout=""):
+def _fake_run(ls_files_output):
     def run(cmd, cwd=None, capture_output=True, text=True, check=False):
         import types
         if cmd[:2] == ["git", "ls-files"]:
             return types.SimpleNamespace(returncode=0, stdout=ls_files_output)
-        if cmd[:2] == ["git", "show"]:
-            return types.SimpleNamespace(returncode=show_returncode, stdout=show_stdout)
         raise AssertionError(f"unexpected subprocess call: {cmd}")
     return run
+
+
+def _fake_fresh_build_dir(tmp_path, files):
+    """Monkeypatches script._fresh_build_dir to skip the real git-worktree
+    checkout and subprocess build steps entirely, returning a plain
+    directory pre-populated with `files` (rel path -> content) instead -
+    the fresh-regeneration equivalent of _empty_repo() below, so tests
+    still don't need a real git repository."""
+    fresh = tmp_path / "_fresh"
+    for rel, content in files.items():
+        path = fresh / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    return lambda stack: fresh
 
 
 def _empty_repo(tmp_path, monkeypatch, script):
@@ -70,10 +82,11 @@ def test_main_flags_a_stale_text_file(tmp_path, monkeypatch, capsys):
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
-    (tmp_path / "sitemap.xml").write_text("fresh content\n", encoding="utf-8")
+    (tmp_path / "sitemap.xml").write_text("stale working-tree content\n", encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_run("sitemap.xml\n"))
     monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=0, show_stdout="stale committed content\n"))
+        script, "_fresh_build_dir",
+        _fake_fresh_build_dir(tmp_path, {"sitemap.xml": "freshly regenerated content\n"}))
 
     exit_code = script.main()
 
@@ -82,15 +95,16 @@ def test_main_flags_a_stale_text_file(tmp_path, monkeypatch, capsys):
     assert "sitemap.xml: content differs from a fresh regeneration" in captured.out
 
 
-def test_main_passes_when_text_file_matches_head(tmp_path, monkeypatch, capsys):
+def test_main_passes_when_text_file_matches_fresh_regeneration(tmp_path, monkeypatch, capsys):
     script = _script()
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
     (tmp_path / "sitemap.xml").write_text("same content\n", encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_run("sitemap.xml\n"))
     monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=0, show_stdout="same content\n"))
+        script, "_fresh_build_dir",
+        _fake_fresh_build_dir(tmp_path, {"sitemap.xml": "same content\n"}))
 
     exit_code = script.main()
 
@@ -98,21 +112,53 @@ def test_main_passes_when_text_file_matches_head(tmp_path, monkeypatch, capsys):
     assert "up to date" in capsys.readouterr().out
 
 
-def test_main_flags_a_file_not_yet_committed(tmp_path, monkeypatch, capsys):
+def test_main_flags_a_file_not_produced_by_a_fresh_regeneration(tmp_path, monkeypatch, capsys):
     script = _script()
     _empty_repo(tmp_path, monkeypatch, script)
     monkeypatch.setattr(script, "TEXT_GLOBS", ["sitemap.xml"])
     monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
-    (tmp_path / "sitemap.xml").write_text("brand new file\n", encoding="utf-8")
-    monkeypatch.setattr(
-        script.subprocess, "run",
-        _fake_run("sitemap.xml\n", show_returncode=1, show_stdout=""))
+    (tmp_path / "sitemap.xml").write_text("tracked, but the fresh build made nothing here\n",
+                                           encoding="utf-8")
+    monkeypatch.setattr(script.subprocess, "run", _fake_run("sitemap.xml\n"))
+    # No "sitemap.xml" key: the fresh regeneration never produced this path.
+    monkeypatch.setattr(script, "_fresh_build_dir", _fake_fresh_build_dir(tmp_path, {}))
 
     exit_code = script.main()
 
     captured = capsys.readouterr()
     assert exit_code == 1
-    assert "sitemap.xml: not yet committed" in captured.out
+    assert "sitemap.xml: not produced by a fresh regeneration" in captured.out
+
+
+def test_main_catches_an_uncommitted_edit_never_rebuilt(tmp_path, monkeypatch, capsys):
+    # Regression test for #502: this script used to diff the working tree
+    # against `git show HEAD:<path>`, which only catches "you forgot to
+    # stage a file that differs from your last commit" - not "your source
+    # and generated output have actually diverged". Editing a source file
+    # without rebuilding, before ever committing anything, used to pass.
+    script = _script()
+    _empty_repo(tmp_path, monkeypatch, script)
+    monkeypatch.setattr(script, "TEXT_GLOBS", ["explainers/demographic-parity.html"])
+    monkeypatch.setattr(script, "_expected_og_slugs", lambda: [])
+    stale_html = (tmp_path / "explainers" / "demographic-parity.html")
+    stale_html.parent.mkdir(parents=True)
+    stale_html.write_text("<p>old content, source .md was edited after this was built</p>\n",
+                           encoding="utf-8")
+    monkeypatch.setattr(
+        script.subprocess, "run", _fake_run("explainers/demographic-parity.html\n"))
+    # A real _fresh_build_dir would rebuild from the edited .md and produce
+    # different HTML; simulate exactly that divergence directly.
+    monkeypatch.setattr(script, "_fresh_build_dir", _fake_fresh_build_dir(tmp_path, {
+        "explainers/demographic-parity.html":
+            "<p>new content, reflects the edited .md source</p>\n",
+    }))
+
+    exit_code = script.main()
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "explainers/demographic-parity.html: content differs from a fresh regeneration" \
+        in captured.out
 
 
 def test_main_flags_a_missing_og_image(tmp_path, monkeypatch, capsys):
@@ -122,6 +168,7 @@ def test_main_flags_a_missing_og_image(tmp_path, monkeypatch, capsys):
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
     monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_fresh_build_dir", _fake_fresh_build_dir(tmp_path, {}))
 
     exit_code = script.main()
 
@@ -138,6 +185,7 @@ def test_main_flags_an_og_image_with_wrong_dimensions(tmp_path, monkeypatch, cap
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
     monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_fresh_build_dir", _fake_fresh_build_dir(tmp_path, {}))
 
     for theme_dir in ("assets/og", "assets/og-light"):
         (tmp_path / theme_dir).mkdir(parents=True)
@@ -159,6 +207,7 @@ def test_main_passes_with_correctly_sized_og_images(tmp_path, monkeypatch, capsy
     (tmp_path / "assets" / "explainers-data.json").write_text(
         json.dumps([{"slug": "example"}]), encoding="utf-8")
     monkeypatch.setattr(script.subprocess, "run", _fake_run(""))
+    monkeypatch.setattr(script, "_fresh_build_dir", _fake_fresh_build_dir(tmp_path, {}))
 
     for theme_dir in ("assets/og", "assets/og-light"):
         (tmp_path / theme_dir).mkdir(parents=True)
