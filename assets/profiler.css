@@ -387,6 +387,7 @@
 .drift-badge.none { color: var(--accent3); border: 1px solid var(--accent3); }
 .drift-badge.moderate { color: var(--warn); border: 1px solid var(--warn); }
 .drift-badge.significant { color: var(--accent); border: 1px solid var(--accent); }
+.drift-badge.skipped { color: var(--muted); border: 1px solid var(--muted); }
 .drift-metrics { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
 .drift-row {
