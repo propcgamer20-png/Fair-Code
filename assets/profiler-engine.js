@@ -452,6 +452,18 @@
     return AGE_BANDS[AGE_BANDS.length - 1] + '+';
   }
 
+  // True only for free text with no embedded number at all (e.g. "unknown",
+  // "prefer not to say") - SPEC.md section 2's "anything else: treat as
+  // categorical" rule for a per-value age rule. False for null/undefined
+  // and for any numeric value, including one embedded in a string - even a
+  // number outside the valid age range, like a -1/999 sentinel, still
+  // counts as "has a number" here and is routed to missing/null, matching
+  // this profiler's prior behavior for range-invalid numeric sentinels.
+  function isCategoricalAgeSentinel(value) {
+    if (value === null || value === undefined || typeof value === 'number') return false;
+    return !/[+-]?\d+(?:\.\d+)?/.test(String(value));
+  }
+
   var AGE_BAND_LABELS = {};
   (function () {
     for (var i = 0; i < AGE_BANDS.length - 1; i++) {
@@ -593,8 +605,20 @@
         var counts = {}, nullCount = 0;
         for (i = 0; i < nums.length; i++) {
           var b = ageBand(nums[i]);
-          if (b === null) nullCount++;
-          else counts[b] = (counts[b] || 0) + 1;
+          if (b !== null) {
+            counts[b] = (counts[b] || 0) + 1;
+          } else if (isCategoricalAgeSentinel(rows[i][name])) {
+            // Non-numeric free text (e.g. "unknown", "prefer not to say") -
+            // SPEC.md section 2's "anything else: treat as categorical"
+            // rule. Distinct from a genuinely missing cell or an
+            // out-of-range numeric sentinel (both still go to nullCount
+            // below): gets its own group instead of silently folding into
+            // missing_pct.
+            var label = String(rows[i][name]).trim();
+            counts[label] = (counts[label] || 0) + 1;
+          } else {
+            nullCount++;
+          }
         }
         var res = analyzeGroups(counts, nTotal, nullCount, skew, minShareThreshold, minGroupSize);
         res.name = name; res.kind = kind;

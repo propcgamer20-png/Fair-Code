@@ -117,6 +117,21 @@ def _age_to_numeric(value):
     return numeric if math.isfinite(numeric) and numeric >= AGE_BANDS[0] else None
 
 
+def _is_categorical_age_sentinel(value) -> bool:
+    """True only for free text with no embedded number at all (e.g.
+    "unknown", "prefer not to say") - SPEC.md section 2's "anything else:
+    treat as categorical" rule for a per-value age rule. False for
+    None/NaN and for any numeric value, including one embedded in a
+    string - even a number outside the valid age range, like a -1/999
+    sentinel, still counts as "has a number" here and is routed to
+    missing/null, matching this profiler's prior behavior for
+    range-invalid numeric sentinels (see
+    test_negative_age_sentinels_are_missing_instead_of_an_elderly_group)."""
+    if value is None or isinstance(value, (int, float)):
+        return False
+    return re.search(r"[+-]?\d+(?:\.\d+)?", str(value)) is None
+
+
 def _age_band(num) -> str | None:
     if num is None or not math.isfinite(num) or num < AGE_BANDS[0]:
         return None
@@ -210,11 +225,22 @@ def _dimension(df: pd.DataFrame, name: str, kind: str,
         if numeric_vals:
             skewness = _skewness(numeric_vals)
             bands = [_age_band(n) for n in nums]
-            null_count = sum(1 for b in bands if b is None)
+            null_count = 0
             counts: dict = {}
-            for b in bands:
-                if b is not None:
-                    counts[b] = counts.get(b, 0) + 1
+            for value, band in zip(col, bands):
+                if band is not None:
+                    counts[band] = counts.get(band, 0) + 1
+                elif _is_categorical_age_sentinel(value):
+                    # Non-numeric free text (e.g. "unknown", "prefer not to
+                    # say") - SPEC.md section 2's "anything else: treat as
+                    # categorical" rule. Distinct from a genuinely missing
+                    # cell or an out-of-range numeric sentinel (both still
+                    # go to null_count below): gets its own group instead
+                    # of silently folding into missing_pct.
+                    label = str(value).strip()
+                    counts[label] = counts.get(label, 0) + 1
+                else:
+                    null_count += 1
             result = _analyze_groups(counts, n_total, null_count, skewness, min_share, min_group_size)
             result.update({"name": name, "kind": kind})
             return result
