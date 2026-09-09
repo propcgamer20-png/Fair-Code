@@ -6521,7 +6521,7 @@ df['cluster'] = km.fit_predict(Xs)
 
 `sex`, `race`, and `native.country` never appear in `feature_cols`. The clustering step has no way to "see" them. Whatever split it produces has to come entirely from the other nine columns.
 
-## Concrete Example: Benefits Denial - Audit 04
+## Concrete Example: Benefits Denial - Audit 05
 
 Running the code above on the UCI Adult Census Income dataset (32,561 records, the same file the Benefits Denial audit trains on) produces two clusters of size 17,680 and 14,881. Neither `sex`, `race`, nor `native.country` was part of the clustering input, so the composition of each cluster along those attributes was checked after the fact, not fed in beforehand:
 
