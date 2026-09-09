@@ -281,6 +281,43 @@ def test_python_js_reference_parity_on_unmatched_column(tmp_path):
     assert "reference file's column(s) don't match any profiled dimension: totally_wrong_col" in completed.stderr
 
 
+def test_python_js_parse_reference_mixed_scale_parity(tmp_path):
+    """parse_reference / parseReference decide percent-vs-fraction per column,
+    not once across the whole table, so a reference file mixing conventions
+    between columns parses identically on both engines (#513)."""
+    from faircode.profiler import parse_reference
+
+    ref_df = pd.DataFrame({
+        "column": ["sex", "sex", "race", "race", "race"],
+        "group": ["Female", "Male", "White", "Black", "Other"],
+        "share": [0.6, 0.4, 70, 20, 10],
+    })
+    py_result = parse_reference(ref_df)
+    assert py_result == {
+        "sex": {"Female": 0.6, "Male": 0.4},
+        "race": {"White": 0.7, "Black": 0.2, "Other": 0.1},
+    }
+
+    table_json = tmp_path / "table.json"
+    table_json.write_text(json.dumps({
+        "columns": list(ref_df.columns),
+        "rows": ref_df.to_dict(orient="records"),
+    }), encoding="utf-8")
+
+    script = (
+        "const fs=require('fs');"
+        "require(process.argv[1]);"
+        "const t=JSON.parse(fs.readFileSync(process.argv[2],'utf-8'));"
+        "process.stdout.write(JSON.stringify(globalThis.FairCodeProfiler.parseReference(t)));"
+    )
+    completed = subprocess.run(
+        ["node", "-e", script,
+         str(REPO_ROOT / "assets" / "profiler-engine.js"), str(table_json)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    assert json.loads(completed.stdout) == py_result
+
+
 def test_python_js_json_parity_inconsistent_keys():
     """Records-orient JSON where later records add columns the first one
     doesn't have (#144). The JS parseJSON() used to derive columns from only

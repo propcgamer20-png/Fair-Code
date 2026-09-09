@@ -856,11 +856,21 @@
       if (isNaN(share)) return;
       raw.push([String(row[colC]).trim(), String(row[grpC]).trim(), share]);
     });
-    var scale = raw.some(function (r) { return r[2] > 1.5; }) ? 100 : 1;
-    var reference = {};
+    // Percent-vs-fraction scale is decided per column (grouped by the column
+    // identifier), not once across the whole table: a reference file that
+    // mixes conventions between columns would otherwise get the wrong scale
+    // applied to whichever column didn't trigger the heuristic. Mirrors
+    // faircode.profiler.parse_reference.
+    var byCol = {};
     raw.forEach(function (r) {
-      if (!reference[r[0]]) reference[r[0]] = {};
-      reference[r[0]][r[1]] = r[2] / scale;
+      (byCol[r[0]] = byCol[r[0]] || []).push([r[1], r[2]]);
+    });
+    var reference = {};
+    Object.keys(byCol).forEach(function (col) {
+      var pairs = byCol[col];
+      var scale = pairs.some(function (p) { return p[1] > 1.5; }) ? 100 : 1;
+      reference[col] = {};
+      pairs.forEach(function (p) { reference[col][p[0]] = p[1] / scale; });
     });
     return reference;
   }

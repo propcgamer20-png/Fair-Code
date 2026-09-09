@@ -323,7 +323,9 @@ under-sampling relative to who a model will actually serve. Supplied via `--refe
 
 **Format** - a long-format table with three columns (headers case-insensitive; `column`/`dimension`,
 `group`/`value`/`label`, `share`/`expected`/`percent`). Shares may be fractions (`0.51`) or
-percentages (`51`) - if any value exceeds `1.5` the whole table is read as percentages. Parsed into
+percentages (`51`) - the scale is decided per column (rows grouped by the `column` identifier): if
+any of a column's values exceeds `1.5` that column is read as percentages, so a reference file that
+mixes conventions between columns still parses each column correctly. Parsed into
 `{column: {group: expected_share}}`.
 
 ```
