@@ -117,6 +117,30 @@ def test_encode_features_only_touches_requested_columns():
     assert "b" not in out.columns
 
 
+def test_encode_features_keeps_numeric_order_despite_a_non_numeric_sentinel():
+    # A non-numeric sentinel ("Unknown") makes the whole column object-dtype;
+    # plain LabelEncoder then string-sorts it, putting "10"/"20" below "3"
+    # and scrambling the ordinal meaning a tree model relies on (#514).
+    df = pd.DataFrame({"priors_count": ["0", "1", "2", "3", "10", "20", "Unknown"]})
+
+    codes = encode_features(df, ["priors_count"])["priors_count"].tolist()
+
+    assert codes == [0, 1, 2, 3, 4, 5, 6]          # numeric order preserved
+    assert codes[df["priors_count"].tolist().index("10")] > \
+        codes[df["priors_count"].tolist().index("3")]
+
+
+def test_encode_features_pure_categorical_still_matches_alphabetical_encoding():
+    # A column with no numeric-looking values must encode exactly as the old
+    # LabelEncoder (alphabetical) path did, so nothing else in the harness
+    # shifts.
+    df = pd.DataFrame({"grp": ["gamma", "alpha", "beta", "alpha"]})
+
+    codes = encode_features(df, ["grp"])["grp"].tolist()
+
+    assert codes == [2, 0, 1, 0]   # alpha=0, beta=1, gamma=2
+
+
 # -- fit_post_processing: calibration split (#446) ---------------------------
 # A guard that only checked "does y have 2+ classes with 2+ members each"
 # (rather than every (label, sensitive-group) combination) still let a
