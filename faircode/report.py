@@ -118,6 +118,12 @@ def _delta(n: int | None) -> str:
     return "not available" if n is None else f"{n:+d}"
 
 
+def _strip_neg_zero(val: float, dp: int = 1) -> float:
+    """Return 0.0 when ``val`` rounds to zero at ``dp`` decimals, so a tiny
+    negative value does not render as a misleading ``-0.0``."""
+    return 0.0 if round(val, dp) == 0 else val
+
+
 def _dataset_score_line(dataset: dict) -> str:
     if dataset["overall_score"] is None:
         return f"{dataset['n_rows']:,} rows · score not measured"
@@ -156,7 +162,8 @@ def compare_to_terminal(cmp: dict) -> str:
             tag = {"appeared": "  (appeared)", "disappeared": "  (disappeared)",
                    "shifted": ""}[g["status"]]
             add(f"  {g['label'][:18]:<18} {g['share_a'] * 100:5.1f}% → "
-                f"{g['share_b'] * 100:5.1f}%  ({g['share_delta'] * 100:+5.1f} pp){tag}")
+                f"{g['share_b'] * 100:5.1f}%  "
+                f"({_strip_neg_zero(g['share_delta'] * 100):+5.1f} pp){tag}")
         if len(cd["groups"]) > DISPLAY_GROUPS:
             add(f"  … and {len(cd['groups']) - DISPLAY_GROUPS} more groups")
         add("")
@@ -345,6 +352,7 @@ def compare_to_html(cmp: dict) -> str:
         return html.escape(str(s))
 
     def signed(val: float | int, dp: int = 1) -> str:
+        val = _strip_neg_zero(val, dp)
         prefix = "+" if val > 0 else ""
         return f"{prefix}{val:.{dp}f}"
 

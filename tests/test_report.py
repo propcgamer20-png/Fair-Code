@@ -361,3 +361,31 @@ def test_compare_reports_unmeasured_score_without_formatting_none():
     assert "Overall score change: not available" in terminal_out
     assert "score change not available" in html_out
     assert "None" not in html_out
+
+
+def test_compare_does_not_render_negative_zero_share_delta():
+    """A tiny negative share_delta that rounds to 0.0 pp must not print as
+    '-0.0 pp' in either the terminal or the HTML compare report."""
+    result = {
+        "score_delta": 0,
+        "a": {"name": "A", "overall_score": 100, "n_rows": 10000, "grade": "A"},
+        "b": {"name": "B", "overall_score": 100, "n_rows": 10000, "grade": "A"},
+        "added_dimensions": [], "removed_dimensions": [], "flags": [],
+        "dimensions": [
+            {
+                "name": "Gender", "kind": "Demographic", "drift_level": "none",
+                "psi": 0.0, "tvd": 0.0,
+                "dimension_score_a": 100, "dimension_score_b": 100,
+                "dimension_score_delta": 0,
+                "groups": [
+                    {"label": "Female", "status": "shifted",
+                     "share_a": 0.5, "share_b": 0.4999, "share_delta": -0.0001},
+                    {"label": "Male", "status": "shifted",
+                     "share_a": 0.5, "share_b": 0.5001, "share_delta": 0.0001},
+                ],
+            }
+        ],
+    }
+
+    assert "-0.0 pp" not in compare_to_terminal(result)
+    assert "-0.0 pp" not in compare_to_html(result)
