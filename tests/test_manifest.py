@@ -202,6 +202,35 @@ def test_protected_attribute_categorical_complement():
     assert known.all()
 
 
+@pytest.mark.parametrize("kwargs", [
+    {"advantaged_values": ["white"]},
+    {"disadvantaged_values": ["black"]},
+])
+def test_categorical_single_list_excludes_nan_via_known_mask(kwargs):
+    # A NaN can't be classified when only one list is given, so known_mask
+    # must be False for it - previously the single-list branches hardcoded
+    # known=True and silently routed NaN to whichever side isin() landed it
+    # on (#547).
+    pa = ProtectedAttribute(name="g", type="categorical", column="g", **kwargs)
+    df = pd.DataFrame({"g": ["white", "black", None]})
+
+    disadv, known = pa.disadvantaged_mask(df)
+
+    assert known.tolist() == [True, True, False]
+    assert not bool(disadv.iloc[2])   # the NaN row is not counted as disadvantaged
+
+
+def test_row_filter_needs_at_least_one_operator():
+    # MANIFEST_SPEC.md requires exactly one operator; a bare column silently
+    # kept every row instead of raising (#549).
+    with pytest.raises(ValueError, match="row filter needs one of"):
+        RowFilter(column="race")
+
+    # notna=True counts as an operator; so does any of the others.
+    assert RowFilter(column="race", notna=True).column == "race"
+    assert RowFilter(column="race", equals="X").column == "race"
+
+
 def test_protected_attribute_numeric_threshold():
     pa = ProtectedAttribute(name="age", type="numeric_threshold", column="age",
                             threshold=30, disadvantaged="below")
