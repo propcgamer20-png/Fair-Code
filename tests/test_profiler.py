@@ -429,6 +429,45 @@ def test_intersections_labelize_respects_date_guard():
     }
 
 
+def test_intersections_labelize_keeps_non_numeric_age_sentinels():
+    # #524: _dimension()'s main breakdown gives "unknown"/"prefer not to say"
+    # their own categorical group, but _intersections()'s labelize() used to
+    # map them to None, so pd.crosstab dropped those rows entirely - the
+    # crosstab and the main groups then disagreed about the same dataset.
+    df = pd.DataFrame({
+        "age": [25, 30, 45, "unknown", "unknown", "unknown",
+                "prefer not to say", 22, 33, 41] * 3,
+        "sex": ["M", "F"] * 15,
+    })
+
+    result = profile(df, opts={"cross": ["age", "sex"]})
+
+    age_dim = next(d for d in result["dimensions"] if d["name"] == "age")
+    main_labels = {g["label"] for g in age_dim["groups"]}
+    assert {"unknown", "prefer not to say"} <= main_labels
+
+    crosstab_a_labels = {c["a"] for c in result["intersections"][0]["cells"]}
+    # a genuinely-missing (NaN) age cell would still be absent here, but a
+    # present sentinel value must now appear as its own crosstab row
+    assert "prefer not to say" in crosstab_a_labels
+
+
+def test_intersections_labelize_still_drops_genuinely_missing_age_cells():
+    # The flip side: a real blank / range-invalid age cell must still be
+    # absent from the crosstab (mapped to None), not turned into a group.
+    df = pd.DataFrame({
+        "age": [25, 30, 45, None, float("nan"), -1, 22, 33, 41, 29] * 3,
+        "sex": ["M", "F"] * 15,
+    })
+
+    result = profile(df, opts={"cross": ["age", "sex"]})
+
+    crosstab_a_labels = {c["a"] for c in result["intersections"][0]["cells"]}
+    assert "nan" not in crosstab_a_labels
+    assert "-1" not in crosstab_a_labels
+    assert "None" not in crosstab_a_labels
+
+
 def test_date_column_dropped_not_garbage():
     # A birthdate column must not become 6 nonsense age bands.
     df = pd.DataFrame({

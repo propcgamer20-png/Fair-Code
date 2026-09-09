@@ -286,6 +286,39 @@ def test_python_js_reject_out_of_range_min_share_parity(tmp_path):
     assert "min_share must be between 0 and 1" in completed.stderr
 
 
+def test_python_js_intersection_parity_keeps_non_numeric_age_sentinels(tmp_path):
+    """labelize() gives a non-numeric age sentinel its own crosstab label on
+    both engines, instead of mapping it to null and dropping the row (#524)."""
+    csv = tmp_path / "age_sentinels.csv"
+    ages = ["25", "30", "45", "unknown", "unknown", "unknown",
+            "prefer not to say", "22", "33", "41"] * 3
+    sexes = ["M", "F"] * 15
+    csv.write_text(
+        "age,sex\n" + "\n".join(a + "," + s for a, s in zip(ages, sexes)) + "\n",
+        encoding="utf-8",
+    )
+
+    opts = {"cross": ["age", "sex"]}
+    python_result = profile(pd.read_csv(csv, dtype={"age": str}), opts=opts)
+
+    opts_path = tmp_path / "opts.json"
+    opts_path.write_text(json.dumps({"opts": opts}), encoding="utf-8")
+    completed = subprocess.run(
+        ["node", "scripts/engine-js.js", "profile", str(csv), str(opts_path)],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    )
+    javascript_result = json.loads(completed.stdout)
+
+    python_result = dict(python_result)
+    javascript_result = dict(javascript_result)
+    python_result.pop("flags", None)
+    javascript_result.pop("flags", None)
+    assert javascript_result == python_result
+
+    a_labels = {c["a"] for c in python_result["intersections"][0]["cells"]}
+    assert "prefer not to say" in a_labels
+
+
 def test_python_js_cross_parity_on_unmatched_column(tmp_path):
     """An unmatched `cross` column raises the same error on both engines
     instead of the JS engine silently falling back to the first two detected

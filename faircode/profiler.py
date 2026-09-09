@@ -298,7 +298,17 @@ def _intersections(df: pd.DataFrame, dims: list[dict],
         if kind == "age" and not _looks_like_dates(df[name]):
             nums = [_age_to_numeric(v) for v in df[name]]
             if any(n is not None for n in nums):
-                return pd.Series([_age_band(n) for n in nums], index=df.index)
+                # Non-numeric age sentinels ("unknown", "prefer not to say")
+                # get their own categorical label here too, matching
+                # _dimension()'s main breakdown - otherwise labelize() maps
+                # them to None and pd.crosstab silently drops those rows, so
+                # the intersection view and the main groups disagree (#524).
+                labels = [
+                    _age_band(num) if num is not None
+                    else (str(value) if _is_categorical_age_sentinel(value) else None)
+                    for value, num in zip(df[name], nums)
+                ]
+                return pd.Series(labels, index=df.index)
         return df[name].astype("object")
 
     sa = labelize(a["name"], a["kind"])
