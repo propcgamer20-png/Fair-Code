@@ -1,5 +1,24 @@
 import importlib
 import json
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def test_explainers_ui_js_stays_in_render_parity_with_build_explainers():
+    # assets/explainers-ui.js's renderMarkdown/parseTable is a client-side
+    # port of scripts/build_explainers.py's render_markdown/split_row, but
+    # nothing exercises it on a real explainer page, so it has silently
+    # drifted before (#552, #553). Source-level guard (same idea as
+    # test_js_parity's DOM-renderer checks) that the two fixes are present in
+    # the JS too.
+    js = (REPO_ROOT / "assets" / "explainers-ui.js").read_text(encoding="utf-8")
+
+    # #553: +1 heading offset, capped at h6
+    assert "Math.min(headingMatch[1].length + 1, 6)" in js
+    # #552: split table rows on unescaped "|" and unescape "\|" -> "|"
+    assert r"/(?<!\\)\|/" in js
+    assert r"replace(/\\\|/g, '|')" in js
 
 
 def test_build_package_mirror_copies_data_and_markdown(tmp_path, monkeypatch):
@@ -84,3 +103,33 @@ def test_parse_table_still_accepts_three_dash_separator_row():
     assert result is not None
     headers, _body_rows, _next_index = result
     assert headers == ["A", "B"]
+
+
+def test_parse_table_honors_escaped_pipe_inside_a_cell():
+    # A literal pipe in a cell must be written "\|" (GFM) and must not start a
+    # new column; the "\" is stripped in the rendered cell. reject-inference.md
+    # and base-rate-fallacy.md both hit this (#552).
+    script = importlib.import_module("scripts.build_explainers")
+    lines = [
+        "| Method | Formula |",
+        "|---|---|",
+        r"| IPW | w(X) = P(S = 1 \| X) |",
+    ]
+
+    headers, body_rows, _ = script.parse_table(lines, 0)
+
+    assert headers == ["Method", "Formula"]
+    assert body_rows == [["IPW", "w(X) = P(S = 1 | X)"]]
+
+
+def test_render_markdown_offsets_heading_levels_by_one():
+    # The explainer page's hero already renders a real <h1>, so the markdown
+    # body's headings are shifted down one level (h1 -> h2, capped at h6).
+    # assets/explainers-ui.js's renderMarkdown must match this (#553).
+    script = importlib.import_module("scripts.build_explainers")
+
+    html = script.render_markdown("# Top\n\n## Sub\n\n###### Deep\n", set())
+
+    assert '<h2 id="top">Top</h2>' in html
+    assert '<h3 id="sub">Sub</h3>' in html
+    assert '<h6 id="deep">Deep</h6>' in html   # h6 + 1 stays h6, not h7
