@@ -29,6 +29,17 @@ class RowFilter:
     not_equals: object | None = None
     notna: bool = False
 
+    def __post_init__(self):
+        # MANIFEST_SPEC.md requires "exactly one of the operators below" for a
+        # row_filters entry. A block with only `column` set (a blanked or
+        # copy-pasted YAML entry) would otherwise silently keep every row.
+        if (self.isin is None and self.not_isin is None and self.equals is None
+                and self.not_equals is None and not self.notna):
+            raise ValueError(
+                f"{self.column}: row filter needs one of "
+                f"isin / not_isin / equals / not_equals / notna"
+            )
+
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
         mask = pd.Series(True, index=df.index)
         if self.isin is not None:
@@ -121,11 +132,16 @@ class ProtectedAttribute:
                 known = col.isin(self.disadvantaged_values) | col.isin(self.advantaged_values)
                 disadv = col.isin(self.disadvantaged_values)
             elif self.disadvantaged_values is not None:
-                known = pd.Series(True, index=df.index)
+                # Only one list given: a NaN can't be classified either way
+                # (it matches neither isin() nor its complement), so exclude
+                # it via known_mask - matching the both-lists branch above
+                # and every other attribute type below, instead of silently
+                # routing it to the advantaged side.
+                known = col.notna()
                 disadv = col.isin(self.disadvantaged_values)
             elif self.advantaged_values is not None:
-                known = pd.Series(True, index=df.index)
-                disadv = ~col.isin(self.advantaged_values)
+                known = col.notna()
+                disadv = ~col.isin(self.advantaged_values) & known
             else:
                 raise ValueError(f"{self.name}: need disadvantaged_values or advantaged_values")
             return disadv, known
