@@ -62,11 +62,11 @@ The [`COMPAS/`](../COMPAS/) audit in this repo is a direct illustration of count
 
 COMPAS assigns recidivism risk scores based on features including prior arrest count, age at first arrest, and custody status. The biased model produces:
 
-| Group | High-Risk Rate |
+| Group | High-Risk Flag Rate |
 |-------|---------------|
-| Black defendants | 58.15% |
-| White defendants | 28.37% |
-| **Fairness Gap** | **29.78pp** |
+| Black defendants | 87.16% |
+| White defendants | 0.40% |
+| **Fairness Gap** | **86.77pp** |
 
 Now ask the counterfactual question. Take a Black defendant with 3 prior arrests. Ask: *if this person had been white, with the same underlying behaviour and the same 3 prior arrests, would their risk score be the same?*
 
