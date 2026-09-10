@@ -93,6 +93,15 @@ def permutation_test(group_a, group_b, n_permutations=10000, random_state=42):
 def significance_report(group_a, group_b, n_resamples=10000,
                         n_permutations=10000, confidence=0.95,
                         random_state=42):
+    """Bootstrap CI + permutation p-value for the gap mean(a) - mean(b).
+
+    `confidence` sets both the width of the returned CI *and* the
+    significance threshold: `significant` is `p_value < (1 - confidence)`.
+    At the default `confidence=0.95` that is the usual `p < 0.05`; a caller
+    passing `confidence=0.99` gets the correspondingly stricter `p < 0.01`,
+    so the CI and the verdict move together instead of the verdict being
+    pinned at 0.05 regardless.
+    """
     a = _as_array(group_a)
     b = _as_array(group_b)
     gap, ci_low, ci_high = bootstrap_ci(a, b, n_resamples, confidence,
@@ -105,7 +114,7 @@ def significance_report(group_a, group_b, n_resamples=10000,
         "ci_low": ci_low,
         "ci_high": ci_high,
         "p_value": p_value,
-        "significant": p_value < 0.05,
+        "significant": p_value < (1.0 - confidence),
         "n_a": n_a,
         "n_b": n_b,
         "small_sample_warning": n_a < 30 or n_b < 30,
