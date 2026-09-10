@@ -44,7 +44,7 @@ There is no equality constraint. The objective is a `min` of a `max`: push down 
 
 Two standard ways to approximate it without a bespoke solver:
 
-1. **Iterative group reweighting.** Train, measure each group's loss, upweight whichever group is currently worst, retrain. Repeat. The training objective drifts from "average loss" toward "worst-group loss." This is the approach in the code below, and the online form of it is what group distributionally robust optimization (DRO) does.
+1. **Iterative group reweighting.** Train, measure each group's loss, upweight whichever group is currently worst, retrain. Repeat. The training objective drifts from "average loss" toward "worst-group loss." This is the approach in the code below, and the online form of it is what [group distributionally robust optimization](distributionally-robust-optimization.md) does.
 2. **Distributionally robust optimization (DRO).** Minimize the worst-case loss over a set of reweightings of the data. Hashimoto et al. (2018) show a DRO objective controls the minority group's risk *without needing group labels*, which is why max-min and DRO are usually discussed together.
 
 ---
@@ -220,7 +220,7 @@ Minimizing the maximum loss is usually improved by *raising* the worst group, bu
 ## Related Concepts
 
 - [Why Fairness Metrics Conflict](fairness-metric-conflicts.md) - conflicts among parity metrics; the parity-vs-max-min conflict is a separate axis.
-- Distributionally Robust Optimization (DRO) for Fairness (companion explainer) - the worst-case-loss training method that is the online form of the reweighting loop here.
+- [What Is Distributionally Robust Optimization (DRO) for Fairness?](distributionally-robust-optimization.md) - the worst-case-loss training method that is the online form of the reweighting loop here.
 - [Mitigation Strategies](mitigation-strategies.md) - this repo's S0-S4 ladder, all of which target demographic parity rather than worst-group loss.
 - [What Is Class Imbalance?](class-imbalance.md) - why the smaller, higher-base-rate group is the one average-loss training underserves.
 - [What Is Demographic Parity?](demographic-parity.md) - the parity objective max-min is being contrasted against.

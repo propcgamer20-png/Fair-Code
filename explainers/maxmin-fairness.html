@@ -110,7 +110,9 @@
         "@type": "DefinedTermSet",
         "name": "Fair Code Explainers",
         "url": "https://www.thefaircode.xyz/index.html#explainers"
-      }
+      },
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10"
     },
     {
       "@type": "FAQPage",
@@ -208,7 +210,7 @@ subject to  P(Y_hat = 1 | A = a)  equal for all a</code></pre>
 <pre><code>minimise over theta of   max over groups g of   L_g(theta)</code></pre>
 <p>There is no equality constraint. The objective is a <code>min</code> of a <code>max</code>: push down the largest per-group loss, then whatever the next-largest one is, and so on. If lifting the worst group also happens to help the others, fine; if it leaves a between-group gap, that gap is not penalized.</p>
 <p>Two standard ways to approximate it without a bespoke solver:</p>
-<p>1. <strong>Iterative group reweighting.</strong> Train, measure each group&#x27;s loss, upweight whichever group is currently worst, retrain. Repeat. The training objective drifts from &quot;average loss&quot; toward &quot;worst-group loss.&quot; This is the approach in the code below, and the online form of it is what group distributionally robust optimization (DRO) does. 2. <strong>Distributionally robust optimization (DRO).</strong> Minimize the worst-case loss over a set of reweightings of the data. Hashimoto et al. (2018) show a DRO objective controls the minority group&#x27;s risk <em>without needing group labels</em>, which is why max-min and DRO are usually discussed together.</p>
+<p>1. <strong>Iterative group reweighting.</strong> Train, measure each group&#x27;s loss, upweight whichever group is currently worst, retrain. Repeat. The training objective drifts from &quot;average loss&quot; toward &quot;worst-group loss.&quot; This is the approach in the code below, and the online form of it is what <a href="distributionally-robust-optimization.html">group distributionally robust optimization</a> does. 2. <strong>Distributionally robust optimization (DRO).</strong> Minimize the worst-case loss over a set of reweightings of the data. Hashimoto et al. (2018) show a DRO objective controls the minority group&#x27;s risk <em>without needing group labels</em>, which is why max-min and DRO are usually discussed together.</p>
 <hr>
 <h3 id="concrete-example-german-credit-lending-audit-03">Concrete Example: German Credit Lending - Audit 03</h3>
 <p>Audit 03 in this repo (<a href="../index.html#project-credit"><code>German Credit Lending/</code></a>) predicts bad credit risk on 1,000 real loan records. The protected attribute is <code>age</code>; here &quot;young&quot; means under 30 (the same cut <code>unfair.py</code> uses).</p>
@@ -346,7 +348,7 @@ demographic-parity gap: 0.1225  (young selection rate - older)</code></pre>
 <p>Minimizing the maximum loss is usually improved by <em>raising</em> the worst group, but a solver can also lower a better-off group if that reduces the maximum (for instance by shifting a shared threshold). Pareto-efficient formulations (Martinez et al. 2020) rule this out explicitly; a plain reweighting loop does not.</p>
 <hr>
 <h3 id="related-concepts">Related Concepts</h3>
-<ul><li><a href="fairness-metric-conflicts.html">Why Fairness Metrics Conflict</a> - conflicts among parity metrics; the parity-vs-max-min conflict is a separate axis.</li><li>Distributionally Robust Optimization (DRO) for Fairness (companion explainer) - the worst-case-loss training method that is the online form of the reweighting loop here.</li><li><a href="mitigation-strategies.html">Mitigation Strategies</a> - this repo&#x27;s S0-S4 ladder, all of which target demographic parity rather than worst-group loss.</li><li><a href="class-imbalance.html">What Is Class Imbalance?</a> - why the smaller, higher-base-rate group is the one average-loss training underserves.</li><li><a href="demographic-parity.html">What Is Demographic Parity?</a> - the parity objective max-min is being contrasted against.</li></ul>
+<ul><li><a href="fairness-metric-conflicts.html">Why Fairness Metrics Conflict</a> - conflicts among parity metrics; the parity-vs-max-min conflict is a separate axis.</li><li><a href="distributionally-robust-optimization.html">What Is Distributionally Robust Optimization (DRO) for Fairness?</a> - the worst-case-loss training method that is the online form of the reweighting loop here.</li><li><a href="mitigation-strategies.html">Mitigation Strategies</a> - this repo&#x27;s S0-S4 ladder, all of which target demographic parity rather than worst-group loss.</li><li><a href="class-imbalance.html">What Is Class Imbalance?</a> - why the smaller, higher-base-rate group is the one average-loss training underserves.</li><li><a href="demographic-parity.html">What Is Demographic Parity?</a> - the parity objective max-min is being contrasted against.</li></ul>
 <hr>
 <h3 id="related-projects-in-this-repo">Related Projects in This Repo</h3>
 <ul><li><a href="../index.html#project-credit"><code>German Credit Lending/</code></a> - Audit 03, the dataset and <code>age</code> attribute used above.</li><li><a href="../paper/results-frozen/"><code>paper/results-frozen/results_fairness.csv</code></a> - the frozen <code>accuracy_equality_diff</code> figure this explainer cites as the repo&#x27;s own record of the per-group accuracy gap.</li><li><a href="../faircode/significance.py"><code>faircode/significance.py</code></a> - the small-sample warning referenced in Limitation 1.</li></ul>

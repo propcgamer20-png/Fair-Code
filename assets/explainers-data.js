@@ -617,5 +617,15 @@ window.FAIR_CODE_EXPLAINERS = [
     "tags": [
       "metrics"
     ]
+  },
+  {
+    "slug": "distributionally-robust-optimization",
+    "title": "What Is Distributionally Robust Optimization (DRO) for Fairness?",
+    "subtitle": "Train against the worst subgroup your data might be under-representing, without naming a parity metric.",
+    "summary": "Learn how DRO trains a model to minimize its worst-case loss over an uncertainty set of subgroup distributions - an in-processing alternative to constraint-based methods like ExponentiatedGradient that needs neither a chosen fairness metric nor group labels at prediction time. Worked on the Audit 03 German Credit data: online group DRO reliably shifts training weight onto the worst group, but on a capacity-limited linear model it buys no worst-group generalization - Sagawa et al.'s point about regularization.",
+    "tags": [
+      "metrics",
+      "data"
+    ]
   }
 ];
