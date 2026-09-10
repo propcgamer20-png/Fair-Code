@@ -221,7 +221,7 @@ X = pd.get_dummies(df[[
 <pre><code class="language-python"># DISPARATE TREATMENT: Gender and Age are direct model features
 features = [&#x27;Gender&#x27;, &#x27;Age&#x27;, &#x27;Experience_Years&#x27;, &#x27;Technical_Test_Score&#x27;,
             &#x27;Education_Level&#x27;, &#x27;Previous_Companies&#x27;, &#x27;Distance_from_Company&#x27;]</code></pre>
-<p><code>Gender</code> is a direct input. <code>Age</code> is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was <em>designed</em> to see these attributes. The 20.9pp hire rate gap is the disparate impact.</p>
+<p><code>Gender</code> is a direct input. <code>Age</code> is both an input and a proxy for gender (women in the dataset more often have career gaps, so age encodes gender signal twice over - once directly, once through correlation). The model was <em>designed</em> to see these attributes. The 4.51pp hire rate gap (21.62% vs 17.10%) is the disparate impact.</p>
 <h4 id="the-fix-what-removing-disparate-treatment-looks-like">The Fix - What Removing Disparate Treatment Looks Like</h4>
 <pre><code class="language-python"># fair.py: protected attribute and its proxy removed
 features = [&#x27;Experience_Years&#x27;, &#x27;Technical_Test_Score&#x27;]

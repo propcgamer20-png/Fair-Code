@@ -152,9 +152,9 @@ features = [
 
 | Group | Hire Rate |
 |---|---|
-| Male candidates | 61.2% |
-| Female candidates | 40.3% |
-| **Fairness gap** | **20.9%** |
+| Male candidates | 21.62% |
+| Female candidates | 17.10% |
+| **Fairness gap** | **4.51 percentage points** |
 
 The network didn't contain a rule that said "prefer men." It learned from historical hiring data in which men were hired more. The weights encoded that pattern. The bias was invisible - buried in floating-point numbers across hidden layers.
 
@@ -172,21 +172,15 @@ features = [
 ]
 ```
 
-**Results:**
-
-| Group | Hire Rate |
-|---|---|
-| Male candidates | 54.1% |
-| Female candidates | 54.0% |
-| **Fairness gap** | **0.1%** |
+**Result:** the fairness gap closes to **0.12 percentage points**.
 
 ### Summary
 
 | Approach | Fairness Gap | Reduction |
 |---|---|---|
-| Biased model | 20.9% | - |
-| Remove gender only | ~18% | Minimal |
-| Remove gender + proxy | 0.1% | **99.5%** |
+| Biased model | 4.51% | - |
+| Remove gender only | barely moves (age still proxies it) | Minimal |
+| Remove gender + proxy | 0.12% | **97.3%** |
 
 **The network's architecture didn't change. The training procedure didn't change. Only the inputs changed - and the bias disappeared.**
 
