@@ -26,6 +26,6 @@ python3 "COMPAS/fair.py"     # mitigated (protected attribute + proxies dropped)
 
 | Group | Gap, biased (`unfair.py`) | Gap, mitigated (`fair.py`) | Reduction |
 |-------|--------------------------:|---------------------------:|----------:|
-| Race | 86.77% | 15.69% | 71% |
+| Race | 86.77% | 15.69% | 82% |
 
 These match the "Results at a Glance" table in the [main README](../README.md#results-at-a-glance) and the frozen snapshot in `paper/results-frozen/`. The scripts are deterministic at `random_state=42`, so a correct local run reproduces them exactly. If your numbers differ, check the seed, the split, and your package versions before opening an issue - and never edit the frozen numbers to match a local run (see [CLAUDE.md](../CLAUDE.md)).
