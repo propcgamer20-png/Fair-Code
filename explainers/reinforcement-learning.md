@@ -309,7 +309,7 @@ model_fair.fit(X_train_f, y_train_f)
 |---|---|---|
 | Biased policy | 86.77% | - |
 | Remove race only | ~60% | Partial |
-| Remove race + custody_status | 15.69% | **71%** |
+| Remove race + custody_status | 15.69% | **82%** |
 
 The policy architecture did not change. The training procedure did not change. Only the state representation changed - and most of the discriminatory behaviour disappeared.
 
@@ -353,7 +353,7 @@ The demographic consequences of this reward function are asymmetric: recommendat
 
 **RL is rarely deployed explicitly in high-stakes settings.** The COMPAS case is RL-adjacent, not pure RL. The patterns - reward misspecification, credit assignment failure, proxy exploitation - appear in supervised systems too. The explainer uses the RL frame because it makes these failure modes most legible, not because RL is uniquely responsible.
 
-**Removing proxies reduces but does not eliminate the gap.** The 71% reduction in the COMPAS case leaves a 15.69-point fairness gap. Remaining disparity reflects features that correlate with race for legitimate predictive reasons (prior arrests reflect real behaviour differences produced by structural conditions) or proxies not yet identified. Proxy removal is necessary but not sufficient.
+**Removing proxies reduces but does not eliminate the gap.** The 82% reduction in the COMPAS case leaves a 15.69-point fairness gap. Remaining disparity reflects features that correlate with race for legitimate predictive reasons (prior arrests reflect real behaviour differences produced by structural conditions) or proxies not yet identified. Proxy removal is necessary but not sufficient.
 
 **Defining the reward function is unavoidably political.** There is no neutral reward signal for a parole decision. Choosing to penalise false releases more than wrongful holds is a value judgment about whose safety matters more. This explainer cannot resolve that question. It can only make it visible.
 
@@ -369,7 +369,7 @@ The demographic consequences of this reward function are asymmetric: recommendat
 - [`proxy-variables.md`](proxy-variables.md) - Why the state representation is where most RL bias enters
 - [`label-bias.md`](label-bias.md) - How the reward signal inherits bias from historical outcomes
 - [`neural-networks.md`](neural-networks.md) - How the policy function learns from state-reward pairs
-- [`COMPAS/`](../COMPAS/) - Full audit of the COMPAS dataset: 71% gap reduction after removing race + custody_status proxy
+- [`COMPAS/`](../COMPAS/) - Full audit of the COMPAS dataset: 82% gap reduction after removing race + custody_status proxy
 
 ---
 

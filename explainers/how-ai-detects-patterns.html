@@ -219,7 +219,7 @@ print(importances.sort_values(ascending=False).head())
 X = pd.get_dummies(df[[&#x27;Sex_Code_Text&#x27;, &#x27;MaritalStatus&#x27;, &#x27;race&#x27;, &#x27;CustodyStatus&#x27;]])
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)</code></pre>
-<p>When <code>race</code> is dropped, the gap barely moves - <code>CustodyStatus</code> alone reconstructs most of the pattern, because it correlates with <code>race</code> at 0.31 importance even on its own. Only when both <code>race</code> and <code>CustodyStatus</code> are removed does the gap fall to 15.69%, a 71% reduction. The pattern the model was detecting was never really about behavior - it was about which neighborhoods got patrolled.</p>
+<p>When <code>race</code> is dropped, the gap barely moves - <code>CustodyStatus</code> alone reconstructs most of the pattern, because it correlates with <code>race</code> at 0.31 importance even on its own. Only when both <code>race</code> and <code>CustodyStatus</code> are removed does the gap fall to 15.69%, an 82% reduction. The pattern the model was detecting was never really about behavior - it was about which neighborhoods got patrolled.</p>
 <h3 id="detection-code">Detection Code</h3>
 <p>The following functions inspect what patterns a trained model relied on, and flag features whose importance may be inflated by correlation with a protected attribute.</p>
 <pre><code class="language-python">import pandas as pd

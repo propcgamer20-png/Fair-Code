@@ -69,7 +69,7 @@ Removing both `race` and `CustodyStatus` breaks this path:
 
 ```python
 # fair.py: features include only priors_count + charge_degree + age
-# Black/White fairness gap: 15.69% - 71% reduction
+# Black/White fairness gap: 15.69% - 82% reduction
 ```
 
 The residual 15.69% reflects other confounding paths (differential bail rates, charge severity distributions, surveillance-driven label noise) that require changes upstream of the model to eliminate entirely.
@@ -181,7 +181,7 @@ For continuous features, replace `chi2_contingency` with a Pearson correlation o
 
 3. **Conditioning on a collider opens new bias.** A collider is a variable caused by both the feature and the outcome - the reverse of a confounder. Controlling for a collider introduces a spurious association rather than removing one. Correctly distinguishing confounders from colliders requires a causal graph (a DAG), not statistical testing alone. Chi-squared tests cannot tell you which direction the arrows point.
 
-4. **Confounder removal reduces but does not eliminate bias.** Removing `CustodyStatus` from COMPAS cuts the fairness gap from 86.77% to 15.69% - a 71% reduction. The remaining gap reflects additional confounding paths that cannot be closed by feature removal without changing the label generation process itself.
+4. **Confounder removal reduces but does not eliminate bias.** Removing `CustodyStatus` from COMPAS cuts the fairness gap from 86.77% to 15.69% - an 82% reduction. The remaining gap reflects additional confounding paths that cannot be closed by feature removal without changing the label generation process itself.
 
 5. **Adjustment can introduce its own distortions.** Propensity score methods and inverse probability weighting reduce confounding but amplify variance, especially in small subgroups. In high-stakes settings, an overcorrected model may perform worse for the groups it was adjusted to protect.
 
@@ -205,7 +205,7 @@ When a confounded model is deployed and its outputs influence future labels - re
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) - the primary worked example. `CustodyStatus` confounds the race→recidivism path, driving 71% of the Black/White fairness gap. Removing it alongside `race` reduces the gap from 86.77% to 15.69%.
+- [`COMPAS/`](../COMPAS/) - the primary worked example. `CustodyStatus` confounds the race→recidivism path, driving 82% of the Black/White fairness gap. Removing it alongside `race` reduces the gap from 86.77% to 15.69%.
 - [`Benefits Denial/`](../Benefits%20Denial/) - `relationship` and `marital-status` act as confounders for sex: historical gender norms independently elevated male-coded relationship statuses and income levels in the census data, creating a spurious association the model amplifies.
 - [`Healthcare Readmission/`](../Healthcare%20Readmission/) - `payer_code` is confounded by race: differential insurance access is caused by structural factors that also independently predict readmission risk, not only by individual health status.
 

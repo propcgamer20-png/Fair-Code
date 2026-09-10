@@ -52,7 +52,7 @@ model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 ```
 
-When `race` is dropped, the gap barely moves - `CustodyStatus` alone reconstructs most of the pattern, because it correlates with `race` at 0.31 importance even on its own. Only when both `race` and `CustodyStatus` are removed does the gap fall to 15.69%, a 71% reduction. The pattern the model was detecting was never really about behavior - it was about which neighborhoods got patrolled.
+When `race` is dropped, the gap barely moves - `CustodyStatus` alone reconstructs most of the pattern, because it correlates with `race` at 0.31 importance even on its own. Only when both `race` and `CustodyStatus` are removed does the gap fall to 15.69%, an 82% reduction. The pattern the model was detecting was never really about behavior - it was about which neighborhoods got patrolled.
 
 ## Detection Code
 

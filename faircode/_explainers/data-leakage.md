@@ -47,7 +47,7 @@ The COMPAS audit in this repository demonstrates a proxy form of target leakage.
 
 This is the structural form of leakage: a feature that looks like a legitimate input but whose predictive power comes from downstream effects of the very outcome being predicted.
 
-Removing `CustodyStatus` alongside the protected race attribute reduces the gap to 15.69% - a 71% reduction.
+Removing `CustodyStatus` alongside the protected race attribute reduces the gap to 15.69% - an 82% reduction.
 
 ```python
 import os

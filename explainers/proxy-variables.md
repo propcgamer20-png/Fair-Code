@@ -89,7 +89,7 @@ X = pd.get_dummies(df[[
 |---|---|---|
 | Biased model | 86.77% | - |
 | Remove race only | ~80%+ | Minimal |
-| Remove race + proxy | 15.69% | **71%** |
+| Remove race + proxy | 15.69% | **82%** |
 
 **Removing the protected attribute alone is not enough. You must audit every feature for correlation with protected attributes.**
 
@@ -138,7 +138,7 @@ Data doesn't exist in a vacuum. It reflects the society that generated it. A mod
 
 ## Related Projects in This Repo
 
-- [`COMPAS/`](../COMPAS/) - Full COMPAS analysis: biased model → fair model → 71% gap reduction
+- [`COMPAS/`](../COMPAS/) - Full COMPAS analysis: biased model → fair model → 82% gap reduction
 - [`AI Fair Recruitment/`](../AI%20Fair%20Recruitment/) - AI recruitment bias: 97.3% gap reduction after feature audit
 - Coming soon: Facial recognition bias, HMDA loan bias, healthcare AI
 

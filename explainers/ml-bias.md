@@ -76,7 +76,7 @@ The COMPAS audit is the sharpest illustration of how all four entry points conve
 
 **Feedback loop:** COMPAS scores influence bail and sentencing decisions. A defendant flagged as high-risk is more likely to be detained pretrial. Pretrial detention increases the probability of conviction and reoffending (due to job loss, housing instability, and network effects). The model produces the outcome it predicted, and the outcome enters the next training set as evidence the prediction was correct.
 
-The biased model flags Black defendants as high-risk at 86.77%. The fair model - with race and custody status removed - reduces that gap to 15.69%. A 71% reduction from one targeted intervention on one proxy variable.
+The biased model flags Black defendants as high-risk at 86.77%. The fair model - with race and custody status removed - reduces that gap to 15.69%. An 82% reduction from one targeted intervention on one proxy variable.
 
 ```python
 import pandas as pd

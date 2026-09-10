@@ -546,7 +546,7 @@ Automated welfare and benefits systems use income-prediction models to screen ap
 
 #### The Problem - `unfair.py`
 
-Trained with sex, race, age, and national origin directly, plus four proxy variables that reconstruct those attributes even after the protected columns are removed.
+Trained with sex, race, age, and national origin directly, plus five proxy variables that reconstruct those attributes even after the protected columns are removed.
 
 | Group | Ineligibility Flag Rate |
 |-------|:-----------------------:|
@@ -568,7 +568,7 @@ Trained with sex, race, age, and national origin directly, plus four proxy varia
 
 #### The Fix - `fair.py`
 
-Dropped all four protected attributes and all four proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
+Dropped all four protected attributes and all five proxy variables. Retained only the features a means-tested programme can legitimately consult under equality law.
 
 ```python
 # THE FIX: Policy-defined economic signals only
@@ -586,6 +586,7 @@ features = [
     # marital.status removed ✓  (proxy: encodes sex via spousal status)
     # hours.per.week removed ✓  (proxy: encodes sex via caregiving gap)
     # occupation     removed ✓  (proxy: encodes race via occupational segregation)
+    # fnlwgt         removed ✓  (proxy: census sampling weight, no causal link)
 ]
 ```
 
